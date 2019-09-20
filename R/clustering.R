@@ -350,6 +350,7 @@ comparison.matrix <-
 #' @param d The dataset (\code{matrix} or \code{data.frame}).
 #' @param minpts Reachability minimum no. of points.
 #' @param eps Reachability distance.
+#' @param ... Other parameters.
 #' @return A clustering model obtained by DBSCAN.
 #' @export
 #' @seealso \code{\link[fpc]{dbscan}}, \code{\link{dbs-class}}, \code{\link{distplot}}, \code{\link{predict.dbs}}
@@ -358,7 +359,7 @@ comparison.matrix <-
 #' data (iris)
 #' DBSCAN (iris [, -5], minpts = 5, eps = 1)
 DBSCAN <-
-  function (d, minpts, eps)
+  function (d, minpts, eps, ...)
   {
     res = fpc::dbscan (d, MinPts = minpts, eps = eps)
     res = c (res, list (data = d))
@@ -400,6 +401,7 @@ distplot <-
 #' @param d The dataset (\code{matrix} or \code{data.frame}).
 #' @param clusters Either an integer (the number of clusters) or a (\code{vector}) indicating the cluster to which each point is initially allocated.
 #' @param model A character string indicating the model. The help file for \code{\link[mclust]{mclustModelNames}} describes the available models.
+#' @param ... Other parameters.
 #' @return A clustering model obtained by EM.
 #' @export
 #' @seealso \code{\link[mclust]{em}}, \code{\link[mclust]{mstep}}, \code{\link[mclust]{mclustModelNames}}
@@ -410,7 +412,7 @@ distplot <-
 #' km = KMEANS (iris [, -5], k = 3)
 #' EM (iris [, -5], km$cluster) # Initialization with another clustering method
 EM <-
-  function (d, clusters, model = "VVV")
+  function (d, clusters, model = "VVV", ...)
   {
     if (length (clusters) == 1)
       clusters = stats::kmeans (d, clusters, nstart = 10)$cluster
@@ -429,6 +431,7 @@ EM <-
 #' @param d The dataset (\code{matrix} or \code{data.frame}).
 #' @param method Character string defining the clustering method.
 #' @param k The number of cluster.
+#' @param ... Other parameters.
 #' @return The cluster hierarchy (\code{hca} object).
 #' @export
 #' @seealso \code{\link[cluster]{agnes}}
@@ -437,7 +440,7 @@ EM <-
 #' data (iris)
 #' HCA (iris [, -5], method = "ward", k = 3)
 HCA <-
-  function (d, method = c ("ward", "single"), k = NULL)
+  function (d, method = c ("ward", "single"), k = NULL, ...)
   {
     hc = cluster::agnes (d, method = method [1])
     if (is.null (k))
@@ -639,15 +642,17 @@ kappa1 <-
 #' @param criterion The criterion for cluster number selection. If \code{none}, \code{k} is used, if not the number of cluster is selected between 2 and \code{k}.
 #' @param graph A logical indicating whether or not a graphic should be plotted (cluster number selection).
 #' @param nstart Define how many random sets should be chosen.
+#' @param ... Other parameters.
 #' @return The clustering (\code{kmeans} object).
 #' @export
 #' @seealso \code{\link[stats]{kmeans}}, \code{\link{predict.kmeans}}
+#' @examples
 #' require (datasets)
 #' data (iris)
 #' KMEANS (iris [, -5], k = 3)
 #' KMEANS (iris [, -5], criterion = "pseudo-F") # With automatic detection of the nmber of clusters
 KMEANS <-
-  function (d, k = 9, criterion = c ("none", "pseudo-F"), graph = FALSE, nstart = 10)
+  function (d, k = 9, criterion = c ("none", "pseudo-F"), graph = FALSE, nstart = 10, ...)
   {
     kk = k
     if (criterion [1] == "pseudo-F")
@@ -725,14 +730,16 @@ kmeans.getk <-
 #' @param iterations The number of iterations to perform mean shift.
 #' @param epsilon A scalar used to determine when to terminate the iteration of a individual query point.
 #' @param epsilonCluster A scalar used to determine the minimum distance between distinct clusters.
+#' @param ... Other parameters.
 #' @return The clustering (\code{meanshift} object).
 #' @export
 #' @seealso \code{\link[meanShiftR]{meanShift}}, \code{\link{predict.meanshift}}
+#' @examples
 #' require (datasets)
 #' data (iris)
 #' MEANSHIFT (iris [, -5], bandwidth = .75)
 MEANSHIFT <-
-  function (d, kernel = "NORMAL", bandwidth = rep (1, ncol (d)), alpha = 0, iterations = 10, epsilon = 1e-08, epsilonCluster = 1e-04)
+  function (d, kernel = "NORMAL", bandwidth = rep (1, ncol (d)), alpha = 0, iterations = 10, epsilon = 1e-08, epsilonCluster = 1e-04, ...)
   {
     dd = as.matrix (d)
     if (length (bandwidth) == 1)
@@ -874,44 +881,44 @@ plotclus <-
             tailsize = 9,
             ...)
   {
-    method = class (clustering) [1]
+    method = class (clustering)
     clusters = NULL
     centres = NULL
-    if (method == "kmeans")
+    if ("kmeans" %in% method)
     {
       clusters = clustering$cluster
       if (centers)
         centres = clustering$centers
     }
-    else if (method == "fclust")
+    else if ("fclust" %in% method)
     {
       clusters = clustering$cluster
       if (centers)
         centres = clustering$centers
     }
-    else if (method == "em")
+    else if ("em" %in% method)
     {
       clusters = apply (clustering$z, 1, which.max)
       if (centers)
         centres = t (clustering$parameters$mean)
     }
-    else if (method == "dbs")
+    else if ("dbs" %in% method)
     {
       clusters = clustering$cluster
     }
-    else if (method == "som")
+    else if ("som" %in% method)
     {
       clusters = clustering$cluster
     }
-    else if (method == "meanshift")
+    else if ("meanshift" %in% method)
+    {
+      clusters = clustering$assignment
+    }
+    else if ("spectral" %in% method)
     {
       clusters = clustering$cluster
     }
-    else if (method == "spectral")
-    {
-      clusters = clustering$cluster
-    }
-    else if (method == "hca")
+    else if ("hca" %in% method)
     {
       if (is.null (k))
       {
@@ -922,14 +929,14 @@ plotclus <-
       }
       clusters = stats::cutree (clustering, k)
     }
-    if (type [1] == "tree" & (method == "hca"))
+    if ((type [1] == "tree") & ("hca" %in% method))
       treeplot (clustering, ...)
-    else if (type [1] == "height" & (method == "hca"))
+    else if (type [1] == "height" & ("hca" %in% method))
       graphics::barplot (utils::tail (sort (clustering$height), n = tailsize), names.arg = tailsize:1,
                          xlab = "Number of clusters", ylab = "Height", main = "", sub = "")
-    else if ((type [1] == "scatter") & (!is.vector (d)) & (method == "som"))
+    else if ((type [1] == "scatter") & (!is.vector (d)) & ("som" %in% method))
       plot.som (clustering, type = type, ...)
-    else if ((type [1] == "mapping") & (method == "som"))
+    else if ((type [1] == "mapping") & ("som" %in% method))
       plot.som (clustering, type = type, ...)
     else if (type [1] == "scatter")
       scatterplot (d, clusters, centres, ...)
@@ -1231,6 +1238,7 @@ SOM <-
 #' @param k The number of cluster.
 #' @param sigma Width of the gaussian used to build the affinity matrix.
 #' @param graph A logical indicating whether or not a graphic should be plotted (projection on the spectral space of the affinity matrix).
+#' @param ... Other parameters.
 #' @export
 #' @seealso \code{\link{spectral-class}}
 #' @examples
@@ -1238,7 +1246,7 @@ SOM <-
 #' data (iris)
 #' SPECTRAL (iris [, -5], k = 3)
 SPECTRAL <-
-  function (d, k, sigma = 1, graph = TRUE)
+  function (d, k, sigma = 1, graph = TRUE, ...)
   {
     a = exp (-flexclust::dist2 (d, d)^2 / (2 * sigma * sigma))
     diag (a) = 0

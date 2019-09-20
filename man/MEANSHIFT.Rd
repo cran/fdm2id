@@ -6,7 +6,7 @@
 \usage{
 MEANSHIFT(d, kernel = "NORMAL", bandwidth = rep(1, ncol(d)),
   alpha = 0, iterations = 10, epsilon = 1e-08,
-  epsilonCluster = 1e-04)
+  epsilonCluster = 1e-04, ...)
 }
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}
@@ -22,6 +22,8 @@ MEANSHIFT(d, kernel = "NORMAL", bandwidth = rep(1, ncol(d)),
 \item{epsilon}{A scalar used to determine when to terminate the iteration of a individual query point.}
 
 \item{epsilonCluster}{A scalar used to determine the minimum distance between distinct clusters.}
+
+\item{...}{Other parameters.}
 }
 \value{
 The clustering (\code{meanshift} object).
@@ -29,9 +31,11 @@ The clustering (\code{meanshift} object).
 \description{
 Run MeanShift for clustering.
 }
-\seealso{
-\code{\link[meanShiftR]{meanShift}}, \code{\link{predict.meanshift}}
+\examples{
 require (datasets)
 data (iris)
 MEANSHIFT (iris [, -5], bandwidth = .75)
+}
+\seealso{
+\code{\link[meanShiftR]{meanShift}}, \code{\link{predict.meanshift}}
 }

@@ -9,7 +9,7 @@ FEATURESELECTION(train, labels, algorithm = c("ranking", "forward",
   c("fisher", "fstat", "relief", "inertiaratio") else NULL, uninb = NULL,
   unithreshold = NULL, multieval = if (algorithm[1] == "ranking") NULL
   else c("cfs", "fstat", "inertiaratio", "wrapper"), wrapmethod = NULL,
-  mainmethod = wrapmethod, ...)
+  mainmethod = wrapmethod, tune = FALSE, ...)
 }
 \arguments{
 \item{train}{The training set (description), as a \code{data.frame}.}
@@ -29,6 +29,8 @@ FEATURESELECTION(train, labels, algorithm = c("ranking", "forward",
 \item{wrapmethod}{The classification method used for the wrapper evaluation.}
 
 \item{mainmethod}{The final method used for data classification. If a wrapper evaluation is used, the same classification method should be used.}
+
+\item{tune}{If true, the function returns paramters instead of a classification model.}
 
 \item{...}{Other parameters.}
 }

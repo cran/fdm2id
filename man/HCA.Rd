@@ -4,7 +4,7 @@
 \alias{HCA}
 \title{Hierarchical Cluster Analysis method}
 \usage{
-HCA(d, method = c("ward", "single"), k = NULL)
+HCA(d, method = c("ward", "single"), k = NULL, ...)
 }
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}
@@ -12,6 +12,8 @@ HCA(d, method = c("ward", "single"), k = NULL)
 \item{method}{Character string defining the clustering method.}
 
 \item{k}{The number of cluster.}
+
+\item{...}{Other parameters.}
 }
 \value{
 The cluster hierarchy (\code{hca} object).

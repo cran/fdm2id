@@ -22,5 +22,5 @@ titanic
 This dataset from the British Board of Trade depict the fate of the passengers and crew during the RMS Titanic disaster.
 }
 \seealso{
-code{\link[datasets]{Titanic}}
+\code{\link[datasets]{Titanic}}
 }

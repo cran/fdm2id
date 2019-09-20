@@ -26,7 +26,9 @@ A randomly generated dataset.
 \description{
 Generate a random dataset shaped like two moons.
 }
+\examples{
+data.twomoons ()
+}
 \seealso{
 \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}
-data.twomoons ()
 }

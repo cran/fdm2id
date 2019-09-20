@@ -24,5 +24,5 @@ data (iris)
 TSNE (iris [, -5])
 }
 \seealso{
-code{\link[Rtsne]{Rtsne}}
+\code{\link[Rtsne]{Rtsne}}
 }

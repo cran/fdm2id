@@ -75,7 +75,7 @@ APRIORI <-
 #' @examples
 #' require ("arules")
 #' data ("Adult")
-#' r = apriori(Adult)
+#' r = apriori (Adult)
 #' filter.rules (r, right = "marital-status=")
 #' subset (r, subset = rhs %pin% "marital-status=")
 filter.rules <-
@@ -124,7 +124,7 @@ filter.rules <-
 #' @examples
 #' require ("arules")
 #' data ("Adult")
-#' r = apriori(Adult)
+#' r = apriori (Adult)
 #' inspect (general.rules (r))
 general.rules <-
   function (r)

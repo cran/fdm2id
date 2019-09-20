@@ -15,10 +15,12 @@ The number of leafs.
 \description{
 Return the number of leafs of a decision tree.
 }
-\seealso{
-\code{\link{CART}}, \code{\link{cartdepth}}, \code{\link{cartinfo}}, \code{\link{cartnodes}}, \code{\link{cartplot}}
+\examples{
 require (datasets)
 data (iris)
 model = CART (iris [, -5], iris [, 5])
 cartleafs (model)
+}
+\seealso{
+\code{\link{CART}}, \code{\link{cartdepth}}, \code{\link{cartinfo}}, \code{\link{cartnodes}}, \code{\link{cartplot}}
 }

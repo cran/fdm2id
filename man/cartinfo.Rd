@@ -15,10 +15,12 @@ Various information organized into a vector.
 \description{
 Return various information on a CART model.
 }
-\seealso{
-\code{\link{CART}}, \code{\link{cartdepth}}, \code{\link{cartleafs}}, \code{\link{cartnodes}}, \code{\link{cartplot}}
+\examples{
 require (datasets)
 data (iris)
 model = CART (iris [, -5], iris [, 5])
 cartinfo (model)
+}
+\seealso{
+\code{\link{CART}}, \code{\link{cartdepth}}, \code{\link{cartleafs}}, \code{\link{cartnodes}}, \code{\link{cartplot}}
 }

@@ -18,7 +18,7 @@ This function remove every redundant rules, keeping only the most general ones.
 \examples{
 require ("arules")
 data ("Adult")
-r = apriori(Adult)
+r = apriori (Adult)
 inspect (general.rules (r))
 }
 \seealso{

@@ -33,5 +33,5 @@ An NIR reflectance spectrum is available for each dough piece.
 The spectral data consist of 700 points measured from 1100 to 2498 nanometers (nm) in steps of 2 nm.
 }
 \seealso{
-code{\link[fds]{labp}}, code{\link[fds]{labc}}, code{\link[fds]{nirp}}, code{\link[fds]{nirc}}
+\code{\link[fds]{labp}}, \code{\link[fds]{labc}}, \code{\link[fds]{nirp}}, \code{\link[fds]{nirc}}
 }

@@ -5,8 +5,8 @@
 \title{Plot evaluation curves with bootstrap sampling}
 \usage{
 bootstrap.curves(methods, x, y, nruns = 10, seed = NULL,
-  curve = c("ROC", "Cost"), params = NULL, new = TRUE, lty = 1,
-  names = NULL, ...)
+  curve = c("ROC", "Cost"), methodparameters = NULL, new = TRUE,
+  lty = 1, names = NULL, ...)
 }
 \arguments{
 \item{methods}{The classification or regression method to be evaluated.}
@@ -21,7 +21,7 @@ bootstrap.curves(methods, x, y, nruns = 10, seed = NULL,
 
 \item{curve}{A character string indicating the type of curve to be plotted.}
 
-\item{params}{Method parameters (if null tuning is done by cross-validation).}
+\item{methodparameters}{Method parameters (if null tuning is done by cross-validation).}
 
 \item{new}{A logical value indicating whether a new plot should be be created or not.}
 

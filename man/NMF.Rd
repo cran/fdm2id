@@ -4,7 +4,7 @@
 \alias{NMF}
 \title{Non-negative Matrix Factorization}
 \usage{
-NMF(x, rank = 2, nstart = 10)
+NMF(x, rank = 2, nstart = 10, ...)
 }
 \arguments{
 \item{x}{A numeric dataset (data.frame or matrix).}
@@ -12,6 +12,8 @@ NMF(x, rank = 2, nstart = 10)
 \item{rank}{Specification of the factorization rank.}
 
 \item{nstart}{How many random sets should be chosen?}
+
+\item{...}{Other parameters.}
 }
 \description{
 Return the NMF decomposition.
@@ -22,5 +24,5 @@ data (iris)
 NMF (iris [, -5], nstart = 1)
 }
 \seealso{
-code{\link[NMF]{nmf}}
+\code{\link[NMF]{nmf}}
 }

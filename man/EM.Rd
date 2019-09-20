@@ -4,7 +4,7 @@
 \alias{EM}
 \title{Expectation-Maximization clustering method}
 \usage{
-EM(d, clusters, model = "VVV")
+EM(d, clusters, model = "VVV", ...)
 }
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}
@@ -12,6 +12,8 @@ EM(d, clusters, model = "VVV")
 \item{clusters}{Either an integer (the number of clusters) or a (\code{vector}) indicating the cluster to which each point is initially allocated.}
 
 \item{model}{A character string indicating the model. The help file for \code{\link[mclust]{mclustModelNames}} describes the available models.}
+
+\item{...}{Other parameters.}
 }
 \value{
 A clustering model obtained by EM.

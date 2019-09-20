@@ -4,7 +4,7 @@
 \alias{SPECTRAL}
 \title{Spectral clustering method}
 \usage{
-SPECTRAL(d, k, sigma = 1, graph = TRUE)
+SPECTRAL(d, k, sigma = 1, graph = TRUE, ...)
 }
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}
@@ -14,6 +14,8 @@ SPECTRAL(d, k, sigma = 1, graph = TRUE)
 \item{sigma}{Width of the gaussian used to build the affinity matrix.}
 
 \item{graph}{A logical indicating whether or not a graphic should be plotted (projection on the spectral space of the affinity matrix).}
+
+\item{...}{Other parameters.}
 }
 \description{
 Run a Spectral clustering algorithm.

@@ -15,10 +15,12 @@ The number of nodes.
 \description{
 Return the number of nodes of a decision tree.
 }
-\seealso{
-\code{\link{CART}}, \code{\link{cartdepth}}, \code{\link{cartinfo}}, \code{\link{cartleafs}}, \code{\link{cartplot}}
+\examples{
 require (datasets)
 data (iris)
 model = CART (iris [, -5], iris [, 5])
 cartnodes (model)
+}
+\seealso{
+\code{\link{CART}}, \code{\link{cartdepth}}, \code{\link{cartinfo}}, \code{\link{cartleafs}}, \code{\link{cartplot}}
 }

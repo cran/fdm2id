@@ -76,7 +76,7 @@ NULL
 #' The cookies.*.train contains 40 rows that correspond to the calibration data.
 #' The cookies.*.test contains 32 rows that correspond to the prediction data.
 #' @source P. J. Brown and T. Fearn and M. Vannucci (2001) "Bayesian wavelet regression on curves with applications to a spectroscopic calibration problem", Journal of the American Statistical Association, 96(454), pp. 398-408.
-#' @seealso code{\link[fds]{labp}}, code{\link[fds]{labc}}, code{\link[fds]{nirp}}, code{\link[fds]{nirc}}
+#' @seealso \code{\link[fds]{labp}}, \code{\link[fds]{labc}}, \code{\link[fds]{nirp}}, \code{\link[fds]{nirc}}
 NULL
 
 #' @name credit
@@ -102,6 +102,7 @@ NULL
 #' @return A randomly generated dataset.
 #' @export
 #' @seealso \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
+#' @examples
 #' data.parabol ()
 data.parabol <-
   function (n = c (500, 100), xlim = c (-3, 3), center = c (0, 4), coeff = 0.5, sigma = c (0.5, 0.5), levels = NULL, graph = TRUE, seed = NULL)
@@ -132,6 +133,7 @@ data.parabol <-
 #' @return A randomly generated dataset.
 #' @export
 #' @seealso \code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
+#' @examples
 #' data.target1 ()
 data.target1 <-
   function (r = 1:3, n = 200, sigma = .1, levels = NULL, graph = TRUE, seed = NULL)
@@ -167,6 +169,7 @@ data.target1 <-
 #' @return A randomly generated dataset.
 #' @export
 #' @seealso \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.twomoons}}
+#' @examples
 #' data.target2 ()
 data.target2 <-
   function (minr = c (0, 2), maxr = minr + 1, initn = 1000, levels = NULL, graph = TRUE, seed = NULL)
@@ -199,6 +202,7 @@ data.target2 <-
 #' @return A randomly generated dataset.
 #' @export
 #' @seealso \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}
+#' @examples
 #' data.twomoons ()
 data.twomoons <-
   function (r = 1, n = 200, sigma = .1, levels = NULL, graph = TRUE, seed = NULL)
@@ -412,7 +416,7 @@ NULL
 #' \item{\code{Fate}}{Casualty or Survivor.}
 #' }
 #' @source British Board of Trade (1990), Report on the Loss of the ‘Titanic’ (S.S.). British Board of Trade Inquiry Report (reprint). Gloucester, UK: Allan Sutton Publishing.
-#' @seealso code{\link[datasets]{Titanic}}
+#' @seealso \code{\link[datasets]{Titanic}}
 NULL
 
 #' @name birth

@@ -32,7 +32,6 @@ pred.nb = predict (model.nb, d$test.x)
 evaluation (pred.nb, d$test.y)
 # Evaluation with two criteria
 evaluation (pred.nb, d$test.y, eval = c ("accuracy", "kappa"))
-
 data (trees)
 d = splitdata (trees, 3)
 model.linreg = LINREG (d$train.x, d$train.y)

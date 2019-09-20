@@ -277,13 +277,13 @@ BAGGING <-
 #' @param y The target (class labels or numeric values), a \code{factor} or \code{vector}.
 #' @param eval The evaluation function.
 #' @param nruns The number of bootstrap runs.
-#' @param params Method parameters (if null tuning is done by cross-validation).
+#' @param methodparameters Method parameters (if null tuning is done by cross-validation).
 #' @param names Method names.
 #' @param seed A specified seed for random number generation (useful for testing different method with the same bootstap samplings).
 #' @param ... Other specific parameters for the leaning method.
 #' @return The evaluation of the predictions (numeric value).
 #' @export
-#' @seealso \code{\link{evaluation}}, \code{\link{bootstrap.curves}}
+#' @seealso \code{\link{evaluate}}, \code{\link{evaluation}}, \code{\link{bootstrap.curves}}
 #' @examples
 #' require ("datasets")
 #' data (iris)
@@ -301,7 +301,7 @@ BAGGING <-
 #' classif = c ("NB", "LDA", "LR")
 #' bootstrap (classif, iris [, -5], iris [, 5], eval = c ("accuracy", "kappa"), seed = 0)
 bootstrap <-
-  function (methods, x, y, eval = ifelse (is.factor (y), "accuracy", "r2"), nruns = 10, seed = NULL, params = NULL, names = NULL, ...)
+  function (methods, x, y, eval = ifelse (is.factor (y), "accuracy", "r2"), nruns = 10, seed = NULL, methodparameters = NULL, names = NULL, ...)
   {
     set.seed (seed)
     methodNames = names
@@ -327,12 +327,12 @@ bootstrap <-
     targets = NULL
     n = length (y)
     indices = 1:length (methods)
-    if (is.null (params))
+    if (is.null (methodparameters))
     {
       if (length (methods) == 1)
-        params = methods (x, y, tune = TRUE, ...)
+        methodparameters = methods (x, y, tune = TRUE, ...)
       else
-        params = sapply (methods, function (method) method (x, y, tune = TRUE, ...))
+        methodparameters = sapply (methods, function (method) method (x, y, tune = TRUE, ...))
     }
     set.seed (seed)
     samples = matrix (sample (n, n * nruns, replace = TRUE), ncol = nruns)
@@ -349,12 +349,12 @@ bootstrap <-
       rownames (learn) = 1:nrow (learn)
       if (length (methods) == 1)
       {
-        models = methods (learn, y [s], graph = FALSE, params = params [[i]], ...)
+        models = methods (learn, y [s], graph = FALSE, methodparameters = methodparameters, ...)
         predictions = c (predictions, stats::predict (models, test, ...))
       }
       else
       {
-        models = lapply (indices, function (i) methods [[i]] (learn, y [s], graph = FALSE, params = params [[i]], ...))
+        models = lapply (indices, function (i) methods [[i]] (learn, y [s], graph = FALSE, methodparameters = methodparameters [[i]], ...))
         predictions = rbind (predictions, sapply (models, function (model) as.numeric (stats::predict (model, test, ...))))
       }
     }
@@ -406,7 +406,7 @@ bootstrap <-
 #' @param nruns The number of bootstrap runs.
 #' @param seed A specified seed for random number generation (useful for testing different method with the same bootstap samplings).
 #' @param curve A character string indicating the type of curve to be plotted.
-#' @param params Method parameters (if null tuning is done by cross-validation).
+#' @param methodparameters Method parameters (if null tuning is done by cross-validation).
 #' @param new A logical value indicating whether a new plot should be be created or not.
 #' @param lty The line type (and color) specified as an integer.
 #' @param names Method names.
@@ -423,7 +423,7 @@ bootstrap <-
 #' # Three methods
 #' bootstrap.curves (c (NB, LDA, LR), d [, -5], d [, 5], seed = 0)
 bootstrap.curves <-
-  function (methods, x, y, nruns = 10, seed = NULL, curve = c ("ROC", "Cost"), params = NULL,
+  function (methods, x, y, nruns = 10, seed = NULL, curve = c ("ROC", "Cost"), methodparameters = NULL,
             new = TRUE, lty = 1, names = NULL, ...)
   {
     set.seed (seed)
@@ -450,12 +450,12 @@ bootstrap.curves <-
     targets = NULL
     n = length (y)
     indices = 1:length (methods)
-    if (is.null (params))
+    if (is.null (methodparameters))
     {
       if (length (methods) == 1)
-        params = methods (x, y, tune = TRUE, ...)
+        methodparameters = methods (x, y, tune = TRUE, ...)
       else
-        params = sapply (methods, function (method) method (x, y, tune = TRUE, ...))
+        methodparameters = sapply (methods, function (method) method (x, y, tune = TRUE, ...))
     }
     set.seed (seed)
     samples = matrix (sample (n, n * nruns, replace = TRUE), ncol = nruns)
@@ -472,12 +472,12 @@ bootstrap.curves <-
       rownames (learn) = 1:nrow (learn)
       if (length (methods) == 1)
       {
-        models = methods (learn, y [s], graph = FALSE, params = params [[i]], ...)
+        models = methods (learn, y [s], graph = FALSE, methodparameters = methodparameters [[i]], ...)
         predictions = c (predictions, stats::predict (models, test, ...))
       }
       else
       {
-        models = lapply (indices, function (i) methods [[i]] (learn, y [s], graph = FALSE, params = params [[i]], ...))
+        models = lapply (indices, function (i) methods [[i]] (learn, y [s], graph = FALSE, methodparameters = methodparameters [[i]], ...))
         predictions = rbind (predictions, sapply (models, function (model) as.numeric (stats::predict (model, test, ...))))
       }
     }
@@ -575,6 +575,11 @@ CART <-
       res = emptyparams ()
     else
     {
+      if (is.vector (train))
+      {
+        train = matrix (train, ncol = 1)
+        colnames (train) = "X"
+      }
       d = cbind.data.frame (Class = labels, as.data.frame (train))
       complexity = cp
       if (is.null (cp))
@@ -618,6 +623,7 @@ cartdepth <-
 #' @return Various information organized into a vector.
 #' @export
 #' @seealso \code{\link{CART}}, \code{\link{cartdepth}}, \code{\link{cartleafs}}, \code{\link{cartnodes}}, \code{\link{cartplot}}
+#' @examples
 #' require (datasets)
 #' data (iris)
 #' model = CART (iris [, -5], iris [, 5])
@@ -636,6 +642,7 @@ cartinfo <-
 #' @return The number of leafs.
 #' @export
 #' @seealso \code{\link{CART}}, \code{\link{cartdepth}}, \code{\link{cartinfo}}, \code{\link{cartnodes}}, \code{\link{cartplot}}
+#' @examples
 #' require (datasets)
 #' data (iris)
 #' model = CART (iris [, -5], iris [, 5])
@@ -654,6 +661,7 @@ cartleafs <-
 #' @return The number of nodes.
 #' @export
 #' @seealso \code{\link{CART}}, \code{\link{cartdepth}}, \code{\link{cartinfo}}, \code{\link{cartleafs}}, \code{\link{cartplot}}
+#' @examples
 #' require (datasets)
 #' data (iris)
 #' model = CART (iris [, -5], iris [, 5])
@@ -679,6 +687,7 @@ cartnodes <-
 #' @param ... Other parameters.
 #' @export
 #' @seealso \code{\link{CART}}, \code{\link{cartdepth}}, \code{\link{cartinfo}}, \code{\link{cartleafs}}, \code{\link{cartnodes}}
+#' @examples
 #' require (datasets)
 #' data (iris)
 #' model = CART (iris [, -5], iris [, 5])
@@ -757,6 +766,8 @@ CDA <-
         names (e) = c ("eigenvalue", "percentage of variance", "cumulative percentage of variance")
       }
       prior = rep (1 / k, k)
+      if (is.vector (train))
+        train = matrix (train, ncol = 1)
       model = MASS::lda (labels ~ ., as.data.frame (train), prior = prior)
       res = list (proj = as.data.frame (Re (p)),
                   transform = Re (t),
@@ -904,6 +915,67 @@ eval.recall <-
     return (recall)
   }
 
+
+#' Evaluate several classication (or regression) methods
+#'
+#' Evaluation a classification or regression method using bootstrap approach.
+#' @name evaluate
+#' @param methods The classification or regression method to be evaluated.
+#' @param dataset The dataset to be split (\code{data.frame} or \code{matrix}).
+#' @param target The column index of the target variable (class label or response variable).
+#' @param size The size of the training set (as an integer value).
+#' @param names Method names.
+#' @param eval The evaluation function.
+#' @param seed A specified seed for random number generation.
+#' @param ... Other specific parameters for the leaning method.
+#' @return The evaluation of the predictions (numeric value).
+#' @export
+#' @seealso \code{\link{bootstrap}}, \code{\link{evaluation}}, \code{\link{splitdata}}
+#' @examples
+#' require ("datasets")
+#' data (iris)
+#' evaluate (c (NB, LDA), iris, target = 5, eval = c ("accuracy", "kappa"), seed = 0)
+evaluate <- function (methods, dataset, target = NULL, size = round (0.7 * nrow (dataset)), names = NULL, eval = "accuracy", seed = NULL, ...)
+{
+  methodNames = names
+  if (is.character (methods))
+  {
+    methodNames = methods
+    methods = sapply (methods, get)
+  }
+  else
+  {
+    if (is.null (names))
+    {
+      methodNames = as.character (match.call ()$methods)
+      if (length (methodNames) > 1)
+        methodNames = methodNames [-1]
+      if (length (methodNames) != length (methods))
+        methodNames = NULL
+    }
+  }
+  d = NULL
+  if ("dataset" %in% class (dataset))
+    d = dataset
+  else
+  {
+    if (!is.null (target))
+      d = splitdata (dataset, target = target, size = size, seed = seed)
+    else
+      message ("Invalid dataset")
+  }
+  res = NULL
+  if (length (methods) == 1)
+    res = evaluation (predict (methods (d$train.x, d$train.y, ...), d$test.x, ...), d$test.y, eval = eval, ...)
+  else
+  {
+    res = t (matrix (sapply (methods, function (method) evaluation (predict (method (d$train.x, d$train.y, ...), d$test.x, ...), d$test.y, eval = eval, ...)), ncol = length (methods)))
+    colnames (res) = eval
+    rownames (res) = methodNames
+  }
+  return (res)
+}
+
 #' Evaluation of classification or regression predictions
 #'
 #' Evaluation predictions of a classification or a regression model.
@@ -927,7 +999,6 @@ eval.recall <-
 #' evaluation (pred.nb, d$test.y)
 #' # Evaluation with two criteria
 #' evaluation (pred.nb, d$test.y, eval = c ("accuracy", "kappa"))
-#'
 #' data (trees)
 #' d = splitdata (trees, 3)
 #' model.linreg = LINREG (d$train.x, d$train.y)
@@ -1209,7 +1280,7 @@ GRADIENTBOOSTING <-
     {
       l = as.numeric (labels) - 1
       k = nlevels (labels)
-      model = xgboost::xgboost (data = as.matrix (train), label = l, nrounds = ntree, objective = "multi:softprob", num_class = k, verbose = 0, ...)
+      model = xgboost::xgboost (data = as.matrix (train), label = l, nrounds = ntree, objective = "multi:softprob", num_class = k, verbose = 0)
       res = list (model = model, lev = levels (labels), method = "XGB")
       class (res) = "model"
     }
@@ -1240,6 +1311,8 @@ KNN <-
       res = emptyparams ()
     else
     {
+      if (is.vector (train))
+        train = matrix (train, ncol = 1)
       kk = k [1]
       if (is.vector (k) && (length (k) > 1))
       {
@@ -1275,7 +1348,9 @@ LDA <-
       res = emptyparams ()
     else
     {
-      model = MASS::lda (labels ~ ., as.data.frame (train))
+      if (is.vector (train))
+        train = matrix (train, ncol = 1)
+      model = MASS::lda (x = train, grouping = labels)
       res = list (model = model, method = "LDA")
       class (res) = "model"
     }
@@ -1305,6 +1380,11 @@ LR <-
       res = emptyparams ()
     else if (length (unique (labels)) == nlevels (labels))
     {
+      if (is.vector (train))
+      {
+        train = matrix (train, ncol = 1)
+        colnames (train) = "X"
+      }
       data = cbind.data.frame (train, Class = labels)
       model = nnet::multinom (formula = Class~., data, trace = FALSE)
       res = list (model = model, method = "LR")
@@ -1323,7 +1403,7 @@ LR <-
 #' @param labels Class labels of the training set (\code{vector} or \code{factor}).
 #' @param size The size of the hidden layer (if a vector, cross-over validation is used to chose the best size).
 #' @param decay The decay (between 0 and 1) of the backpropagation algorithm (if a vector, cross-over validation is used to chose the best size).
-#' @param params Object containing the parameters. If given, it replaces \code{size} and \code{decay}.
+#' @param methodparameters Object containing the parameters. If given, it replaces \code{size} and \code{decay}.
 #' @param tune If true, the function returns paramters instead of a classification model.
 #' @param ... Other parameters.
 #' @return The classification model.
@@ -1336,18 +1416,20 @@ LR <-
 MLP <-
   function (train,
             labels,
-            size = 2:(ncol (train) + nlevels (labels)),
+            size = ifelse (is.vector (train), 2:(1 + nlevels (labels)), 2:(ncol (train) + nlevels (labels))),
             decay = 10^(-3:-1),
-            params = NULL,
+            methodparameters = NULL,
             tune = FALSE,
             ...)
   {
     model = NULL
+    if (is.vector (train))
+      train = data.frame (X = train)
     d = cbind.data.frame (Class = labels, train)
-    if (!is.null (params))
+    if (!is.null (methodparameters))
     {
-      size = params$hidden
-      decay = params$decay
+      size = methodparameters$hidden
+      decay = methodparameters$decay
     }
     if (length (size) > 1 | length (decay) > 1)
     {
@@ -1394,6 +1476,8 @@ NB <-
       res = emptyparams ()
     else
     {
+      if (is.vector (train))
+        train = matrix (train, ncol = 1)
       model = e1071::naiveBayes (train, labels)
       res = list (model = model, method = "NB")
       class (res) = "model"
@@ -1554,6 +1638,8 @@ predict.boosting <- function (object, test, fuzzy = FALSE, ...)
 predict.cda <-
   function (object, test, fuzzy = FALSE, ...)
   {
+    if (is.vector (test))
+      test = matrix (test, ncol = 1)
     res = NULL
     if (fuzzy)
       res = stats::predict (object$model, as.data.frame (test))$posterior
@@ -1583,11 +1669,13 @@ predict.cda <-
 predict.knn <-
   function (object, test, fuzzy = FALSE, ...)
   {
+    if (is.vector (test))
+      test = matrix (test, ncol = 1)
     res = NULL
     if (fuzzy)
-      res = attr (caret::knn3Train (object$train, test, object$labels, object$k, prob = TRUE, ...), "prob")
+      res = attr (caret::knn3Train (object$train, test, object$labels, object$k, prob = TRUE), "prob")
     else
-      res = class::knn (object$train, test, object$labels, object$k, ...)
+      res = class::knn (object$train, test, object$labels, object$k)
     return (res)
   }
 
@@ -1615,6 +1703,11 @@ predict.model <-
     res = NULL
     if (object$method == "CART")
     {
+      if (is.vector (test))
+      {
+        test = matrix (test, ncol = 1)
+        colnames (test) = "X"
+      }
       if (fuzzy)
         res = stats::predict (object$model, as.data.frame (test))
       else
@@ -1622,9 +1715,11 @@ predict.model <-
     }
     else if (object$method == "LDA")
     {
+      if (is.vector (test))
+        test = matrix (test, ncol = 1)
       if (fuzzy)
       {
-        res = stats::predict (object$model, as.data.frame (test))$posterior
+        res = stats::predict (object$model, test)$posterior
         k = length (object$model$lev)
         if (ncol (res) < k)
         {
@@ -1635,10 +1730,20 @@ predict.model <-
         }
       }
       else
-        res = stats::predict (object$model, as.data.frame (test))$class
+        res = stats::predict (object$model, test)$class
+    }
+    else if (object$method == "lm")
+    {
+      if (is.vector (test))
+        test = data.frame (X = test)
+      res = stats::predict (object$model, test)
     }
     else if (object$method == "LR")
     {
+      if (is.vector (test))
+        test = matrix (test, ncol = 1)
+      if (ncol (test) == 1)
+        colnames (test) = "X"
       if (fuzzy)
       {
         res = stats::predict (object$model, test, type = "probs")
@@ -1654,6 +1759,8 @@ predict.model <-
     }
     else if (object$method == "MLP")
     {
+      if (is.vector (test))
+        test = data.frame (X = test)
       if (fuzzy)
       {
         res = stats::predict (object$model, test, type = "raw")
@@ -1672,21 +1779,34 @@ predict.model <-
         res = factor (pred, levels = labels) [-(1:(length (labels)))]
       }
     }
+    else if (object$method == "MLPREG")
+    {
+      d.norm = sweep (sweep (as.data.frame (test), 2, object$model$minimum [-1], FUN = "-"), 2, object$model$range [-1], FUN = "/")
+      colnames (d.norm) = attr (attr (object$model$model$terms, "factor"), "dimnames") [[1]] [-1]
+      res = (stats::predict (object$model$model, d.norm) * object$model$range [1]) + object$model$minimum [1]
+    }
+    else if (object$method == "MRV")
+    {
+      res = stats::predict (object$model, test, ncomp = object$model$ncomp)
+    }
     else if (object$method == "NB")
     {
       type = "class"
       if (fuzzy)
         type = "raw"
+      if (is.vector (test))
+        test = matrix (test, ncol = 1)
       res = stats::predict (object$model, test, type = type)
     }
-    else if (object$method == "XGB")
+    else if (object$method == "regularisation")
     {
-      res = predict (object$model, as.matrix (test), reshape = T)
-      if (fuzzy)
-        colnames (res) = object$lev
-      else
-        res = factor (apply (res, 1, which.max), labels = object$lev)
-
+      res = stats::predict (object$model, as.matrix (test))
+    }
+    else if (object$method == "RF")
+    {
+      if (is.vector (test))
+        test = matrix (test, ncol = 1)
+      res = stats::predict (object$model, test)
     }
     else if (object$method == "SVM")
     {
@@ -1695,25 +1815,16 @@ predict.model <-
       else
         res = stats::predict (object$model, test, probability = FALSE)
     }
-    else if (object$method == "regularisation")
+    else if (object$method == "XGB")
     {
-      res = stats::predict (object$model, as.matrix (test))
-    }
-    else if (object$method == "MRV")
-    {
-      res = stats::predict (object$model, test, ncomp = object$model$ncomp)
-    }
-    else if (object$method == "MLPREG")
-    {
-      d.norm = sweep (sweep (as.data.frame (test), 2, object$model$minimum [-1], FUN = "-"), 2, object$model$range [-1], FUN = "/")
-      colnames (d.norm) = attr (attr (object$model$model$terms, "factor"), "dimnames") [[1]] [-1]
-      res = (stats::predict (object$model$model, d.norm) * object$model$range [1]) + object$model$minimum [1]
-    }
-    else if (object$method == "lm")
-    {
-      if (is.vector (test))
-        test = data.frame (X = test)
-      res = stats::predict (object$model, test)
+      res = predict (object$model, as.matrix (test), reshape = T)
+      if (fuzzy)
+        colnames (res) = object$lev
+      else
+      {
+        levels = 1:length (object$lev)
+        res = factor (c (levels, apply (res, 1, which.max)), labels = object$lev) [-levels]
+      }
     }
     else
     {
@@ -1750,7 +1861,11 @@ RANDOMFOREST <-
       res = emptyparams ()
     else
     {
+      if (is.vector (train))
+        train = matrix (train, ncol = 1)
       res = randomForest::randomForest(x = train, y = labels, ntree = ntree, ntry = nvar, ...)
+      res = list (model = res, method = "RF")
+      class (res) = "model"
     }
     return (res)
   }
@@ -1813,7 +1928,7 @@ STUMP <-
   function (train, labels, minsplit = 1, cp = NULL, randomvar = TRUE, tune = FALSE, ...)
   {
     new = train
-    if (randomvar)
+    if (randomvar && (!is.vector (train)))
     {
       var = sample (ncol (train), 1)
       new = matrix (train [, var], ncol = 1)
@@ -1831,7 +1946,7 @@ STUMP <-
 #' @param gamma The gamma parameter (if a vector, cross-over validation is used to chose the best size).
 #' @param cost The cost parameter (if a vector, cross-over validation is used to chose the best size).
 #' @param kernel The kernel type.
-#' @param params Object containing the parameters. If given, it replaces \code{gamma} and \code{cost}.
+#' @param methodparameters Object containing the parameters. If given, it replaces \code{gamma} and \code{cost}.
 #' @param tune If true, the function returns paramters instead of a classification model.
 #' @param ... Other arguments.
 #' @return The classification model.
@@ -1848,15 +1963,15 @@ SVM <-
             gamma = 2^(-3:3),
             cost = 2^(-3:3),
             kernel = c ("radial", "linear"),
-            params = NULL,
+            methodparameters = NULL,
             tune = FALSE,
             ...)
   {
     model = NULL
-    if (!is.null (params))
+    if (!is.null (methodparameters))
     {
-      gamma = params$gamma
-      cost = params$cost
+      gamma = methodparameters$gamma
+      cost = methodparameters$cost
     }
     if (kernel [1] == "linear")
       gamma = 0
@@ -1890,7 +2005,7 @@ SVM <-
 #' @param train The training set (description), as a \code{data.frame}.
 #' @param labels Class labels of the training set (\code{vector} or \code{factor}).
 #' @param cost The cost parameter (if a vector, cross-over validation is used to chose the best size).
-#' @param params Object containing the parameters. If given, it replaces \code{gamma} and \code{cost}.
+#' @param methodparameters Object containing the parameters. If given, it replaces \code{gamma} and \code{cost}.
 #' @param tune If true, the function returns paramters instead of a classification model.
 #' @param ... Other arguments.
 #' @return The classification model.
@@ -1904,7 +2019,7 @@ SVMl <-
   function (train,
             labels,
             cost = 2^(-3:3),
-            params = NULL,
+            methodparameters = NULL,
             tune = FALSE,
             ...)
   {
@@ -1914,7 +2029,7 @@ SVMl <-
       gamma = NULL,
       cost = cost,
       kernel = "linear",
-      params = params,
+      methodparameters = methodparameters,
       tune = tune,
       ...
     ))
@@ -1928,7 +2043,7 @@ SVMl <-
 #' @param labels Class labels of the training set (\code{vector} or \code{factor}).
 #' @param gamma The gamma parameter (if a vector, cross-over validation is used to chose the best size).
 #' @param cost The cost parameter (if a vector, cross-over validation is used to chose the best size).
-#' @param params Object containing the parameters. If given, it replaces \code{gamma} and \code{cost}.
+#' @param methodparameters Object containing the parameters. If given, it replaces \code{gamma} and \code{cost}.
 #' @param tune If true, the function returns paramters instead of a classification model.
 #' @param ... Other arguments.
 #' @return The classification model.
@@ -1943,7 +2058,7 @@ SVMr <-
             labels,
             gamma = 2^(-3:3),
             cost = 2^(-3:3),
-            params = NULL,
+            methodparameters = NULL,
             tune = FALSE,
             ...)
   {
@@ -1953,7 +2068,7 @@ SVMr <-
       gamma = gamma,
       cost = cost,
       kernel = "radial",
-      params = params,
+      methodparameters = methodparameters,
       tune = tune,
       ...
     ))

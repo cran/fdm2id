@@ -5,7 +5,8 @@
 \title{Bootstrap evaluation}
 \usage{
 bootstrap(methods, x, y, eval = ifelse(is.factor(y), "accuracy", "r2"),
-  nruns = 10, seed = NULL, params = NULL, names = NULL, ...)
+  nruns = 10, seed = NULL, methodparameters = NULL, names = NULL,
+  ...)
 }
 \arguments{
 \item{methods}{The classification or regression method to be evaluated.}
@@ -20,7 +21,7 @@ bootstrap(methods, x, y, eval = ifelse(is.factor(y), "accuracy", "r2"),
 
 \item{seed}{A specified seed for random number generation (useful for testing different method with the same bootstap samplings).}
 
-\item{params}{Method parameters (if null tuning is done by cross-validation).}
+\item{methodparameters}{Method parameters (if null tuning is done by cross-validation).}
 
 \item{names}{Method names.}
 
@@ -50,5 +51,5 @@ classif = c ("NB", "LDA", "LR")
 bootstrap (classif, iris [, -5], iris [, 5], eval = c ("accuracy", "kappa"), seed = 0)
 }
 \seealso{
-\code{\link{evaluation}}, \code{\link{bootstrap.curves}}
+\code{\link{evaluate}}, \code{\link{evaluation}}, \code{\link{bootstrap.curves}}
 }

@@ -5,7 +5,8 @@
 \title{Classification using Support Vector Machine}
 \usage{
 SVM(train, labels, gamma = 2^(-3:3), cost = 2^(-3:3),
-  kernel = c("radial", "linear"), params = NULL, tune = FALSE, ...)
+  kernel = c("radial", "linear"), methodparameters = NULL,
+  tune = FALSE, ...)
 }
 \arguments{
 \item{train}{The training set (description), as a \code{data.frame}.}
@@ -18,7 +19,7 @@ SVM(train, labels, gamma = 2^(-3:3), cost = 2^(-3:3),
 
 \item{kernel}{The kernel type.}
 
-\item{params}{Object containing the parameters. If given, it replaces \code{gamma} and \code{cost}.}
+\item{methodparameters}{Object containing the parameters. If given, it replaces \code{gamma} and \code{cost}.}
 
 \item{tune}{If true, the function returns paramters instead of a classification model.}
 

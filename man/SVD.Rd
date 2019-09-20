@@ -4,10 +4,14 @@
 \alias{SVD}
 \title{Singular Value Decomposition}
 \usage{
-SVD(x)
+SVD(x, ndim = min(nrow(x), ncol(x)), ...)
 }
 \arguments{
 \item{x}{A numeric dataset (data.frame or matrix).}
+
+\item{ndim}{The number of dimensions.}
+
+\item{...}{Other parameters.}
 }
 \description{
 Return the SVD decomposition.
@@ -18,5 +22,5 @@ data (iris)
 SVD (iris [, -5])
 }
 \seealso{
-code{\link[base]{svd}}
+\code{\link[base]{svd}}
 }

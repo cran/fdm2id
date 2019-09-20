@@ -4,7 +4,7 @@
 \alias{DBSCAN}
 \title{DBSCAN clustering method}
 \usage{
-DBSCAN(d, minpts, eps)
+DBSCAN(d, minpts, eps, ...)
 }
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}
@@ -12,6 +12,8 @@ DBSCAN(d, minpts, eps)
 \item{minpts}{Reachability minimum no. of points.}
 
 \item{eps}{Reachability distance.}
+
+\item{...}{Other parameters.}
 }
 \value{
 A clustering model obtained by DBSCAN.

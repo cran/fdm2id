@@ -26,7 +26,9 @@ A randomly generated dataset.
 \description{
 Generate a random dataset shaped like a target.
 }
+\examples{
+data.target1 ()
+}
 \seealso{
 \code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
-data.target1 ()
 }

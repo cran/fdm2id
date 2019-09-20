@@ -39,6 +39,7 @@ setClass ("selection",
 #' @param multieval The (multivariate) evaluation criterion.
 #' @param wrapmethod The classification method used for the wrapper evaluation.
 #' @param mainmethod The final method used for data classification. If a wrapper evaluation is used, the same classification method should be used.
+#' @param tune If true, the function returns paramters instead of a classification model.
 #' @param ... Other parameters.
 #' @export
 #' @seealso \code{\link{selectfeatures}}, \code{\link{predict.selection}}, \code{\link{selection-class}}
@@ -56,10 +57,11 @@ FEATURESELECTION <-
             multieval = if (algorithm [1] == "ranking") NULL else c ("cfs", "fstat", "inertiaratio", "wrapper"),
             wrapmethod = NULL,
             mainmethod = wrapmethod,
+            tune = FALSE,
             ...)
   {
     selection = selectfeatures (train, labels, algorithm, unieval, uninb, unithreshold, multieval, wrapmethod, keep = TRUE, ...)
-    selection$model = mainmethod (selection$dataset, labels, ...)
+    selection$model = mainmethod (selection$dataset, labels, tune = tune, ...)
     return (selection)
   }
 
@@ -154,7 +156,7 @@ fs.ranking <-
       names (selection) = NULL
       res = list (selection = selection, unieval = eval, algorithm = "ranking", threshold = unithreshold)
     }
-    else if ((!is.null (multieval)) && (!is.null (wrapmethod)))
+    else if (!is.null (multieval))
     {
       size = 1:ncol (train)
       features = order (eval, decreasing = TRUE)
@@ -369,7 +371,12 @@ fseval.relief <-
 fseval.wrapper <-
   function (train, labels, wrapmethod, wrapeval = "accuracy", nruns = 100, ...)
   {
-    return (bootstrap (methods = wrapmethod, x = train, y = labels, eval = wrapeval [1], ...))
+    res = NULL
+    if (is.null (wrapmethod))
+      message ("Cannot select features")
+    else
+      res = bootstrap (methods = wrapmethod, x = train, y = labels, eval = wrapeval [1], ...)
+    return (res)
   }
 
 #' @keywords internal
@@ -429,7 +436,8 @@ predict.selection <-
     test = test [, object$selection]
     if (is.vector (test))
       test = matrix (test, ncol = 1)
-    return (predict (object$model, test, fuzzy, ...))
+    res = predict (object$model, test, fuzzy, ...)
+    return (res)
   }
 
 #' @keywords internal

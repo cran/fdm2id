@@ -29,10 +29,12 @@ cartplot(model, margin = 0.2, branch = 0.3, uniform = TRUE,
 \description{
 Plot a decision tree obtained by CART.
 }
-\seealso{
-\code{\link{CART}}, \code{\link{cartdepth}}, \code{\link{cartinfo}}, \code{\link{cartleafs}}, \code{\link{cartnodes}}
+\examples{
 require (datasets)
 data (iris)
 model = CART (iris [, -5], iris [, 5])
 cartplot (model)
+}
+\seealso{
+\code{\link{CART}}, \code{\link{cartdepth}}, \code{\link{cartinfo}}, \code{\link{cartleafs}}, \code{\link{cartnodes}}
 }

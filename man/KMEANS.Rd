@@ -5,7 +5,7 @@
 \title{K-means method}
 \usage{
 KMEANS(d, k = 9, criterion = c("none", "pseudo-F"), graph = FALSE,
-  nstart = 10)
+  nstart = 10, ...)
 }
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}
@@ -17,6 +17,8 @@ KMEANS(d, k = 9, criterion = c("none", "pseudo-F"), graph = FALSE,
 \item{graph}{A logical indicating whether or not a graphic should be plotted (cluster number selection).}
 
 \item{nstart}{Define how many random sets should be chosen.}
+
+\item{...}{Other parameters.}
 }
 \value{
 The clustering (\code{kmeans} object).
@@ -24,10 +26,12 @@ The clustering (\code{kmeans} object).
 \description{
 Run K-means for clustering.
 }
-\seealso{
-\code{\link[stats]{kmeans}}, \code{\link{predict.kmeans}}
+\examples{
 require (datasets)
 data (iris)
 KMEANS (iris [, -5], k = 3)
 KMEANS (iris [, -5], criterion = "pseudo-F") # With automatic detection of the nmber of clusters
+}
+\seealso{
+\code{\link[stats]{kmeans}}, \code{\link{predict.kmeans}}
 }

@@ -5,14 +5,15 @@
 #' @param x A numeric dataset (data.frame or matrix).
 #' @param rank Specification of the factorization rank.
 #' @param nstart How many random sets should be chosen?
+#' @param ... Other parameters.
 #' @export
-#' @seealso code{\link[NMF]{nmf}}
+#' @seealso \code{\link[NMF]{nmf}}
 #' @examples
 #' require (datasets)
 #' data (iris)
 #' NMF (iris [, -5], nstart = 1)
 NMF <-
-  function (x, rank = 2, nstart = 10)
+  function (x, rank = 2, nstart = 10, ...)
   {
 
     res = NMF::nmf (x, rank)
@@ -101,6 +102,8 @@ plotdata <-
     pch = 1
     if (!is.null (k))
     {
+      if (!is.factor (k))
+        k = factor (k)
       pch = as.numeric (k)
       col = pch + 1
     }
@@ -269,20 +272,22 @@ plotdata <-
 #' Return the SVD decomposition.
 #' @name SVD
 #' @param x A numeric dataset (data.frame or matrix).
+#' @param ndim The number of dimensions.
+#' @param ... Other parameters.
 #' @export
-#' @seealso code{\link[base]{svd}}
+#' @seealso \code{\link[base]{svd}}
 #' @examples
 #' require (datasets)
 #' data (iris)
 #' SVD (iris [, -5])
 SVD <-
-  function (x)
+  function (x, ndim = min (nrow (x), ncol (x)), ...)
   {
-    res = svd (x)
-    ind = res$u %*% diag (res$d)
+    res = svd (x, nu = ndim, nv = ndim)
+    ind = res$u %*% diag (res$d [1:ndim])
     rownames (ind) = rownames (x)
     colnames (ind) = paste ("Dim.", 1:ncol (ind))
-    var = res$v %*% diag (res$d)
+    var = res$v %*% diag (res$d [1:ndim])
     rownames (var) = colnames (x)
     colnames (var) = paste ("Dim.", 1:ncol (var))
     proj = list (ind = ind, var = var)
@@ -299,7 +304,7 @@ SVD <-
 #' @param nstart How many random sets should be chosen?
 #' @param ... Other parameters.
 #' @export
-#' @seealso code{\link[Rtsne]{Rtsne}}
+#' @seealso \code{\link[Rtsne]{Rtsne}}
 #' @examples
 #' require (datasets)
 #' data (iris)

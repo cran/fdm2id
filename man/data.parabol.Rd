@@ -31,7 +31,9 @@ A randomly generated dataset.
 \description{
 Generate a random dataset shaped like a parabol and a gaussian distribution
 }
+\examples{
+data.parabol ()
+}
 \seealso{
 \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
-data.parabol ()
 }

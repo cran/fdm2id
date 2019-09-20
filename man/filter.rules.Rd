@@ -27,7 +27,7 @@ This function facilitate the selection of a subset from a set of rules.
 \examples{
 require ("arules")
 data ("Adult")
-r = apriori(Adult)
+r = apriori (Adult)
 filter.rules (r, right = "marital-status=")
 subset (r, subset = rhs \%pin\% "marital-status=")
 }

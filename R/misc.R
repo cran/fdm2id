@@ -2,16 +2,14 @@
 addalpha <-
   function (colors, a = 32)
   {
-    result = c ()
-    for (color in colors)
+    return (sapply (colors, function (color)
     {
       rgb = grDevices::col2rgb (color)
       r = rgb [1]
       g = rgb [2]
       b = rgb [3]
-      result = c (result, rgb (r, g, b, a, maxColorValue = 255))
-    }
-    result
+      result = c (result, grDevices::rgb (r, g, b, a, maxColorValue = 255))
+    }))
   }
 
 #' Running time

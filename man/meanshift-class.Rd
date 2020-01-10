@@ -10,7 +10,7 @@ This class contains the model obtained by the MEANSHIFT method.
 \section{Slots}{
 
 \describe{
-\item{\code{assignment}}{A vector of integers indicating the cluster to which each point is allocated.}
+\item{\code{cluster}}{A vector of integers indicating the cluster to which each point is allocated.}
 
 \item{\code{value}}{A vector or matrix containing the location of the classified local maxima in the support.}
 

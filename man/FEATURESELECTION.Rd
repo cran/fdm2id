@@ -4,12 +4,21 @@
 \alias{FEATURESELECTION}
 \title{Classification with Feature selection}
 \usage{
-FEATURESELECTION(train, labels, algorithm = c("ranking", "forward",
-  "backward", "exhaustive"), unieval = if (algorithm[1] == "ranking")
-  c("fisher", "fstat", "relief", "inertiaratio") else NULL, uninb = NULL,
-  unithreshold = NULL, multieval = if (algorithm[1] == "ranking") NULL
-  else c("cfs", "fstat", "inertiaratio", "wrapper"), wrapmethod = NULL,
-  mainmethod = wrapmethod, tune = FALSE, ...)
+FEATURESELECTION(
+  train,
+  labels,
+  algorithm = c("ranking", "forward", "backward", "exhaustive"),
+  unieval = if (algorithm[1] == "ranking") c("fisher", "fstat", "relief",
+    "inertiaratio") else NULL,
+  uninb = NULL,
+  unithreshold = NULL,
+  multieval = if (algorithm[1] == "ranking") NULL else c("cfs", "fstat", "inertiaratio",
+    "wrapper"),
+  wrapmethod = NULL,
+  mainmethod = wrapmethod,
+  tune = FALSE,
+  ...
+)
 }
 \arguments{
 \item{train}{The training set (description), as a \code{data.frame}.}

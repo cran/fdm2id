@@ -4,8 +4,15 @@
 \alias{SVMr}
 \title{Classification using Support Vector Machine with a radial kernel}
 \usage{
-SVMr(train, labels, gamma = 2^(-3:3), cost = 2^(-3:3),
-  methodparameters = NULL, tune = FALSE, ...)
+SVMr(
+  train,
+  labels,
+  gamma = 2^(-3:3),
+  cost = 2^(-3:3),
+  methodparameters = NULL,
+  tune = FALSE,
+  ...
+)
 }
 \arguments{
 \item{train}{The training set (description), as a \code{data.frame}.}

@@ -4,9 +4,16 @@
 \alias{MLP}
 \title{Classification using Multilayer Perceptron}
 \usage{
-MLP(train, labels, size = ifelse(is.vector(train), 2:(1 +
-  nlevels(labels)), 2:(ncol(train) + nlevels(labels))),
-  decay = 10^(-3:-1), methodparameters = NULL, tune = FALSE, ...)
+MLP(
+  train,
+  labels,
+  size = ifelse(is.vector(train), 2:(1 + nlevels(labels)), 2:(ncol(train) +
+    nlevels(labels))),
+  decay = 10^(-3:-1),
+  methodparameters = NULL,
+  tune = FALSE,
+  ...
+)
 }
 \arguments{
 \item{train}{The training set (description), as a \code{data.frame}.}

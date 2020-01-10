@@ -4,8 +4,12 @@
 \alias{evaluation.fowlkesmallows}
 \title{Fowlkes–Mallows index}
 \usage{
-evaluation.fowlkesmallows(predictions, targets,
-  positive = levels(targets)[1], ...)
+evaluation.fowlkesmallows(
+  predictions,
+  targets,
+  positive = levels(targets)[1],
+  ...
+)
 }
 \arguments{
 \item{predictions}{The predictions of a classification model (\code{factor} or \code{vector}).}

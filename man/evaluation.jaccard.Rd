@@ -4,8 +4,7 @@
 \alias{evaluation.jaccard}
 \title{Jaccard index}
 \usage{
-evaluation.jaccard(predictions, targets, positive = levels(targets)[1],
-  ...)
+evaluation.jaccard(predictions, targets, positive = levels(targets)[1], ...)
 }
 \arguments{
 \item{predictions}{The predictions of a classification model (\code{factor} or \code{vector}).}

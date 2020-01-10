@@ -4,10 +4,19 @@
 \alias{LINREG}
 \title{Linear Regression}
 \usage{
-LINREG(x, y, formula = ".", reg = c("linear", "subset", "ridge",
-  "lasso", "elastic", "pcr", "plsr"), regeval = c("r2", "bic", "adjr2",
-  "cp", "msep"), scale = TRUE, lambda = 10^seq(-5, 5, length.out =
-  101), alpha = 0.5, graph = TRUE, tune = FALSE, ...)
+LINREG(
+  x,
+  y,
+  formula = ".",
+  reg = c("linear", "subset", "ridge", "lasso", "elastic", "pcr", "plsr"),
+  regeval = c("r2", "bic", "adjr2", "cp", "msep"),
+  scale = TRUE,
+  lambda = 10^seq(-5, 5, length.out = 101),
+  alpha = 0.5,
+  graph = TRUE,
+  tune = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{Predictor \code{matrix}.}

@@ -4,9 +4,17 @@
 \alias{SVR}
 \title{Regression using Support Vector Machine}
 \usage{
-SVR(x, y, gamma = 2^(-3:3), cost = 2^(-3:3), kernel = c("radial",
-  "linear"), epsilon = c(0.1, 0.5, 1), params = NULL, tune = FALSE,
-  ...)
+SVR(
+  x,
+  y,
+  gamma = 2^(-3:3),
+  cost = 2^(-3:3),
+  kernel = c("radial", "linear"),
+  epsilon = c(0.1, 0.5, 1),
+  params = NULL,
+  tune = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{Predictor \code{matrix}.}

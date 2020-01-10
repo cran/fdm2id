@@ -4,8 +4,13 @@
 \alias{evaluation.fmeasure}
 \title{F-measure}
 \usage{
-evaluation.fmeasure(predictions, targets, beta = 1,
-  positive = levels(targets)[1], ...)
+evaluation.fmeasure(
+  predictions,
+  targets,
+  beta = 1,
+  positive = levels(targets)[1],
+  ...
+)
 }
 \arguments{
 \item{predictions}{The predictions of a classification model (\code{factor} or \code{vector}).}

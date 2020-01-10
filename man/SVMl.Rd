@@ -4,8 +4,14 @@
 \alias{SVMl}
 \title{Classification using Support Vector Machine with a linear kernel}
 \usage{
-SVMl(train, labels, cost = 2^(-3:3), methodparameters = NULL,
-  tune = FALSE, ...)
+SVMl(
+  train,
+  labels,
+  cost = 2^(-3:3),
+  methodparameters = NULL,
+  tune = FALSE,
+  ...
+)
 }
 \arguments{
 \item{train}{The training set (description), as a \code{data.frame}.}

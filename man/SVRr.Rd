@@ -4,8 +4,16 @@
 \alias{SVRr}
 \title{Regression using Support Vector Machine with a radial kernel}
 \usage{
-SVRr(x, y, gamma = 2^(-3:3), cost = 2^(-3:3), epsilon = c(0.1, 0.5,
-  1), params = NULL, tune = FALSE, ...)
+SVRr(
+  x,
+  y,
+  gamma = 2^(-3:3),
+  cost = 2^(-3:3),
+  epsilon = c(0.1, 0.5, 1),
+  params = NULL,
+  tune = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{Predictor \code{matrix}.}

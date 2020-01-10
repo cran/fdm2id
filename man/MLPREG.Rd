@@ -4,8 +4,15 @@
 \alias{MLPREG}
 \title{Multi-Layer Perceptron Regression}
 \usage{
-MLPREG(x, y, size = 2:(ifelse(is.vector(x), 2, ncol(x))),
-  decay = 10^(-3:-1), params = NULL, tune = FALSE, ...)
+MLPREG(
+  x,
+  y,
+  size = 2:(ifelse(is.vector(x), 2, ncol(x))),
+  decay = 10^(-3:-1),
+  params = NULL,
+  tune = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{Predictor \code{matrix}.}

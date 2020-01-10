@@ -4,8 +4,15 @@
 \alias{SVRl}
 \title{Regression using Support Vector Machine with a linear kernel}
 \usage{
-SVRl(x, y, cost = 2^(-3:3), epsilon = c(0.1, 0.5, 1), params = NULL,
-  tune = FALSE, ...)
+SVRl(
+  x,
+  y,
+  cost = 2^(-3:3),
+  epsilon = c(0.1, 0.5, 1),
+  params = NULL,
+  tune = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{Predictor \code{matrix}.}

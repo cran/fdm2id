@@ -4,8 +4,7 @@
 \alias{compare}
 \title{Comparison of two sets of clusters}
 \usage{
-compare(clus, gt, eval = "accuracy", comp = c("max", "pairwise",
-  "cluster"))
+compare(clus, gt, eval = "accuracy", comp = c("max", "pairwise", "cluster"))
 }
 \arguments{
 \item{clus}{The extracted clusters.}

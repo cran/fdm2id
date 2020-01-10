@@ -4,9 +4,17 @@
 \alias{bootstrap}
 \title{Bootstrap evaluation}
 \usage{
-bootstrap(methods, x, y, eval = ifelse(is.factor(y), "accuracy", "r2"),
-  nruns = 10, seed = NULL, methodparameters = NULL, names = NULL,
-  ...)
+bootstrap(
+  methods,
+  x,
+  y,
+  eval = ifelse(is.factor(y), "accuracy", "r2"),
+  nruns = 10,
+  seed = NULL,
+  methodparameters = NULL,
+  names = NULL,
+  ...
+)
 }
 \arguments{
 \item{methods}{The classification or regression method to be evaluated.}

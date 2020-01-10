@@ -48,7 +48,7 @@ setClass ("em",
 #'
 #' This class contains the model obtained by the MEANSHIFT method.
 #' @name meanshift-class
-#' @slot assignment A vector of integers indicating the cluster to which each point is allocated.
+#' @slot cluster A vector of integers indicating the cluster to which each point is allocated.
 #' @slot value A vector or matrix containing the location of the classified local maxima in the support.
 #' @slot data The leaning set.
 #' @slot kernel A string indicating the kernel associated with the kernel density estimate that the mean shift is optimizing over.
@@ -60,7 +60,7 @@ setClass ("em",
 #' @exportClass meanshift
 #' @seealso \code{\link{MEANSHIFT}}
 setClass ("meanshift",
-          representation (assignment = "vector",
+          representation (cluster = "vector",
                           value = "vector",
                           data = "matrix",
                           kernel = "character",
@@ -745,6 +745,8 @@ MEANSHIFT <-
     if (length (bandwidth) == 1)
       bandwidth = rep (bandwidth, ncol (d))
     res = meanShiftR::meanShift (dd, kernelType = kernel, bandwidth = bandwidth, alpha = alpha, iterations = iterations, epsilon = epsilon, epsilonCluster = epsilonCluster)
+    names (res) [1] = "cluster"
+    res [[1]] = as.vector (res [[1]])
     res = c (res,
              data = list (dd),
              kernel = list (kernel),
@@ -912,7 +914,7 @@ plotclus <-
     }
     else if ("meanshift" %in% method)
     {
-      clusters = clustering$assignment
+      clusters = clustering$cluster
     }
     else if ("spectral" %in% method)
     {
@@ -1041,7 +1043,7 @@ predict.meanshift <-
                                  iterations = object$iterations,
                                  epsilon = object$epsilon,
                                  epsilonCluster = object$epsilonCluster)
-    mmodel = apply (object$value, 2, function (v) tapply (v, object$assignment, mean))
+    mmodel = apply (object$value, 2, function (v) tapply (v, object$cluster, mean))
     mpred = apply (res$value, 2, function (v) tapply (v, res$assignment, mean))
     conv = as.vector (apply (flexclust::dist2 (mmodel, mpred), 2, which.min))
     return (conv [as.vector (res$assignment)])
@@ -1253,13 +1255,13 @@ SPECTRAL <-
     p = diag (1 / sqrt (rowSums (a)))
     l = p %*% a %*% p
     x = eigen (l)$vectors [, 1:k]
-    proj = sweep (x, 1, sqrt (rowSums (x^2)), "/")
+    proj = sweep (x, 1, sqrt (rowSums (x * x)), "/")
     colnames (proj) = paste ("Comp.", 1:k)
     rownames (proj) = rownames (d)
     km = stats::kmeans (proj, centers = k, nstart = 100)
     cluster = km$cluster
     if (graph)
-      graphics::pairs (proj, col = cluster + 1)
+      plotdata (proj, paste ("Cluster", cluster))
     res = list (cluster = cluster, proj = proj, centers = km$centers)
     class (res) = "spectral"
     return (res)
@@ -1273,7 +1275,7 @@ SPECTRAL <-
 #' @param d The dataset.
 #' @param originals The original clustering.
 #' @param eval The evaluation criteria.
-#' @param comp The comparison method
+#' @param comp The comparison method.
 #' @param nsampling The number of bootstrap runs.
 #' @param seed A specified seed for random number generation (useful for testing different method with the same bootstap samplings).
 #' @param names Method names.
@@ -1298,7 +1300,7 @@ SPECTRAL <-
 #' stability (KMEANS, iris [, -5], originals = KMEANS (iris [, -5], k = 3)$cluster, seed = 0, k = 3)
 #' stability (KMEANS, iris [, -5], originals = KMEANS (iris [, -5], k = 3), seed = 0, k = 3)
 stability <-
-  function (clusteringmethods, d, originals = NULL, eval = "jaccard", comp = c ("max", "cluster"), nsampling = 10, seed = NULL, names = NULL, graph = FALSE, ...)
+  function (clusteringmethods, d, originals = NULL, eval = "jaccard", comp = c ("cluster", "max"), nsampling = 10, seed = NULL, names = NULL, graph = FALSE, ...)
   {
     methodNames = names
     if (is.character (clusteringmethods))
@@ -1320,7 +1322,10 @@ stability <-
     clusteringmethods = c (clusteringmethods)
     if (is.null (originals))
     {
-      set.seed (seed + 1)
+      if (!is.null (seed))
+        set.seed (seed + 1)
+      else
+        set.seed (seed)
       originals = sapply (clusteringmethods, function (clus) {clus (d, ...)$cluster})
       originals = split (originals, rep (1:ncol (originals), each = nrow (originals)))
     }

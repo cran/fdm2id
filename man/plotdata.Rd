@@ -4,9 +4,16 @@
 \alias{plotdata}
 \title{Advanced plot function}
 \usage{
-plotdata(d, k = NULL, type = c("pairs", "scatter", "boxplot", "pca",
-  "cda", "svd", "nmf", "tsne", "som"), legendpos = "topleft",
-  alpha = 200, asp = 1, labels = FALSE, ...)
+plotdata(
+  d,
+  k = NULL,
+  type = c("pairs", "scatter", "boxplot", "pca", "cda", "svd", "nmf", "tsne", "som"),
+  legendpos = "topleft",
+  alpha = 200,
+  asp = 1,
+  labels = FALSE,
+  ...
+)
 }
 \arguments{
 \item{d}{A numeric dataset (data.frame or matrix).}

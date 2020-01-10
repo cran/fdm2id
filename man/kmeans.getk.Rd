@@ -4,8 +4,14 @@
 \alias{kmeans.getk}
 \title{Estimation of the number of clusters for \emph{K}-means}
 \usage{
-kmeans.getk(d, max = 9, criterion = "pseudo-F", graph = TRUE,
-  nstart = 10, seed = NULL)
+kmeans.getk(
+  d,
+  max = 9,
+  criterion = "pseudo-F",
+  graph = TRUE,
+  nstart = 10,
+  seed = NULL
+)
 }
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}

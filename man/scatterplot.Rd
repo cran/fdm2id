@@ -4,8 +4,15 @@
 \alias{scatterplot}
 \title{Clustering Scatter Plots}
 \usage{
-scatterplot(d, clusters, centers = NULL, labels = FALSE,
-  ellipses = FALSE, legend = c("auto1", "auto2"), ...)
+scatterplot(
+  d,
+  clusters,
+  centers = NULL,
+  labels = FALSE,
+  ellipses = FALSE,
+  legend = c("auto1", "auto2"),
+  ...
+)
 }
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}

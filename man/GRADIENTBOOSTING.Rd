@@ -4,8 +4,14 @@
 \alias{GRADIENTBOOSTING}
 \title{Classification using Gradient Boosting}
 \usage{
-GRADIENTBOOSTING(train, labels, ntree = 500, learningrate = 0.3,
-  tune = FALSE, ...)
+GRADIENTBOOSTING(
+  train,
+  labels,
+  ntree = 500,
+  learningrate = 0.3,
+  tune = FALSE,
+  ...
+)
 }
 \arguments{
 \item{train}{The training set (description), as a \code{data.frame}.}

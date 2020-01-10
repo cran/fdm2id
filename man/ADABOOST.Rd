@@ -4,8 +4,16 @@
 \alias{ADABOOST}
 \title{Classification using AdaBoost}
 \usage{
-ADABOOST(x, y, learningmethod, nsamples = 100, fuzzy = FALSE,
-  tune = FALSE, seed = NULL, ...)
+ADABOOST(
+  x,
+  y,
+  learningmethod,
+  nsamples = 100,
+  fuzzy = FALSE,
+  tune = FALSE,
+  seed = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{The dataset (description/predictors), a \code{matrix} or \code{data.frame}.}

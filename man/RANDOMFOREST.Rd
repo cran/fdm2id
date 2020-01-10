@@ -4,9 +4,15 @@
 \alias{RANDOMFOREST}
 \title{Classification using Random Forest}
 \usage{
-RANDOMFOREST(train, labels, ntree = 500, nvar = if (!is.null(labels) &&
-  !is.factor(labels)) max(floor(ncol(train)/3), 1) else
-  floor(sqrt(ncol(train))), tune = FALSE, ...)
+RANDOMFOREST(
+  train,
+  labels,
+  ntree = 500,
+  nvar = if (!is.null(labels) && !is.factor(labels)) max(floor(ncol(train)/3), 1) else
+    floor(sqrt(ncol(train))),
+  tune = FALSE,
+  ...
+)
 }
 \arguments{
 \item{train}{The training set (description), as a \code{data.frame}.}

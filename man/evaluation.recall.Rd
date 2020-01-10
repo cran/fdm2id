@@ -4,8 +4,7 @@
 \alias{evaluation.recall}
 \title{Recall of classification predictions}
 \usage{
-evaluation.recall(predictions, targets, positive = levels(targets)[1],
-  ...)
+evaluation.recall(predictions, targets, positive = levels(targets)[1], ...)
 }
 \arguments{
 \item{predictions}{The predictions of a classification model (\code{factor} or \code{vector}).}

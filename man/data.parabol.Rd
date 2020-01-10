@@ -4,9 +4,16 @@
 \alias{data.parabol}
 \title{Parabol dataset}
 \usage{
-data.parabol(n = c(500, 100), xlim = c(-3, 3), center = c(0, 4),
-  coeff = 0.5, sigma = c(0.5, 0.5), levels = NULL, graph = TRUE,
-  seed = NULL)
+data.parabol(
+  n = c(500, 100),
+  xlim = c(-3, 3),
+  center = c(0, 4),
+  coeff = 0.5,
+  sigma = c(0.5, 0.5),
+  levels = NULL,
+  graph = TRUE,
+  seed = NULL
+)
 }
 \arguments{
 \item{n}{Number of observations in each class.}
@@ -35,5 +42,5 @@ Generate a random dataset shaped like a parabol and a gaussian distribution
 data.parabol ()
 }
 \seealso{
-\code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
+\code{\link{data.diag}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
 }

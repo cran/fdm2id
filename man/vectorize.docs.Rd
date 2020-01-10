@@ -4,10 +4,19 @@
 \alias{vectorize.docs}
 \title{Document vectorization}
 \usage{
-vectorize.docs(vectorizer = NULL, corpus = NULL, lang = "en",
-  stopwords = lang, ngram = 1, mincount = 10,
-  minphrasecount = NULL, transform = c("tfidf", "lsa", "l1", "none"),
-  latentdim = 50, returndata = TRUE, ...)
+vectorize.docs(
+  vectorizer = NULL,
+  corpus = NULL,
+  lang = "en",
+  stopwords = lang,
+  ngram = 1,
+  mincount = 10,
+  minphrasecount = NULL,
+  transform = c("tfidf", "lsa", "l1", "none"),
+  latentdim = 50,
+  returndata = TRUE,
+  ...
+)
 }
 \arguments{
 \item{vectorizer}{The document vectorizer.}

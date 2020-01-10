@@ -4,8 +4,15 @@
 \alias{APRIORI}
 \title{Classification using APRIORI}
 \usage{
-APRIORI(train, labels, supp = 0.05, conf = 0.8, prune = FALSE,
-  tune = FALSE, ...)
+APRIORI(
+  train,
+  labels,
+  supp = 0.05,
+  conf = 0.8,
+  prune = FALSE,
+  tune = FALSE,
+  ...
+)
 }
 \arguments{
 \item{train}{The training set (description), as a \code{data.frame}.}

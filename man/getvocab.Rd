@@ -4,8 +4,15 @@
 \alias{getvocab}
 \title{Extract words and phrases from a corpus}
 \usage{
-getvocab(corpus, mincount = 5, minphrasecount = NULL, ngram = 1,
-  lang = "en", stopwords = lang, ...)
+getvocab(
+  corpus,
+  mincount = 5,
+  minphrasecount = NULL,
+  ngram = 1,
+  lang = "en",
+  stopwords = lang,
+  ...
+)
 }
 \arguments{
 \item{corpus}{The corpus of documents (a vector of characters).}

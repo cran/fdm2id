@@ -4,8 +4,14 @@
 \alias{KMEANS}
 \title{K-means method}
 \usage{
-KMEANS(d, k = 9, criterion = c("none", "pseudo-F"), graph = FALSE,
-  nstart = 10, ...)
+KMEANS(
+  d,
+  k = 9,
+  criterion = c("none", "pseudo-F"),
+  graph = FALSE,
+  nstart = 10,
+  ...
+)
 }
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}

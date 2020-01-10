@@ -4,8 +4,14 @@
 \alias{data.target1}
 \title{Target1 dataset}
 \usage{
-data.target1(r = 1:3, n = 200, sigma = 0.1, levels = NULL,
-  graph = TRUE, seed = NULL)
+data.target1(
+  r = 1:3,
+  n = 200,
+  sigma = 0.1,
+  levels = NULL,
+  graph = TRUE,
+  seed = NULL
+)
 }
 \arguments{
 \item{r}{Radius of each class.}
@@ -30,5 +36,5 @@ Generate a random dataset shaped like a target.
 data.target1 ()
 }
 \seealso{
-\code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
+\code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
 }

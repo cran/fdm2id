@@ -4,8 +4,14 @@
 \alias{data.twomoons}
 \title{Two moons dataset}
 \usage{
-data.twomoons(r = 1, n = 200, sigma = 0.1, levels = NULL,
-  graph = TRUE, seed = NULL)
+data.twomoons(
+  r = 1,
+  n = 200,
+  sigma = 0.1,
+  levels = NULL,
+  graph = TRUE,
+  seed = NULL
+)
 }
 \arguments{
 \item{r}{Radius of each class.}
@@ -30,5 +36,5 @@ Generate a random dataset shaped like two moons.
 data.twomoons ()
 }
 \seealso{
-\code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}
+\code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}
 }

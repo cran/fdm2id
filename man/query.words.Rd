@@ -4,8 +4,7 @@
 \alias{query.words}
 \title{Word query}
 \usage{
-query.words(wordvectors, origin, sub = NULL, add = NULL, nres = 5,
-  lang = "en")
+query.words(wordvectors, origin, sub = NULL, add = NULL, nres = 5, lang = "en")
 }
 \arguments{
 \item{wordvectors}{The vectorized words}

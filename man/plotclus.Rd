@@ -4,8 +4,15 @@
 \alias{plotclus}
 \title{Generic Plot Method for Clustering}
 \usage{
-plotclus(clustering, d = NULL, type = c("scatter", "boxplot", "tree",
-  "height", "mapping"), centers = FALSE, k = NULL, tailsize = 9, ...)
+plotclus(
+  clustering,
+  d = NULL,
+  type = c("scatter", "boxplot", "tree", "height", "mapping"),
+  centers = FALSE,
+  k = NULL,
+  tailsize = 9,
+  ...
+)
 }
 \arguments{
 \item{clustering}{The clustering to be plotted.}

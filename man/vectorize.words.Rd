@@ -4,9 +4,20 @@
 \alias{vectorize.words}
 \title{Word vectorization}
 \usage{
-vectorize.words(corpus = NULL, ndim = 50, maxwords = NULL,
-  mincount = 5, minphrasecount = NULL, window = 5, maxcooc = 10,
-  maxiter = 10, epsilon = 0.01, lang = "en", stopwords = lang, ...)
+vectorize.words(
+  corpus = NULL,
+  ndim = 50,
+  maxwords = NULL,
+  mincount = 5,
+  minphrasecount = NULL,
+  window = 5,
+  maxcooc = 10,
+  maxiter = 10,
+  epsilon = 0.01,
+  lang = "en",
+  stopwords = lang,
+  ...
+)
 }
 \arguments{
 \item{corpus}{The corpus of documents (a vector of characters).}

@@ -4,8 +4,7 @@
 \alias{plot.som}
 \title{Plot function for som-class}
 \usage{
-\method{plot}{som}(x, type = c("scatter", "mapping"), col = NULL,
-  labels = FALSE, ...)
+\method{plot}{som}(x, type = c("scatter", "mapping"), col = NULL, labels = FALSE, ...)
 }
 \arguments{
 \item{x}{The Kohonen's map (object of class \code{\link{som-class}}).}

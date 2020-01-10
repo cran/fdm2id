@@ -4,8 +4,16 @@
 \alias{evaluate}
 \title{Evaluate several classication (or regression) methods}
 \usage{
-evaluate(methods, dataset, target = NULL, size = round(0.7 *
-  nrow(dataset)), names = NULL, eval = "accuracy", seed = NULL, ...)
+evaluate(
+  methods,
+  dataset,
+  target = NULL,
+  size = round(0.7 * nrow(dataset)),
+  names = NULL,
+  eval = "accuracy",
+  seed = NULL,
+  ...
+)
 }
 \arguments{
 \item{methods}{The classification or regression method to be evaluated.}

@@ -4,8 +4,15 @@
 \alias{SOM}
 \title{Self-Organizing Maps clustering method}
 \usage{
-SOM(d, xdim = floor(sqrt(nrow(d))), ydim = floor(sqrt(nrow(d))),
-  rlen = 10000, post = c("none", "single", "ward"), k = NULL, ...)
+SOM(
+  d,
+  xdim = floor(sqrt(nrow(d))),
+  ydim = floor(sqrt(nrow(d))),
+  rlen = 10000,
+  post = c("none", "single", "ward"),
+  k = NULL,
+  ...
+)
 }
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}

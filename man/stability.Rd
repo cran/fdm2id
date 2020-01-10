@@ -4,9 +4,18 @@
 \alias{stability}
 \title{Clustering evaluation through stability}
 \usage{
-stability(clusteringmethods, d, originals = NULL, eval = "jaccard",
-  comp = c("max", "cluster"), nsampling = 10, seed = NULL,
-  names = NULL, graph = FALSE, ...)
+stability(
+  clusteringmethods,
+  d,
+  originals = NULL,
+  eval = "jaccard",
+  comp = c("cluster", "max"),
+  nsampling = 10,
+  seed = NULL,
+  names = NULL,
+  graph = FALSE,
+  ...
+)
 }
 \arguments{
 \item{clusteringmethods}{The clustering methods to be evaluated.}
@@ -17,7 +26,7 @@ stability(clusteringmethods, d, originals = NULL, eval = "jaccard",
 
 \item{eval}{The evaluation criteria.}
 
-\item{comp}{The comparison method}
+\item{comp}{The comparison method.}
 
 \item{nsampling}{The number of bootstrap runs.}
 

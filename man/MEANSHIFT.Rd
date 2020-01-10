@@ -4,9 +4,16 @@
 \alias{MEANSHIFT}
 \title{MeanShift method}
 \usage{
-MEANSHIFT(d, kernel = "NORMAL", bandwidth = rep(1, ncol(d)),
-  alpha = 0, iterations = 10, epsilon = 1e-08,
-  epsilonCluster = 1e-04, ...)
+MEANSHIFT(
+  d,
+  kernel = "NORMAL",
+  bandwidth = rep(1, ncol(d)),
+  alpha = 0,
+  iterations = 10,
+  epsilon = 1e-08,
+  epsilonCluster = 1e-04,
+  ...
+)
 }
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}

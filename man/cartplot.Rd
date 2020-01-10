@@ -4,8 +4,17 @@
 \alias{cartplot}
 \title{CART Plot}
 \usage{
-cartplot(model, margin = 0.2, branch = 0.3, uniform = TRUE,
-  fancy = TRUE, pretty = TRUE, fwidth = 0, fheight = 0, ...)
+cartplot(
+  model,
+  margin = 0.2,
+  branch = 0.3,
+  uniform = TRUE,
+  fancy = TRUE,
+  pretty = TRUE,
+  fwidth = 0,
+  fheight = 0,
+  ...
+)
 }
 \arguments{
 \item{model}{The decision tree.}

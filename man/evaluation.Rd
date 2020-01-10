@@ -4,8 +4,12 @@
 \alias{evaluation}
 \title{Evaluation of classification or regression predictions}
 \usage{
-evaluation(predictions, targets, eval = ifelse(is.factor(targets),
-  "accuracy", "r2"), ...)
+evaluation(
+  predictions,
+  targets,
+  eval = ifelse(is.factor(targets), "accuracy", "r2"),
+  ...
+)
 }
 \arguments{
 \item{predictions}{The predictions of a classification model (\code{factor} or \code{vector}).}

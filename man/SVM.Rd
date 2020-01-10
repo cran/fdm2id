@@ -4,9 +4,16 @@
 \alias{SVM}
 \title{Classification using Support Vector Machine}
 \usage{
-SVM(train, labels, gamma = 2^(-3:3), cost = 2^(-3:3),
-  kernel = c("radial", "linear"), methodparameters = NULL,
-  tune = FALSE, ...)
+SVM(
+  train,
+  labels,
+  gamma = 2^(-3:3),
+  cost = 2^(-3:3),
+  kernel = c("radial", "linear"),
+  methodparameters = NULL,
+  tune = FALSE,
+  ...
+)
 }
 \arguments{
 \item{train}{The training set (description), as a \code{data.frame}.}

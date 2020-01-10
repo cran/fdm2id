@@ -4,8 +4,13 @@
 \alias{filter.rules}
 \title{Filtering a set of rules}
 \usage{
-filter.rules(rules, pattern = NULL, left = pattern, right = pattern,
-  removeMatches = FALSE)
+filter.rules(
+  rules,
+  pattern = NULL,
+  left = pattern,
+  right = pattern,
+  removeMatches = FALSE
+)
 }
 \arguments{
 \item{rules}{A set of rules.}

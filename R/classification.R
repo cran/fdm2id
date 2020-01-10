@@ -261,6 +261,8 @@ BAGGING <-
       target = y [v]
       model = learningmethod (train, target, ...)
       model$boostweight = 1
+      model$boostx = train
+      model$boosty = target
       return (model)
     })
     res = list (models = models, x = x, y = y)
@@ -1713,7 +1715,7 @@ predict.model <-
       else
         res = stats::predict (object$model, as.data.frame (test), type = "class")
     }
-    else if (object$method == "LDA")
+    else if ((object$method == "LDA") | (object$method == "QDA"))
     {
       if (is.vector (test))
         test = matrix (test, ncol = 1)
@@ -1833,6 +1835,38 @@ predict.model <-
     return (res)
   }
 
+#' Classification using Quadratic Discriminant Analysis
+#'
+#' This function builds a classification model using Quadratic Discriminant Analysis.
+#' @name QDA
+#' @param train The training set (description), as a \code{data.frame}.
+#' @param labels Class labels of the training set (\code{vector} or \code{factor}).
+#' @param tune If true, the function returns paramters instead of a classification model.
+#' @param ... Other parameters.
+#' @return The classification model.
+#' @export
+#' @seealso \code{\link[MASS]{qda}}
+#' @examples
+#' require (datasets)
+#' data (iris)
+#' QDA (iris [, -5], iris [, 5])
+QDA <-
+  function (train, labels, tune = FALSE, ...)
+  {
+    res = NULL
+    if (tune)
+      res = emptyparams ()
+    else
+    {
+      if (is.vector (train))
+        train = matrix (train, ncol = 1)
+      model = MASS::qda (x = train, grouping = labels)
+      res = list (model = model, method = "QDA")
+      class (res) = "model"
+    }
+    return (res)
+  }
+
 #' Classification using Random Forest
 #'
 #' This function builds a classification model using Random Forest
@@ -1912,8 +1946,6 @@ roc.curves <-
 #' @name STUMP
 #' @param train The training set (description), as a \code{data.frame}.
 #' @param labels Class labels of the training set (\code{vector} or \code{factor}).
-#' @param minsplit The minimum leaf size during the learning.
-#' @param cp The complexity parameter of the tree. Cross-validation is used to determine optimal cp if NULL.
 #' @param randomvar If true, the model uses a random variable.
 #' @param tune If true, the function returns paramters instead of a classification model.
 #' @param ... Other parameters.
@@ -1925,7 +1957,7 @@ roc.curves <-
 #' data (iris)
 #' STUMP (iris [, -5], iris [, 5])
 STUMP <-
-  function (train, labels, minsplit = 1, cp = NULL, randomvar = TRUE, tune = FALSE, ...)
+  function (train, labels, randomvar = TRUE, tune = FALSE, ...)
   {
     new = train
     if (randomvar && (!is.vector (train)))
@@ -1934,7 +1966,7 @@ STUMP <-
       new = matrix (train [, var], ncol = 1)
       colnames (new) = colnames (train) [var]
     }
-    return (CART (new, labels, minsplit = minsplit, 1, cp = cp, tune = tune, ...))
+    return (CART (new, labels, minsplit = 1, maxdepth = 1, cp = 0, tune = tune, ...))
   }
 
 #' Classification using Support Vector Machine

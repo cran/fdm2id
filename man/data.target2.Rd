@@ -4,8 +4,14 @@
 \alias{data.target2}
 \title{Target2 dataset}
 \usage{
-data.target2(minr = c(0, 2), maxr = minr + 1, initn = 1000,
-  levels = NULL, graph = TRUE, seed = NULL)
+data.target2(
+  minr = c(0, 2),
+  maxr = minr + 1,
+  initn = 1000,
+  levels = NULL,
+  graph = TRUE,
+  seed = NULL
+)
 }
 \arguments{
 \item{minr}{Minimum radius of each class.}
@@ -30,5 +36,5 @@ Generate a random dataset shaped like a target.
 data.target2 ()
 }
 \seealso{
-\code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.twomoons}}
+\code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.twomoons}}
 }

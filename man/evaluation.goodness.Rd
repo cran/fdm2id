@@ -4,8 +4,13 @@
 \alias{evaluation.goodness}
 \title{Goodness}
 \usage{
-evaluation.goodness(predictions, targets, beta = 1,
-  positive = levels(targets)[1], ...)
+evaluation.goodness(
+  predictions,
+  targets,
+  beta = 1,
+  positive = levels(targets)[1],
+  ...
+)
 }
 \arguments{
 \item{predictions}{The predictions of a classification model (\code{factor} or \code{vector}).}

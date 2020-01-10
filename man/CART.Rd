@@ -4,8 +4,15 @@
 \alias{CART}
 \title{Classification using CART}
 \usage{
-CART(train, labels, minsplit = 1, maxdepth = log2(length(labels)),
-  cp = NULL, tune = FALSE, ...)
+CART(
+  train,
+  labels,
+  minsplit = 1,
+  maxdepth = log2(length(labels)),
+  cp = NULL,
+  tune = FALSE,
+  ...
+)
 }
 \arguments{
 \item{train}{The training set (description), as a \code{data.frame}.}

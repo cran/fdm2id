@@ -4,8 +4,7 @@
 \alias{splitdata}
 \title{Splits a dataset into training set and test set}
 \usage{
-splitdata(dataset, target, size = round(0.7 * nrow(dataset)),
-  seed = NULL)
+splitdata(dataset, target, size = round(0.7 * nrow(dataset)), seed = NULL)
 }
 \arguments{
 \item{dataset}{The dataset to be split (\code{data.frame} or \code{matrix}).}

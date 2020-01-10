@@ -87,6 +87,43 @@ NULL
 #' @format The dataset has 66 instances described by 11 qualitative variables.
 NULL
 
+#' Gaussian mixture dataset
+#'
+#' Generate a random multidimentional gaussian mixture.
+#' @name data.gauss
+#' @param n Number of observations.
+#' @param k The number of classes.
+#' @param prob The a priori probability of each class.
+#' @param mu The means of the gaussian distributions.
+#' @param cov The covariance of the gaussian distributions.
+#' @param levels Name of each class.
+#' @param graph A logical indicating whether or not a graphic should be plotted.
+#' @param seed A specified seed for random number generation.
+#' @return A randomly generated dataset.
+#' @export
+#' @seealso \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
+#' @examples
+#' data.gauss ()
+data.gauss = function (n = 1000, k = 2, prob = rep (1 / k, k), mu = cbind (rep (0, k), seq (from = 0, by = 3, length.out = k)), cov = rep (list (matrix (c (6,0.9,0.9,0.3), ncol = 2, nrow = 2)), k), levels = NULL, graph = TRUE, seed = NULL)
+{
+  set.seed (seed)
+  if (is.null (levels))
+    levels = paste ("Class", 1:k)
+  card = as.vector (stats::rmultinom (1, n, prob))
+  d = NULL
+  class = NULL
+  for (i in 1:length (card))
+  {
+    d = rbind (d, MASS::mvrnorm (card [i], mu [i, ], cov [[i]]))
+    class = c (class, rep(i, length.out = card [i]))
+  }
+  d = cbind.data.frame (d, factor (class, labels = levels))
+  colnames (d) = c ("X", "Y", "Class")
+  if (graph)
+    plotdata (d[, -3], d[, 3])
+  return (d)
+}
+
 #' Parabol dataset
 #'
 #' Generate a random dataset shaped like a parabol and a gaussian distribution
@@ -101,7 +138,7 @@ NULL
 #' @param seed A specified seed for random number generation.
 #' @return A randomly generated dataset.
 #' @export
-#' @seealso \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
+#' @seealso \code{\link{data.diag}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
 #' @examples
 #' data.parabol ()
 data.parabol <-
@@ -120,6 +157,42 @@ data.parabol <-
     return (d)
   }
 
+
+#' Square dataset
+#'
+#' Generate a random dataset shaped like a square divided by a custom function
+#' @name data.diag
+#' @param n Number of observations in the dataset.
+#' @param min Minimum value on each variables.
+#' @param max Maximum value on each variables.
+#' @param f The fucntion that separate the classes.
+#' @param levels Name of each class.
+#' @param graph A logical indicating whether or not a graphic should be plotted.
+#' @param seed A specified seed for random number generation.
+#' @return A randomly generated dataset.
+#' @export
+#' @seealso \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
+#' @examples
+#' data.square ()
+data.square <- function (n = 200, min = 0, max = 1, f = function (x) x, levels = NULL, graph = TRUE,
+                         seed = NULL)
+{
+  set.seed(seed)
+  if (is.null(levels))
+    levels = paste("Class", 1:2)
+  d = matrix(stats::runif(2 * n, min = min, max = max), ncol = 2)
+  d = cbind.data.frame(d, factor(ifelse(d[, 2] > f (d[, 1]), 1,
+                                        2), labels = levels))
+  colnames(d) = c("X", "Y", "Class")
+  if (graph)
+  {
+    plotdata(d[, -3], d[, 3])
+    x = seq (0, 1, length.out = 1001)
+    graphics::lines (x, f (x), col = "blue")
+  }
+  return (d)
+}
+
 #' Target1 dataset
 #'
 #' Generate a random dataset shaped like a target.
@@ -132,7 +205,7 @@ data.parabol <-
 #' @param seed A specified seed for random number generation.
 #' @return A randomly generated dataset.
 #' @export
-#' @seealso \code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
+#' @seealso \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
 #' @examples
 #' data.target1 ()
 data.target1 <-
@@ -168,7 +241,7 @@ data.target1 <-
 #' @param seed A specified seed for random number generation.
 #' @return A randomly generated dataset.
 #' @export
-#' @seealso \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.twomoons}}
+#' @seealso \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.twomoons}}
 #' @examples
 #' data.target2 ()
 data.target2 <-
@@ -201,7 +274,7 @@ data.target2 <-
 #' @param seed A specified seed for random number generation.
 #' @return A randomly generated dataset.
 #' @export
-#' @seealso \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}
+#' @seealso \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}
 #' @examples
 #' data.twomoons ()
 data.twomoons <-

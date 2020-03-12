@@ -9,7 +9,7 @@ stability(
   d,
   originals = NULL,
   eval = "jaccard",
-  comp = c("cluster", "max"),
+  comp = c("cluster", "global"),
   nsampling = 10,
   seed = NULL,
   names = NULL,
@@ -45,20 +45,22 @@ The evaluation of the clustering algorithm(s) (numeric values).
 Evaluation a clustering algorithm according to stability, through a bootstrap procedure.
 }
 \examples{
+\dontrun{
 require (datasets)
 data (iris)
 stability (KMEANS, iris [, -5], seed = 0, k = 3)
-stability (KMEANS, iris [, -5], seed = 0, k = 3, eval = c ("jaccard", "accuracy"), comp = "max")
+stability (KMEANS, iris [, -5], seed = 0, k = 3, eval = c ("jaccard", "accuracy"), comp = "global")
 stability (KMEANS, iris [, -5], seed = 0, k = 3, comp = "cluster")
 stability (KMEANS, iris [, -5], seed = 0, k = 3, eval = c ("jaccard", "accuracy"), comp = "cluster")
 stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3)
 stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3,
-eval = c ("jaccard", "accuracy"), comp = "max")
+eval = c ("jaccard", "accuracy"), comp = "global")
 stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3, comp = "cluster")
 stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3,
 eval = c ("jaccard", "accuracy"), comp = "cluster")
 stability (KMEANS, iris [, -5], originals = KMEANS (iris [, -5], k = 3)$cluster, seed = 0, k = 3)
 stability (KMEANS, iris [, -5], originals = KMEANS (iris [, -5], k = 3), seed = 0, k = 3)
+}
 }
 \seealso{
 \code{\link{compare}}, \code{\link{intern}}

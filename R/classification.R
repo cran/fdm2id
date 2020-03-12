@@ -206,9 +206,11 @@ adaboost.m2 <-
 #' @export
 #' @seealso \code{\link{BAGGING}}, \code{\link{predict.boosting}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
 #' ADABOOST (iris [, -5], iris [, 5], NB)
+#' }
 ADABOOST <-
   function (x, y, learningmethod, nsamples = 100, fuzzy = FALSE, tune = FALSE, seed = NULL, ...)
   {
@@ -245,9 +247,11 @@ ADABOOST <-
 #' @export
 #' @seealso \code{\link{ADABOOST}}, \code{\link{predict.boosting}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
 #' BAGGING (iris [, -5], iris [, 5], NB)
+#' }
 BAGGING <-
   function (x, y, learningmethod, nsamples = 100, size = nrow (x), seed = NULL, ...)
   {
@@ -268,287 +272,6 @@ BAGGING <-
     res = list (models = models, x = x, y = y)
     class (res) = "boosting"
     return (res)
-  }
-
-#' Bootstrap evaluation
-#'
-#' Evaluation a classification or regression method using bootstrap approach.
-#' @name bootstrap
-#' @param methods The classification or regression method to be evaluated.
-#' @param x The dataset (description/predictors), a \code{matrix} or \code{data.frame}.
-#' @param y The target (class labels or numeric values), a \code{factor} or \code{vector}.
-#' @param eval The evaluation function.
-#' @param nruns The number of bootstrap runs.
-#' @param methodparameters Method parameters (if null tuning is done by cross-validation).
-#' @param names Method names.
-#' @param seed A specified seed for random number generation (useful for testing different method with the same bootstap samplings).
-#' @param ... Other specific parameters for the leaning method.
-#' @return The evaluation of the predictions (numeric value).
-#' @export
-#' @seealso \code{\link{evaluate}}, \code{\link{evaluation}}, \code{\link{bootstrap.curves}}
-#' @examples
-#' require ("datasets")
-#' data (iris)
-#' # One method, one evaluation criterion
-#' bootstrap (NB, iris [, -5], iris [, 5], seed = 0)
-#' # One method, two evaluation criteria
-#' bootstrap (NB, iris [, -5], iris [, 5], eval = c ("accuracy", "kappa"), seed = 0)
-#' # Three methods, two evaluation criteria
-#' bootstrap (c (NB, LDA, LR), iris [, -5], iris [, 5], eval = c ("accuracy", "kappa"), seed = 0)
-#' # List of methods in a variable
-#' classif = c (NB, LDA, LR)
-#' bootstrap (classif, iris [, -5], iris [, 5], eval = c ("accuracy", "kappa"), seed = 0,
-#'            names = c ("NB", "LDA", "LR"))
-#' # List of strings (method names)
-#' classif = c ("NB", "LDA", "LR")
-#' bootstrap (classif, iris [, -5], iris [, 5], eval = c ("accuracy", "kappa"), seed = 0)
-bootstrap <-
-  function (methods, x, y, eval = ifelse (is.factor (y), "accuracy", "r2"), nruns = 10, seed = NULL, methodparameters = NULL, names = NULL, ...)
-  {
-    set.seed (seed)
-    methodNames = names
-    if (is.character (methods))
-    {
-      methodNames = methods
-      methods = sapply (methods, get)
-    }
-    else
-    {
-      if (is.null (names))
-      {
-        methodNames = as.character (match.call ()$methods)
-        if (length (methodNames) > 1)
-          methodNames = methodNames [-1]
-        if (length (methodNames) != length (methods))
-          methodNames = NULL
-      }
-    }
-    if (is.vector (x))
-      x = data.frame (X = x)
-    predictions = NULL
-    targets = NULL
-    n = length (y)
-    indices = 1:length (methods)
-    if (is.null (methodparameters))
-    {
-      if (length (methods) == 1)
-        methodparameters = methods (x, y, tune = TRUE, ...)
-      else
-        methodparameters = sapply (methods, function (method) method (x, y, tune = TRUE, ...))
-    }
-    set.seed (seed)
-    samples = matrix (sample (n, n * nruns, replace = TRUE), ncol = nruns)
-    for (i in 1:nruns)
-    {
-      s = samples [, i]
-      targets = c (targets, y [-s])
-      learn = x [s, ]
-      if (is.vector (learn))
-        learn = data.frame (X = learn)
-      test = x [-s, ]
-      if (is.vector (test))
-        test = data.frame (X = test)
-      rownames (learn) = 1:nrow (learn)
-      if (length (methods) == 1)
-      {
-        models = methods (learn, y [s], graph = FALSE, methodparameters = methodparameters, ...)
-        predictions = c (predictions, stats::predict (models, test, ...))
-      }
-      else
-      {
-        models = lapply (indices, function (i) methods [[i]] (learn, y [s], graph = FALSE, methodparameters = methodparameters [[i]], ...))
-        predictions = rbind (predictions, sapply (models, function (model) as.numeric (stats::predict (model, test, ...))))
-      }
-    }
-    if (is.factor (y))
-    {
-      lab = levels (y)
-      l1 = length (lab)
-      if (length (methods) == 1)
-      {
-        l2 = length (unique (predictions))
-        if (l2 > l1)
-          lab = c (lab, rep ("Unknown", l2 - l1))
-        lab = lab [sort (unique (predictions))]
-        predictions = factor (predictions, labels = lab)
-      }
-      else
-      {
-        predictions = as.data.frame (predictions)
-        predictions = lapply (predictions, function (column) {
-          l2 = length (unique (column))
-          lab2 = lab
-          if (l2 > l1)
-            lab2 = c (lab, rep ("Unknown", l2 - l1))
-          lab2 = lab2 [sort (unique (column))]
-          return (factor (column, labels = lab2))
-        })
-        predictions = as.data.frame (predictions)
-      }
-      targets = factor (targets, labels = levels (y))
-    }
-    res = NULL
-    if (length (methods) == 1)
-      res = evaluation (predictions = predictions, targets = targets, eval = eval, ...)
-    else
-    {
-      res = t (as.data.frame (lapply (predictions, function (column) evaluation (predictions = column, targets = targets, eval = eval, ...))))
-      rownames (res) = methodNames
-    }
-    return (res)
-  }
-
-#' Plot evaluation curves with bootstrap sampling
-#'
-#' Evaluation a classification method according to ROC Curves or Cost Curves using bootstrap approach.
-#' @name bootstrap.curves
-#' @param methods The classification or regression method to be evaluated.
-#' @param x The dataset (description/predictors), a \code{matrix} or \code{data.frame}.
-#' @param y The target (class labels or numeric values), a \code{factor} or \code{vector}.
-#' @param nruns The number of bootstrap runs.
-#' @param seed A specified seed for random number generation (useful for testing different method with the same bootstap samplings).
-#' @param curve A character string indicating the type of curve to be plotted.
-#' @param methodparameters Method parameters (if null tuning is done by cross-validation).
-#' @param new A logical value indicating whether a new plot should be be created or not.
-#' @param lty The line type (and color) specified as an integer.
-#' @param names Method names.
-#' @param ... Other specific parameters for the leaning method.
-#' @export
-#' @seealso \code{\link{bootstrap}}, \code{\link[ROCR]{prediction}}, \code{\link[ROCR]{performance}}
-#' @examples
-#' require ("datasets")
-#' data (iris)
-#' d = iris
-#' levels (d [, 5]) = c ("+", "+", "-") # Building a two classes dataset
-#' # One method
-#' bootstrap.curves (NB, d [, -5], d [, 5], seed = 0)
-#' # Three methods
-#' bootstrap.curves (c (NB, LDA, LR), d [, -5], d [, 5], seed = 0)
-bootstrap.curves <-
-  function (methods, x, y, nruns = 10, seed = NULL, curve = c ("ROC", "Cost"), methodparameters = NULL,
-            new = TRUE, lty = 1, names = NULL, ...)
-  {
-    set.seed (seed)
-    methodNames = names
-    if (is.character (methods))
-    {
-      methodNames = methods
-      methods = sapply (methods, get)
-    }
-    else
-    {
-      if (is.null (names))
-      {
-        methodNames = as.character (match.call ()$methods)
-        if (length (methodNames) > 1)
-          methodNames = methodNames [-1]
-        if (length (methodNames) != length (methods))
-          methodNames = NULL
-      }
-    }
-    if (is.vector (x))
-      x = data.frame (X = x)
-    predictions = NULL
-    targets = NULL
-    n = length (y)
-    indices = 1:length (methods)
-    if (is.null (methodparameters))
-    {
-      if (length (methods) == 1)
-        methodparameters = methods (x, y, tune = TRUE, ...)
-      else
-        methodparameters = sapply (methods, function (method) method (x, y, tune = TRUE, ...))
-    }
-    set.seed (seed)
-    samples = matrix (sample (n, n * nruns, replace = TRUE), ncol = nruns)
-    for (i in 1:nruns)
-    {
-      s = samples [, i]
-      targets = c (targets, y [-s])
-      learn = x [s, ]
-      if (is.vector (learn))
-        learn = data.frame (X = learn)
-      test = x [-s, ]
-      if (is.vector (test))
-        test = data.frame (X = test)
-      rownames (learn) = 1:nrow (learn)
-      if (length (methods) == 1)
-      {
-        models = methods (learn, y [s], graph = FALSE, methodparameters = methodparameters [[i]], ...)
-        predictions = c (predictions, stats::predict (models, test, ...))
-      }
-      else
-      {
-        models = lapply (indices, function (i) methods [[i]] (learn, y [s], graph = FALSE, methodparameters = methodparameters [[i]], ...))
-        predictions = rbind (predictions, sapply (models, function (model) as.numeric (stats::predict (model, test, ...))))
-      }
-    }
-    if (is.factor (y))
-    {
-      lab = levels (y)
-      l1 = length (lab)
-      if (length (methods) == 1)
-      {
-        l2 = length (unique (predictions))
-        if (l2 > l1)
-          lab = c (lab, rep ("Unknown", l2 - l1))
-        lab = lab [sort (unique (predictions))]
-        predictions = factor (predictions, labels = lab)
-      }
-      else
-      {
-        predictions = as.data.frame (predictions)
-        predictions = lapply (predictions, function (column) {
-          l2 = length (unique (column))
-          lab2 = lab
-          if (l2 > l1)
-            lab2 = c (lab, rep ("Unknown", l2 - l1))
-          lab2 = lab2 [sort (unique (column))]
-          return (factor (column, labels = lab2))
-        })
-        predictions = as.data.frame (predictions)
-      }
-      targets = factor (targets, labels = levels (y))
-    }
-    res = NULL
-    if (length (methods) == 1)
-    {
-      pred = ROCR::prediction (as.numeric (predictions), as.numeric (targets))
-      type = tolower (curve [1])
-      if (type == "roc")
-      {
-        perf = ROCR::performance (pred, "tpr", "fpr")
-        ROCR::plot (perf, add = !new, lty = lty, col = lty, asp = 1)
-      }
-      if (type == "cost")
-      {
-        perf = ROCR::performance (pred, "ecost")
-        ROCR::plot (perf, add = !new, lty = lty, col = lty)
-      }
-    }
-    else
-    {
-      n = length (methods)
-      add = c (!new, rep (T, n - 1))
-      linetype = lty:(lty + n - 1)
-      lapply (1:n, function (i) {
-        pred = ROCR::prediction (as.numeric (predictions [, i]), as.numeric (targets))
-        type = tolower (curve [1])
-        if (type == "roc")
-        {
-          perf = ROCR::performance (pred, "tpr", "fpr")
-          ROCR::plot (perf, add = add [i], lty = linetype [i], col = linetype [i], asp = 1)
-        }
-        if (type == "cost")
-        {
-          perf = ROCR::performance (pred, "ecost")
-          ROCR::plot (perf, add = add [i], lty = linetype [i], col = linetype [i])
-        }
-        add = TRUE
-        linetype = linetype + 1
-      })
-      graphics::legend ("bottomright", methodNames, lty = linetype, col = linetype)
-    }
   }
 
 #' Classification using CART
@@ -792,6 +515,80 @@ CDA <-
 cda.transform <-
   function (model, newdata) t (t (newdata) - apply (model$train, 2, mean)) %*% model$transform
 
+#' Confuion matrix
+#'
+#' Plot a confusion matrix.
+#' @name confusion
+#' @param gt The ground truth.
+#' @param pred The prediction.
+#' @param norm Whether or not the confusion matrix is normalized
+#' @param graph Whether or not a graphic is displayed.
+#' @return The confusion matrix.
+#' @export
+#' @seealso \code{\link{evaluation}}, \code{\link{performance}}, \code{\link{splitdata}}
+#' @examples
+#' require ("datasets")
+#' data (iris)
+#' d = splitdata (iris, 5)
+#' model = NB (d$train.x, d$train.y)
+#' pred = predict (model, d$test.x)
+#' confusion (d$test.y, pred)
+confusion <-
+  function (gt, pred, norm = TRUE, graph = TRUE)
+  {
+    graphics::layout (matrix (1:2, ncol = 2), width = c (2, 1), height = c (1, 1))
+    on.exit (graphics::layout (1))
+
+    conf = table (gt, pred, dnn = c ("True lables", "Predicted labels"))
+    color = NULL
+    maxval = 1
+    if (norm)
+    {
+      conf = sweep (conf, 1, rowSums (conf), "/")
+      color = (conf * 100) + 1
+    } else {
+      color = round (100 * conf / max (conf)) + 1
+      maxval = max (conf)
+    }
+    if (graph)
+    {
+      palette = grDevices::colorRampPalette (c ("#FAFAFF", "blue")) (101)
+      graphics::plot (c (0, ncol (conf) + 1), c (0, nrow (conf) + 1), col = 0,
+                      xlim = c (1, ncol (conf) + 1), ylim = c (1, nrow (conf) + 1),
+                      xaxs = "i", yaxs = "i", xlab = "", ylab = "",
+                      asp = 1, axes = FALSE,
+                      main = "Confusion matrix")
+      for (rrow in 1:nrow (conf))
+        for (col in 1:ncol (conf))
+        {
+          row = 1 + nrow (conf) - rrow
+          graphics::polygon (x = c (col, col, col + 1, col + 1), y = c (row, row + 1, row + 1, row),
+                             col = palette [color [rrow, col]], border = FALSE)
+          graphics::text (col + .5, row + .5, round (conf [rrow, col], 2))
+        }
+      cex = min (5, .15 / log10 (1 + max (graphics::strwidth (c (levels (gt), levels (pred))))))
+      graphics::polygon (x = c (1, 1, ncol (conf) + 1, ncol (conf) + 1), y = c (1, nrow (conf) + 1, nrow (conf) + 1, 1))
+      graphics::axis (side = 1, at = seq (1.5, by = 1, length.out = ncol (conf)), lwd = 0, lwd.ticks = 1,
+                      labels = levels (gt), pos = 1, cex.axis = cex)
+      graphics::axis (side = 2, at = seq (1.5, by = 1, length.out = nrow (conf)), lwd = 0, lwd.ticks = 1,
+                      labels = rev (levels (pred)), pos = 1, cex.axis = cex)
+      graphics::title (xlab = "Predicted labels")
+      graphics::mtext ("True labels", side = 2, line = 3)
+
+      raster = grDevices::as.raster (matrix (rev (palette), ncol = 1))
+      graphics::plot (c (0, 3), c (0, 1), type = 'n', axes = F, xlab = '', ylab = '')
+      graphics::rasterImage (raster, 0, 0, 1, 1)
+      labels = NULL
+      if (maxval == 1)
+        labels = seq (0, 1, l = 5)
+      else
+        labels = round (seq (0, maxval, l = 5))
+      graphics::axis (side = 4, at = seq (0, 1, l = 5), lwd = 0, lwd.ticks = 1,
+                      labels = labels, pos = 1, cex.axis = 1, las=2)
+    }
+    return (conf)
+  }
+
 #' Plot Cost Curves
 #'
 #' This function plots Cost Curves of several classification predictions.
@@ -801,7 +598,7 @@ cda.transform <-
 #' @param labels Actual labels of the dataset (\code{factor} or \code{vector}).
 #' @return The evaluation of the predictions (numeric value).
 #' @export
-#' @seealso \code{\link{roc.curves}}
+#' @seealso \code{\link{roc.curves}}, \code{\link{performance}}
 #' @examples
 #' require (datasets)
 #' data (iris)
@@ -815,16 +612,25 @@ cda.transform <-
 cost.curves <-
   function (methods.names, predictions, labels)
   {
-    pred = ROCR::prediction (as.numeric (predictions [, 1]), as.numeric (labels))
-    perf = ROCR::performance (pred, "ecost")
-    ROCR::plot (perf)
-    for (i in 2:ncol (predictions))
+    if (is.factor (predictions))
     {
-      pred = ROCR::prediction (as.numeric (predictions [, i]), as.numeric (labels))
+      pred = ROCR::prediction (as.numeric (predictions), as.numeric (labels))
       perf = ROCR::performance (pred, "ecost")
-      ROCR::plot (perf, add = TRUE, lty = i, col = i)
+      ROCR::plot (perf, xlab = "", ylab = "Error")
     }
-    graphics::legend ("topleft", methods.names, lty = 1:ncol (predictions), col = 1:ncol (predictions))
+    else
+    {
+      pred = ROCR::prediction (as.numeric (predictions [, 1]), as.numeric (labels))
+      perf = ROCR::performance (pred, "ecost")
+      ROCR::plot (perf, xlab = "", ylab = "Error")
+      for (i in 2:ncol (predictions))
+      {
+        pred = ROCR::prediction (as.numeric (predictions [, i]), as.numeric (labels))
+        perf = ROCR::performance (pred, "ecost")
+        ROCR::plot (perf, add = TRUE, lty = i, col = i)
+      }
+      graphics::legend ("topleft", methods.names, lty = 1:ncol (predictions), col = 1:ncol (predictions), bty = "n")
+    }
   }
 
 #' @keywords internal
@@ -917,67 +723,6 @@ eval.recall <-
     return (recall)
   }
 
-
-#' Evaluate several classication (or regression) methods
-#'
-#' Evaluation a classification or regression method using bootstrap approach.
-#' @name evaluate
-#' @param methods The classification or regression method to be evaluated.
-#' @param dataset The dataset to be split (\code{data.frame} or \code{matrix}).
-#' @param target The column index of the target variable (class label or response variable).
-#' @param size The size of the training set (as an integer value).
-#' @param names Method names.
-#' @param eval The evaluation function.
-#' @param seed A specified seed for random number generation.
-#' @param ... Other specific parameters for the leaning method.
-#' @return The evaluation of the predictions (numeric value).
-#' @export
-#' @seealso \code{\link{bootstrap}}, \code{\link{evaluation}}, \code{\link{splitdata}}
-#' @examples
-#' require ("datasets")
-#' data (iris)
-#' evaluate (c (NB, LDA), iris, target = 5, eval = c ("accuracy", "kappa"), seed = 0)
-evaluate <- function (methods, dataset, target = NULL, size = round (0.7 * nrow (dataset)), names = NULL, eval = "accuracy", seed = NULL, ...)
-{
-  methodNames = names
-  if (is.character (methods))
-  {
-    methodNames = methods
-    methods = sapply (methods, get)
-  }
-  else
-  {
-    if (is.null (names))
-    {
-      methodNames = as.character (match.call ()$methods)
-      if (length (methodNames) > 1)
-        methodNames = methodNames [-1]
-      if (length (methodNames) != length (methods))
-        methodNames = NULL
-    }
-  }
-  d = NULL
-  if ("dataset" %in% class (dataset))
-    d = dataset
-  else
-  {
-    if (!is.null (target))
-      d = splitdata (dataset, target = target, size = size, seed = seed)
-    else
-      message ("Invalid dataset")
-  }
-  res = NULL
-  if (length (methods) == 1)
-    res = evaluation (predict (methods (d$train.x, d$train.y, ...), d$test.x, ...), d$test.y, eval = eval, ...)
-  else
-  {
-    res = t (matrix (sapply (methods, function (method) evaluation (predict (method (d$train.x, d$train.y, ...), d$test.x, ...), d$test.y, eval = eval, ...)), ncol = length (methods)))
-    colnames (res) = eval
-    rownames (res) = methodNames
-  }
-  return (res)
-}
-
 #' Evaluation of classification or regression predictions
 #'
 #' Evaluation predictions of a classification or a regression model.
@@ -988,9 +733,9 @@ evaluate <- function (methods, dataset, target = NULL, size = round (0.7 * nrow 
 #' @param ... Other parameters.
 #' @return The evaluation of the predictions (numeric value).
 #' @export
-#' @seealso \code{\link{evaluation.accuracy}}, \code{\link{evaluation.fmeasure}}, \code{\link{evaluation.fowlkesmallows}}, \code{\link{evaluation.goodness}}, \code{\link{evaluation.jaccard}}, \code{\link{evaluation.kappa}},
+#' @seealso \code{\link{confusion}}, \code{\link{evaluation.accuracy}}, \code{\link{evaluation.fmeasure}}, \code{\link{evaluation.fowlkesmallows}}, \code{\link{evaluation.goodness}}, \code{\link{evaluation.jaccard}}, \code{\link{evaluation.kappa}},
 #' \code{\link{evaluation.precision}}, \code{\link{evaluation.recall}},
-#' \code{\link{evaluation.msep}}, \code{\link{evaluation.r2}}
+#' \code{\link{evaluation.msep}}, \code{\link{evaluation.r2}}, \code{\link{performance}}
 #' @examples
 #' require (datasets)
 #' data (iris)
@@ -1266,9 +1011,11 @@ evaluation.recall <-
 #' @export
 #' @seealso \code{\link[xgboost]{xgboost}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
 #' GRADIENTBOOSTING (iris [, -5], iris [, 5])
+#' }
 GRADIENTBOOSTING <-
   function (train, labels,
             ntree = 500,
@@ -1412,9 +1159,11 @@ LR <-
 #' @export
 #' @seealso \code{\link[nnet]{nnet}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
 #' MLP (iris [, -5], iris [, 5], size = 4, decay = .1)
+#' }
 MLP <-
   function (train,
             labels,
@@ -1485,6 +1234,233 @@ NB <-
       class (res) = "model"
     }
     return (res)
+  }
+
+#' @keywords internal
+panel.compare <-
+  function (x, y, ...)
+  {
+    graphics::points (x, y, col = "red")
+    graphics::abline (a = 0, b = 1, col = "blue")
+  }
+
+#' Performance estimation
+#'
+#' Estimate the performance of classification or regression methods using bootstrap or crossvalidation (accuracy, ROC curves, confusion matrices, ...)
+#' @name performance
+#' @param methods The classification or regression methods to be evaluated.
+#' @param train.x The dataset (description/predictors), a \code{matrix} or \code{data.frame}.
+#' @param train.y The target (class labels or numeric values), a \code{factor} or \code{vector}.
+#' @param test.x The test dataset (description/predictors), a \code{matrix} or \code{data.frame}.
+#' @param test.y The (test) target (class labels or numeric values), a \code{factor} or \code{vector}.
+#' @param size The size of the training set (holdout estimation).
+#' @param type The type of evaluation (confusion matrix, ROC curve, ...)
+#' @param protocol The evaluation protocol (crossvalidation, bootstrap, ...)
+#' @param eval The evaluation functions.
+#' @param nruns The number of bootstrap runs.
+#' @param nfolds The number of folds (crossvalidation estimation).
+#' @param new A logical value indicating whether a new plot should be be created or not (cost curves or ROC curves).
+#' @param lty The line type (and color) specified as an integer (cost curves or ROC curves).
+#' @param methodparameters Method parameters (if null tuning is done by cross-validation).
+#' @param names Method names.
+#' @param seed A specified seed for random number generation (useful for testing different method with the same bootstap samplings).
+#' @param ... Other specific parameters for the leaning method.
+#' @return The evaluation of the predictions (numeric value).
+#' @export
+#' @seealso \code{\link{confusion}}, \code{\link{evaluation}}, \code{\link{cost.curves}}, \code{\link{roc.curves}}
+#' @examples
+#' \dontrun{
+#' require ("datasets")
+#' data (iris)
+#' # One method, one evaluation criterion, bootstrap estimation
+#' performance (NB, iris [, -5], iris [, 5], seed = 0)
+#' # One method, two evaluation criteria, train set estimation
+#' performance (NB, iris [, -5], iris [, 5], eval = c ("accuracy", "kappa"),
+#'              protocol = "train", seed = 0)
+#' # Three methods, ROC curves, LOOCV estimation
+#' performance (c (NB, LDA, LR), linsep [, -3], linsep [, 3], type = "roc",
+#'              protocol = "loocv", seed = 0)
+#' # List of methods in a variable, confusion matrix, hodout estimation
+#' classif = c (NB, LDA, LR)
+#' performance (classif, iris [, -5], iris [, 5], type = "confusion",
+#'              protocol = "holdout", seed = 0, names = c ("NB", "LDA", "LR"))
+#' # List of strings (method names), scatterplot evaluation, crossvalidation estimation
+#' classif = c ("NB", "LDA", "LR")
+#' performance (classif, iris [, -5], iris [, 5], type = "scatter",
+#'              protocol = "crossvalidation", seed = 0)
+#' }
+performance <-
+  function (methods, train.x, train.y, test.x = NULL, test.y = NULL, size = round (0.7 * nrow (train.x)), type = c ("evaluation", "confusion", "roc", "cost", "scatter"),
+            protocol = c ("bootstrap", "crossvalidation", "loocv", "holdout", "train"),
+            eval = ifelse (is.factor (train.y), "accuracy", "r2"),
+            nruns = 10, nfolds = 10, new = TRUE, lty = 1,
+            seed = NULL, methodparameters = NULL, names = NULL, ...)
+  {
+    if (length (train.y) == 1)
+    {
+      index = train.y
+      train.y = train.x [, index]
+      train.x = train.x [, -index]
+    }
+    methodNames = names
+    if (is.character (methods))
+    {
+      methodNames = methods
+      methods = sapply (methods, get)
+    }
+    else
+    {
+      if (is.null (names))
+      {
+        methodNames = as.character (match.call ()$methods)
+        if (length (methodNames) > 1)
+          methodNames = methodNames [-1]
+        if (length (methodNames) != length (methods))
+          methodNames = NULL
+      }
+    }
+    if (is.vector (train.x))
+      train.x = data.frame (X = train.x)
+    set.seed (seed)
+    if (is.null (methodparameters))
+    {
+      if (length (methods) == 1)
+        methodparameters = methods (train.x, train.y, tune = TRUE, ...)
+      else
+        methodparameters = sapply (methods, function (method) method (train.x, train.y, tune = TRUE, ...))
+    }
+    tmp = get (paste ("protocol.", protocol [1], sep = "")) (methods = methods, train.x = train.x, train.y = train.y, test.x = test.x, test.y = test.y, size = size,
+                                                             methodparameters = methodparameters, nruns = nruns, nfolds = nfolds, seed = seed, ...)
+    predictions = tmp$predictions
+    targets = tmp$targets
+    if (type [1] %in% c ("evaluation", "confusion", "roc", "cost"))
+    {
+      if (length (methods) == 1)
+        predictions = unlist (predictions)
+      else
+        predictions = do.call ("rbind", predictions)
+      predictions = unlist (predictions)
+      targets = unlist (targets)
+      if (is.factor (train.y))
+      {
+        lab = levels (train.y)
+        l1 = length (lab)
+        if (length (methods) == 1)
+        {
+          l2 = length (unique (predictions))
+          if (l2 > l1)
+            lab = c (lab, rep ("Unknown", l2 - l1))
+          lab = lab [sort (unique (predictions))]
+          predictions = factor (predictions, labels = lab)
+        }
+        else
+        {
+          predictions = as.data.frame (predictions)
+          predictions = lapply (predictions, function (column) {
+            l2 = length (unique (column))
+            lab2 = lab
+            if (l2 > l1)
+              lab2 = c (lab, rep ("Unknown", l2 - l1))
+            lab2 = lab2 [sort (unique (column))]
+            return (factor (column, labels = lab2))
+          })
+        }
+        targets = factor (targets, labels = levels (train.y))
+      }
+      if (length (methods) > 1)
+        predictions = as.data.frame (predictions)
+    }
+    if (type [1] == "evaluation")
+    {
+      res = NULL
+      if (length (methods) == 1)
+        res = evaluation (predictions = predictions, targets = targets, eval = eval, ...)
+      else
+      {
+        res = t (as.data.frame (lapply (predictions, function (column) evaluation (predictions = column, targets = targets, eval = eval, ...))))
+        rownames (res) = methodNames
+      }
+      return (res)
+    }
+    else if (type [1] == "confusion")
+    {
+      res = NULL
+      if (length (methods) == 1)
+        res = confusion (targets, predictions)
+      else
+      {
+        for (prediction in predictions)
+          res = c (res, list (confusion (targets, prediction)))
+        names (res) = methodNames
+      }
+      return (res)
+    }
+    else if (type [1] == "roc")
+      roc.curves (methodNames, predictions, targets)
+    else if (type [1] == "cost")
+      cost.curves (methodNames, predictions, targets)
+    else if (type [1] == "scatter")
+    {
+      res = array (dim = c (length (targets), length (methods), length (eval)))
+      for (i in 1:length (targets))
+      {
+        gt = targets [[i]]
+        pred = predictions [[i]]
+        if (is.factor (train.y))
+        {
+          lab = levels (train.y)
+          l1 = length (lab)
+          if (length (methods) == 1)
+          {
+            l2 = length (unique (pred))
+            if (l2 > l1)
+              lab = c (lab, rep ("Unknown", l2 - l1))
+            lab = lab [sort (unique (pred))]
+            pred = factor (pred, labels = lab)
+          }
+          else
+          {
+            pred = as.data.frame (pred)
+            pred = lapply (pred, function (column) {
+              l2 = length (unique (column))
+              lab2 = lab
+              if (l2 > l1)
+                lab2 = c (lab, rep ("Unknown", l2 - l1))
+              lab2 = lab2 [sort (unique (column))]
+              return (factor (column, labels = lab2))
+            })
+            pred = as.data.frame (pred)
+          }
+          gt = factor (gt, labels = levels (train.y))
+          if (length (methods) == 1)
+            res [i, , ] = as.matrix (evaluation (predictions = pred, targets = gt, eval = eval, ...))
+          else
+            res [i, , ] = as.matrix (t (as.data.frame (lapply (pred, function (column) evaluation (predictions = column, targets = gt, eval = eval, ...)))))
+        }
+      }
+      for (i in 1:dim (res) [3])
+      {
+        if (dim (res) [2] == 1)
+          graphics::plot (sort (res [, 1, i]), col = "red", xlab = "", ylab = dimnames (res) [[3]][i], main = dimnames (res) [[2]][1])
+        else if (dim (res) [2] == 2)
+        {
+          dd = matrix (res [, 1:2, i], nrow = dim (res) [1])
+          colnames (dd) = methodNames
+          lim = c (min (dd), max (dd))
+          graphics::plot (dd, asp = 1, xlim = lim, ylim = lim, col = "red", main = dimnames (res) [[3]][i])
+          graphics::abline (a = 0, b = 1, col = "blue")
+        }
+        else
+        {
+          dd = matrix (res [, , i], nrow = dim (res) [1])
+          colnames (dd) = methodNames
+          lim = c (min (dd), max (dd))
+          graphics::pairs (dd, upper.panel = panel.compare, lower.panel = NULL, asp = 1, xlim = lim, ylim = lim)
+        }
+      }
+    }
+    else
+      message ("Unknown evaluation")
   }
 
 #' Plot function for cda-class
@@ -1586,6 +1562,7 @@ plot.cda <-
 #' @method predict boosting
 #' @seealso \code{\link{ADABOOST}}, \code{\link{BAGGING}}, \code{\link{boosting-class}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
 #' d = splitdata (iris, 5)
@@ -1593,6 +1570,7 @@ plot.cda <-
 #' predict (model, d$test.x)
 #' model = ADABOOST (d$train.x, d$train.y, NB)
 #' predict (model, d$test.x)
+#' }
 predict.boosting <- function (object, test, fuzzy = FALSE, ...)
 {
   pred = lapply (object$models, function (model) predict (model, test, fuzzy, ...))
@@ -1835,6 +1813,155 @@ predict.model <-
     return (res)
   }
 
+#' @keywords internal
+protocol.bootstrap <-
+  function (methods, train.x, train.y, methodparameters, nruns, seed, ...)
+  {
+    set.seed (seed)
+    predictions = NULL
+    targets = NULL
+    n = length (train.y)
+    indices = 1:length (methods)
+    samples = matrix (sample (n, n * nruns, replace = TRUE), ncol = nruns)
+    for (i in 1:nruns)
+    {
+      s = samples [, i]
+      targets = c (targets, list (train.y [-s]))
+      learn = train.x [s, ]
+      if (is.vector (learn))
+        learn = data.frame (X = learn)
+      test = train.x [-s, ]
+      if (is.vector (test))
+        test = data.frame (X = test)
+      rownames (learn) = 1:nrow (learn)
+      if (length (methods) == 1)
+      {
+        models = methods (learn, train.y [s], graph = FALSE, methodparameters = methodparameters, ...)
+        predictions = c (predictions, list (stats::predict (models, test, ...)))
+      }
+      else
+      {
+        models = lapply (indices, function (i) methods [[i]] (learn, train.y [s], graph = FALSE, methodparameters = methodparameters [[i]], ...))
+        predictions = c (predictions, list (sapply (models, function (model) as.numeric (stats::predict (model, test, ...)))))
+      }
+    }
+    return (list (predictions = predictions, targets = targets))
+  }
+
+#' @keywords internal
+protocol.crossvalidation <-
+  function (methods, train.x, train.y, methodparameters, nruns, nfolds, seed, ...)
+  {
+    set.seed (seed)
+    predictions = NULL
+    targets = NULL
+    n = length (train.y)
+    indices = 1:length (methods)
+    for (i in 1:nruns)
+    {
+      if (!is.null (seed))
+        set.seed (seed + i)
+      s = sample (n, n, replace = FALSE)
+      folds = rep (1:nfolds, diff (round ((n / nfolds) * 0:(nfolds))))
+      for (j in 1:nfolds)
+      {
+        slearn = s [folds != j]
+        stest = s [folds == j]
+        targets = c (targets, list (train.y [stest]))
+        learn = train.x [slearn, ]
+        if (is.vector (learn))
+          learn = data.frame (X = learn)
+        test = train.x [stest, ]
+        if (is.vector (test))
+          test = data.frame (X = test)
+        rownames (learn) = 1:nrow (learn)
+        if (length (methods) == 1)
+        {
+          models = methods (learn, train.y [slearn], graph = FALSE, methodparameters = methodparameters, ...)
+          predictions = c (predictions, list (stats::predict (models, test, ...)))
+        }
+        else
+        {
+          models = lapply (indices, function (i) methods [[i]] (learn, train.y [slearn], graph = FALSE, methodparameters = methodparameters [[i]], ...))
+          predictions = c (predictions, list (sapply (models, function (model) as.numeric (stats::predict (model, test, ...)))))
+        }
+      }
+    }
+    return (list (predictions = predictions, targets = targets))
+  }
+
+#' @keywords internal
+protocol.holdout <-
+  function (methods, train.x, train.y, test.x = NULL, test.y = NULL, size = round (0.7 * length (train.y)), methodparameters, seed, ...)
+  {
+    set.seed (seed)
+    if (is.null (test.x) | is.null (test.y))
+    {
+      set.seed (seed)
+      if (size < 1)
+        size = round (size * length (train.y))
+      s = sample (nrow (train.x), size)
+      test.x = train.x [-s, ]
+      train.x = train.x [s, ]
+      if (is.vector (train.x))
+        train.x = data.frame (X = train.x)
+      if (is.vector (train.x))
+        test.x = data.frame (X = test.x)
+      test.y = train.y [-s]
+      train.y = train.y [s]
+    }
+    set.seed (seed)
+    predictions = NULL
+    targets = test.y
+    indices = 1:length (methods)
+    if (length (methods) == 1)
+      predictions = predict (methods (train.x, train.y, graph = FALSE, methodparameters = methodparameters, ...), test.x)
+    else
+    {
+      models = lapply (indices, function (i) methods [[i]] (train.x, train.y, graph = FALSE, methodparameters = methodparameters [[i]], ...))
+      predictions = sapply (models, function (model) as.numeric (stats::predict (model, test.x, ...)))
+    }
+    return (list (predictions = list (predictions), targets = list (targets)))
+  }
+
+#' @keywords internal
+protocol.loocv <-
+  function (methods, train.x, train.y, methodparameters, seed, ...)
+  {
+    set.seed (seed)
+    predictions = NULL
+    targets = train.y
+    indices = 1:length (methods)
+    if (length (methods) == 1)
+      predictions = sapply (1:length (train.y), function (j) predict (methods (train.x [-j, ], train.y [-j], graph = FALSE, methodparameters = methodparameters, ...), train.x [j, ]))
+    else
+    {
+      predictions = t (sapply (1:length (train.y), function (j) {
+        models = lapply (indices, function (i) methods [[i]] (train.x [-j, ], train.y [-j], graph = FALSE, methodparameters = methodparameters [[i]], ...))
+        predictions = sapply (models, function (model) as.numeric (stats::predict (model, train.x [j, ], ...)))
+      }))
+    }
+    return (list (predictions = list (predictions), targets = list (targets)))
+  }
+
+#' @keywords internal
+protocol.train <-
+  function (methods, train.x, train.y, methodparameters, seed, ...)
+  {
+    set.seed (seed)
+    predictions = NULL
+    targets = train.y
+    indices = 1:length (methods)
+    if (length (methods) == 1)
+      predictions = predict (methods (train.x, train.y, graph = FALSE, methodparameters = methodparameters, ...), train.x)
+    else
+    {
+      models = lapply (indices, function (i) methods [[i]] (train.x, train.y, graph = FALSE, methodparameters = methodparameters [[i]], ...))
+      predictions = sapply (models, function (model) as.numeric (stats::predict (model, train.x, ...)))
+    }
+    return (list (predictions = list (predictions), targets = list (targets)))
+  }
+
 #' Classification using Quadratic Discriminant Analysis
 #'
 #' This function builds a classification model using Quadratic Discriminant Analysis.
@@ -1881,9 +2008,11 @@ QDA <-
 #' @export
 #' @seealso \code{\link[randomForest]{randomForest}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
 #' RANDOMFOREST (iris [, -5], iris [, 5])
+#' }
 RANDOMFOREST <-
   function (train, labels,
             ntree = 500,
@@ -1913,7 +2042,7 @@ RANDOMFOREST <-
 #' @param labels Actual labels of the dataset (\code{factor} or \code{vector}).
 #' @return The evaluation of the predictions (numeric value).
 #' @export
-#' @seealso \code{\link{cost.curves}}
+#' @seealso \code{\link{cost.curves}}, \code{\link{performance}}
 #' @examples
 #' require (datasets)
 #' data (iris)
@@ -1927,17 +2056,25 @@ RANDOMFOREST <-
 roc.curves <-
   function (methods.names, predictions, labels)
   {
-    pred = ROCR::prediction (as.numeric (predictions [, 1]), as.numeric (labels))
-    perf = ROCR::performance (pred, "tpr", "fpr")
-    ROCR::plot (perf)
-    nclasses = ncol (predictions)
-    for (i in 2:nclasses)
+    if (is.factor (predictions))
     {
-      pred = ROCR::prediction (as.numeric (predictions [, i]), as.numeric (labels))
+      pred = ROCR::prediction (as.numeric (predictions), as.numeric (labels))
       perf = ROCR::performance (pred, "tpr", "fpr")
-      ROCR::plot (perf, add = TRUE, lty = i, col = i)
+      ROCR::plot (perf, asp = 1)
     }
-    graphics::legend ("bottomright", methods.names, lty = 1:nclasses, col = 1:nclasses)
+    else
+    {
+      pred = ROCR::prediction (as.numeric (predictions [, 1]), as.numeric (labels))
+      perf = ROCR::performance (pred, "tpr", "fpr")
+      ROCR::plot (perf, asp = 1)
+      for (i in 2:ncol (predictions))
+      {
+        pred = ROCR::prediction (as.numeric (predictions [, i]), as.numeric (labels))
+        perf = ROCR::performance (pred, "tpr", "fpr")
+        ROCR::plot (perf, add = TRUE, lty = i, col = i)
+      }
+      graphics::legend ("bottomright", methods.names, lty = 1:ncol (predictions), col = 1:ncol (predictions), bty = "n")
+    }
   }
 
 #' Classification using one-level decision tree
@@ -1985,10 +2122,12 @@ STUMP <-
 #' @export
 #' @seealso \code{\link[e1071]{svm}}, \code{\link{SVMl}}, \code{\link{SVMr}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
 #' SVM (iris [, -5], iris [, 5], kernel = "linear", cost = 1)
 #' SVM (iris [, -5], iris [, 5], kernel = "radial", gamma = 1, cost = 1)
+#' }
 SVM <-
   function (train,
             labels,
@@ -2044,9 +2183,11 @@ SVM <-
 #' @export
 #' @seealso \code{\link[e1071]{svm}}, \code{\link{SVM}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
 #' SVMl (iris [, -5], iris [, 5], cost = 1)
+#' }
 SVMl <-
   function (train,
             labels,
@@ -2082,9 +2223,11 @@ SVMl <-
 #' @export
 #' @seealso \code{\link[e1071]{svm}}, \code{\link{SVM}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
 #' SVMr (iris [, -5], iris [, 5], gamma = 1, cost = 1)
+#' }
 SVMr <-
   function (train,
             labels,

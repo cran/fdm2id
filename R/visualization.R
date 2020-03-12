@@ -1,3 +1,17 @@
+#' @keywords internal
+histogram <- function(d, main)
+{
+  histogram = graphics::hist (d, xlab = "", main = main, col = "#EB9292", ylab = "")
+  graphics::mtext ("Frequency", side = 2, line = 3)
+  xlim = c (min (histogram$breaks), max (histogram$breaks))
+  ylim = c (0, 1)
+  opar = graphics::par (new = TRUE)
+  on.exit (graphics::par (opar))
+  graphics::plot (stats::density (d), type = "l", col = "blue", xaxt = "n", yaxt = "n", xlab = "", ylab = "", main = "", xlim = xlim, ylim = ylim)
+  graphics::axis (4)
+  graphics::mtext ("Density", side = 4, line = 3)
+}
+
 #' Non-negative Matrix Factorization
 #'
 #' Return the NMF decomposition.
@@ -9,25 +23,32 @@
 #' @export
 #' @seealso \code{\link[NMF]{nmf}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
-#' NMF (iris [, -5], nstart = 1)
+#' NMF (iris [, -5])
+#' }
 NMF <-
   function (x, rank = 2, nstart = 10, ...)
   {
-
-    res = NMF::nmf (x, rank)
-    eval = res@residuals
-    for (i in 1:(nstart - 1))
+    res = NULL
+    if (requireNamespace (NMF, quietly = TRUE))
     {
-      tmp = NMF::nmf (x, rank)
-      if (tmp@residuals < eval)
+      res = NMF::nmf (x, rank)
+      eval = res@residuals
+      for (i in 1:(nstart - 1))
       {
-        res = tmp
-        eval = res@residuals
+        tmp = NMF::nmf (x, rank)
+        if (tmp@residuals < eval)
+        {
+          res = tmp
+          eval = res@residuals
+        }
       }
+      colnames (res@fit@W) = paste ("Dim.", 1:rank)
     }
-    colnames (res@fit@W) = paste ("Dim.", 1:rank)
+    else
+      message ("Package 'NMF' not installed!")
     return (res)
   }
 
@@ -42,7 +63,7 @@ panel.hist <- function(x, ...)
   nB = length (breaks)
   y = h$counts
   y = y / max (y)
-  graphics::rect (breaks [-nB], 0, breaks [-1], y, col="grey")
+  graphics::rect (breaks [-nB], 0, breaks [-1], y, col = "grey")
 }
 
 #' @keywords internal
@@ -55,8 +76,8 @@ panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
   on.exit (graphics::par (usr))
   graphics::par (usr = c (0, 1, 0, 1))
   r = stats::cor (x, y)
-  txt = format (c (r, 0.123456789), digits=digits) [1]
-  txt = paste(prefix, txt, sep = "")
+  txt = format (c (r, 0.123456789), digits  =digits) [1]
+  txt = paste (prefix, txt, sep = "")
   if (missing (cex.cor))
     cex = 0.6 / graphics::strwidth (txt)
   graphics::text (0.5, 0.5, txt, cex = cex)
@@ -82,12 +103,18 @@ panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
 #' plotdata (iris [, -5]) # Défault (pairs)
 #' # With classification
 #' plotdata (iris [, -5], iris [, 5]) # Défault (pairs)
-#' plotdata (iris [, -5], iris [, 5], type = "scatter") # Scatter plot (PCA axis)
-#' plotdata (iris [, -5], iris [, 5], type = "boxplot") # Boxplot
-#' plotdata (iris [, -5], iris [, 5], type = "pca") # Scatter plot (PCA axis)
-#' plotdata (iris [, -5], iris [, 5], type = "cda") # Scatter plot (CDA axis)
-#' plotdata (iris [, -5], iris [, 5], type = "svd") # Scatter plot (SVD axis)
-#' plotdata (iris [, -5], iris [, 5], type = "som") # Kohonen map
+#' plotdata (iris, 5) # Column number
+#' plotdata (iris) # Automatic detection of the classification (if only one factor column)
+#' plotdata (iris, type = "scatter") # Scatter plot (PCA axis)
+#' plotdata (iris, type = "parallel") # Parallel coordinates
+#' plotdata (iris, type = "boxplot") # Boxplot
+#' plotdata (iris, type = "histogram") # Histograms
+#' plotdata (iris, type = "heatmap") # Heatmap
+#' plotdata (iris, type = "heatmapc") # Heatmap (and hierarchalcal clustering)
+#' plotdata (iris, type = "pca") # Scatter plot (PCA axis)
+#' plotdata (iris, type = "cda") # Scatter plot (CDA axis)
+#' plotdata (iris, type = "svd") # Scatter plot (SVD axis)
+#' plotdata (iris, type = "som") # Kohonen map
 #' # With only one variable
 #' plotdata (iris [, 1], iris [, 5]) # Défault (data vs. index)
 #' plotdata (iris [, 1], iris [, 5], type = "scatter") # Scatter plot (data vs. index)
@@ -95,9 +122,32 @@ panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
 #' # With two variables
 #' plotdata (iris [, 3:4], iris [, 5]) # Défault (scatter plot)
 #' plotdata (iris [, 3:4], iris [, 5], type = "scatter") # Scatter plot
+#' data (titanic)
+#' plotdata (titanic, type = "barplot") # Barplots
+#' plotdata (titanic, type = "pie") # Pie charts
 plotdata <-
-  function (d, k = NULL, type = c ("pairs", "scatter", "boxplot", "pca", "cda", "svd", "nmf", "tsne", "som"), legendpos = "topleft", alpha = 200, asp = 1, labels = FALSE, ...)
+  function (d, k = NULL,
+            type = c ("pairs", "scatter", "parallel", "boxplot", "histogram", "barplot", "pie", "heatmap", "heatmapc", "pca", "cda", "svd", "nmf", "tsne", "som", "words"),
+            legendpos = "topleft", alpha = 200, asp = 1, labels = FALSE, ...)
   {
+    factors = NULL
+    if (is.factor (d))
+      factors = TRUE
+    else if (is.vector (d))
+      factors = FALSE
+    else
+      factors = sapply (as.data.frame (d), is.factor)
+    if ((type [1] == "barplot") || (type [1] == "pie"))
+      d = d [, factors]
+    else
+    {
+      if ((is.null (k)) && (sum (factors) == 1))
+        k = d [, factors]
+      else if ((length (k) == 1) && (factors [k]))
+        k = d [, k]
+      if (sum (factors) > 0)
+        d = d [, !factors]
+    }
     col = 1
     pch = 1
     if (!is.null (k))
@@ -109,7 +159,9 @@ plotdata <-
     }
     lcol = sort (unique (col))
     lpch = sort (unique (pch))
-    if (is.vector (d))
+    if (length (d) == 0)
+      message ("Unavailable plot")
+    else if (is.vector (d))
     {
       if ((type [1] == "scatter") | (type [1] == "pairs"))
       {
@@ -130,6 +182,22 @@ plotdata <-
         }
         else
           graphics::boxplot (d, ylim = c (mini, maxi), ylab = "", col = "grey", xaxt='n', xlab = "")
+      }
+      else if (type [1] == "histogram")
+      {
+        histogram (d, "")
+      }
+      else if (type [1] == "barplot")
+      {
+        graphics::barplot (table (d), main = "", border = 0)
+      }
+      else if (type [1] == "pie")
+      {
+        graphics::pie (table (d), main = "", col = grDevices::colorRampPalette (c ("#E0E0FF", "#4F4FFF")) (nlevels (d)))
+      }
+      else if (type [1] == "words")
+      {
+        plotcloud (d, k = k, ...)
       }
       else
         message ("Unavailable plot")
@@ -263,6 +331,60 @@ plotdata <-
           graphics::plot (som, type = "mapping", col = col, labels = labels)
           graphics::legend (x = legendpos, legend = levels (k), fill = lcol, bty = "n")
         }
+      }
+      else if (type [1] == "heatmap")
+      {
+        d = as.matrix (d)
+        stats::heatmap (d, Rowv = NA, Colv = NA, cexRow = 0.2 + 1 / log10 (nrow (d) * 10), cexCol = 0.2 + 1 / log10 (ncol (d) * 10))
+      }
+      else if (type [1] == "heatmapc")
+      {
+        d = as.matrix (d)
+        stats::heatmap (d, hclustfun = HCA, cexRow = 0.2 + 1 / log10 (nrow (d) * 10), cexCol = 0.2 + 1 / log10 (ncol (d) * 10))
+      }
+      else if (type [1] == "parallel")
+      {
+        col = NULL
+        if (is.null (k))
+        {
+          n = nrow (d)
+          col = grDevices::rainbow (n) [sample (n, n)]
+        }
+        else
+          col = as.numeric (k) + 1
+        MASS::parcoord (d, col = col)
+      }
+      else if (type [1] == "histogram")
+      {
+        n = ncol (d)
+        nrow = round (sqrt (n))
+        ncol = ceiling (n / nrow)
+        graphics::layout (matrix (1:(nrow * ncol), ncol = ncol, byrow = TRUE))
+        on.exit (graphics::layout (1))
+        for (i in 1:n)
+        {
+          histogram (d [, i], colnames (d) [i])
+        }
+      }
+      else if (type [1] == "barplot")
+      {
+        n = ncol (d)
+        nrow = round (sqrt (n))
+        ncol = ceiling (n / nrow)
+        graphics::layout (matrix (1:(nrow * ncol), ncol = ncol, byrow = TRUE))
+        on.exit (graphics::layout (1))
+        for (i in 1:n)
+          graphics::barplot (table (d [, i]), main = colnames (d) [i], border = 0)
+      }
+      else if (type [1] == "pie")
+      {
+        n = ncol (d)
+        nrow = round (sqrt (n))
+        ncol = ceiling (n / nrow)
+        graphics::layout (matrix (1:(nrow * ncol), ncol = ncol, byrow = TRUE))
+        on.exit (graphics::layout (1))
+        for (i in 1:n)
+          graphics::pie (table (d [, i]), main = colnames (d) [i], col = grDevices::colorRampPalette (c ("#E0E0FF", "#4F4FFF")) (nlevels (d [, i])))
       }
     }
   }

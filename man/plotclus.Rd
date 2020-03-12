@@ -7,7 +7,7 @@
 plotclus(
   clustering,
   d = NULL,
-  type = c("scatter", "boxplot", "tree", "height", "mapping"),
+  type = c("scatter", "boxplot", "tree", "height", "mapping", "words"),
   centers = FALSE,
   k = NULL,
   tailsize = 9,
@@ -33,6 +33,7 @@ plotclus(
 Plot a clustering according to various parameters
 }
 \examples{
+\dontrun{
 require (datasets)
 data (iris)
 ward = HCA (iris [, -5], method = "ward", k = 3)
@@ -43,6 +44,7 @@ plotclus (ward, iris [, -5], type = "height") # Distances between merging cluste
 som = SOM (iris [, -5], xdim = 5, ydim = 5, post = "ward", k = 3)
 plotclus (som, iris [, -5], type = "scatter") # Scatter plot for SOM
 plotclus (som, iris [, -5], type = "mapping") # Kohonen map
+}
 }
 \seealso{
 \code{\link{treeplot}}, \code{\link{scatterplot}}, \code{\link{plot.som}}, \code{\link{boxclus}}

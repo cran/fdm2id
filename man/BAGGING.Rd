@@ -28,9 +28,11 @@ The classification model.
 Ensemble learning, through Bagging Algorithm.
 }
 \examples{
+\dontrun{
 require (datasets)
 data (iris)
 BAGGING (iris [, -5], iris [, 5], NB)
+}
 }
 \seealso{
 \code{\link{ADABOOST}}, \code{\link{predict.boosting}}

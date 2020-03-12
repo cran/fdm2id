@@ -21,11 +21,13 @@ cookplot <-
     y = stats::rstudent (mod)
     if (is.null (index))
       index = 1:length (mod$residuals)
-    else
+    else if (length (index) == 1)
     {
       xlab = colnames (mod$model) [index + 1]
       index = unlist (mod$model [index + 1])
     }
+    else
+      xlab = ""
     y = stats::cooks.distance (mod)
     n = length (mod$residuals)
     threshold = 4 / n
@@ -134,11 +136,13 @@ leverageplot <-
     y = stats::rstudent (mod)
     if (is.null (index))
       index = 1:length (mod$residuals)
-    else
+    else if (length (index) == 1)
     {
       xlab = colnames (mod$model) [index + 1]
       index = unlist (mod$model [index + 1])
     }
+    else
+      xlab = ""
     y = stats::hatvalues (mod)
     p = length (mod$coefficients)
     n = length (mod$residuals)
@@ -171,6 +175,7 @@ leverageplot <-
 #' @export
 #' @seealso \code{\link[stats]{lm}}, \code{\link[leaps]{regsubsets}}, \code{\link[pls]{mvr}}, \code{\link[glmnet]{glmnet}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' # With one independant variable
 #' data (cars)
@@ -192,6 +197,7 @@ leverageplot <-
 #' LINREG (mtcars [, -1], mtcars [, 1], reg = "elastic")
 #' LINREG (mtcars [, -1], mtcars [, 1], reg = "pcr")
 #' LINREG (mtcars [, -1], mtcars [, 1], reg = "plsr")
+#' }
 LINREG <-
   function (x, y, formula = ".",
             reg = c ("linear", "subset", "ridge", "lasso", "elastic", "pcr", "plsr"),
@@ -306,9 +312,11 @@ lmselect <-
 #' @export
 #' @seealso \code{\link[nnet]{nnet}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (trees)
 #' MLPREG (trees [, -3], trees [, 3])
+#' }
 MLPREG <-
   function (x,
             y,
@@ -427,9 +435,11 @@ plotmsep <-
 #' @export
 #' @seealso \code{\link[mda]{polyreg}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (trees)
 #' POLYREG (trees [, -3], trees [, 3])
+#' }
 POLYREG <-
   function (x, y, degree = 2, tune = FALSE, ...)
   {
@@ -497,11 +507,13 @@ resplot <-
     y = stats::rstudent (mod)
     if (is.null (index))
       index = 1:length (mod$residuals)
-    else
+    else if (length (index) == 1)
     {
       xlab = colnames (mod$model) [index + 1]
       index = unlist (mod$model [index + 1])
     }
+    else
+      xlab = ""
     ylim = c (min (y, -2) * 1.11, max (y, 2) * 1.11)
     graphics::plot (index, y, ylim = ylim, ylab = "Residuals", xlab = xlab, cex = 2, lwd = 2, col = ifelse (abs (y) <= 2, "darkgray", 2), cex.axis = 1.5, cex.lab = 1.5)
     mod = stats::loess (y ~ index)
@@ -530,10 +542,12 @@ resplot <-
 #' @export
 #' @seealso \code{\link[e1071]{svm}}, \code{\link{SVRl}}, \code{\link{SVRr}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (trees)
 #' SVR (trees [, -3], trees [, 3], kernel = "linear", cost = 1)
 #' SVR (trees [, -3], trees [, 3], kernel = "radial", gamma = 1, cost = 1)
+#' }
 SVR <-
   function (x,
             y,
@@ -586,9 +600,11 @@ SVR <-
 #' @export
 #' @seealso \code{\link[e1071]{svm}}, \code{\link{SVR}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (trees)
 #' SVRl (trees [, -3], trees [, 3], cost = 1)
+#' }
 SVRl <-
   function (x,
             y,
@@ -626,9 +642,11 @@ SVRl <-
 #' @export
 #' @seealso \code{\link[e1071]{svm}}, \code{\link{SVR}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (trees)
 #' SVRr (trees [, -3], trees [, 3], gamma = 1, cost = 1)
+#' }
 SVRr <-
   function (x,
             y,

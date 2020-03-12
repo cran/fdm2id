@@ -24,9 +24,11 @@ The classification model, as an object of class \code{\link{model-class}}.
 This function builds a polynomial regression model.
 }
 \examples{
+\dontrun{
 require (datasets)
 data (trees)
 POLYREG (trees [, -3], trees [, 3])
+}
 }
 \seealso{
 \code{\link[mda]{polyreg}}

@@ -39,10 +39,12 @@ The classification model.
 This function builds a classification model using Support Vector Machine.
 }
 \examples{
+\dontrun{
 require (datasets)
 data (iris)
 SVM (iris [, -5], iris [, 5], kernel = "linear", cost = 1)
 SVM (iris [, -5], iris [, 5], kernel = "radial", gamma = 1, cost = 1)
+}
 }
 \seealso{
 \code{\link[e1071]{svm}}, \code{\link{SVMl}}, \code{\link{SVMr}}

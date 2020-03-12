@@ -7,7 +7,8 @@
 plotdata(
   d,
   k = NULL,
-  type = c("pairs", "scatter", "boxplot", "pca", "cda", "svd", "nmf", "tsne", "som"),
+  type = c("pairs", "scatter", "parallel", "boxplot", "histogram", "barplot", "pie",
+    "heatmap", "heatmapc", "pca", "cda", "svd", "nmf", "tsne", "som", "words"),
   legendpos = "topleft",
   alpha = 200,
   asp = 1,
@@ -42,12 +43,18 @@ data (iris)
 plotdata (iris [, -5]) # Défault (pairs)
 # With classification
 plotdata (iris [, -5], iris [, 5]) # Défault (pairs)
-plotdata (iris [, -5], iris [, 5], type = "scatter") # Scatter plot (PCA axis)
-plotdata (iris [, -5], iris [, 5], type = "boxplot") # Boxplot
-plotdata (iris [, -5], iris [, 5], type = "pca") # Scatter plot (PCA axis)
-plotdata (iris [, -5], iris [, 5], type = "cda") # Scatter plot (CDA axis)
-plotdata (iris [, -5], iris [, 5], type = "svd") # Scatter plot (SVD axis)
-plotdata (iris [, -5], iris [, 5], type = "som") # Kohonen map
+plotdata (iris, 5) # Column number
+plotdata (iris) # Automatic detection of the classification (if only one factor column)
+plotdata (iris, type = "scatter") # Scatter plot (PCA axis)
+plotdata (iris, type = "parallel") # Parallel coordinates
+plotdata (iris, type = "boxplot") # Boxplot
+plotdata (iris, type = "histogram") # Histograms
+plotdata (iris, type = "heatmap") # Heatmap
+plotdata (iris, type = "heatmapc") # Heatmap (and hierarchalcal clustering)
+plotdata (iris, type = "pca") # Scatter plot (PCA axis)
+plotdata (iris, type = "cda") # Scatter plot (CDA axis)
+plotdata (iris, type = "svd") # Scatter plot (SVD axis)
+plotdata (iris, type = "som") # Kohonen map
 # With only one variable
 plotdata (iris [, 1], iris [, 5]) # Défault (data vs. index)
 plotdata (iris [, 1], iris [, 5], type = "scatter") # Scatter plot (data vs. index)
@@ -55,4 +62,7 @@ plotdata (iris [, 1], iris [, 5], type = "boxplot") # Boxplot
 # With two variables
 plotdata (iris [, 3:4], iris [, 5]) # Défault (scatter plot)
 plotdata (iris [, 3:4], iris [, 5], type = "scatter") # Scatter plot
+data (titanic)
+plotdata (titanic, type = "barplot") # Barplots
+plotdata (titanic, type = "pie") # Pie charts
 }

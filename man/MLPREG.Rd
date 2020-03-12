@@ -36,9 +36,11 @@ The classification model, as an object of class \code{\link{model-class}}.
 This function builds a regression model using MLP.
 }
 \examples{
+\dontrun{
 require (datasets)
 data (trees)
 MLPREG (trees [, -3], trees [, 3])
+}
 }
 \seealso{
 \code{\link[nnet]{nnet}}

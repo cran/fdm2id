@@ -44,9 +44,11 @@ setClass ("selection",
 #' @export
 #' @seealso \code{\link{selectfeatures}}, \code{\link{predict.selection}}, \code{\link{selection-class}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
 #' FEATURESELECTION (iris [, -5], iris [, 5], uninb = 2, mainmethod = LDA)
+#' }
 FEATURESELECTION <-
   function (train,
             labels,
@@ -70,7 +72,7 @@ fs.backward <-
   function (train, labels, multieval, ...)
   {
     select = rep (TRUE, ncol (train))
-    besteval = multieval (train, labels, type = "multivariate", ...)
+    besteval = multieval (train, labels, vtype = "multivariate", ...)
     bestselect = select
     while (sum (select) > 1)
     {
@@ -80,7 +82,7 @@ fs.backward <-
         nextselect = select
         nextselect [index] = FALSE
         subset = train [, nextselect]
-        return (multieval (subset, labels, type = "multivariate", ...))
+        return (multieval (subset, labels, vtype = "multivariate", ...))
       })
       localbesteval = max (eval)
       select [removenext [which.max (eval)]] = FALSE
@@ -103,7 +105,7 @@ fs.exhaustive <-
     {
       select = as.logical (as.integer (intToBits (index) [1:ncol (train)]))
       subset = train [, select]
-      return (multieval (subset, labels, type = "multivariate", ...))
+      return (multieval (subset, labels, vtype = "multivariate", ...))
     })
     res = as.logical (as.integer (intToBits (which.max (eval)) [1:ncol (train)]))
     res = list (selection = which (res), multieval = max (eval), algorithm = "exhaustive")
@@ -125,7 +127,7 @@ fs.forward <-
         nextselect = select
         nextselect [index] = TRUE
         subset = train [, nextselect]
-        return (multieval (subset, labels, type = "multivariate", ...))
+        return (multieval (subset, labels, vtype = "multivariate", ...))
       })
       localbesteval = max (eval)
       select [addnext [which.max (eval)]] = TRUE
@@ -143,7 +145,7 @@ fs.forward <-
 fs.ranking <-
   function (train, labels, unieval, uninb, unithreshold, multieval, wrapmethod, ...)
   {
-    eval = unieval (train, labels, type = "univariate")
+    eval = unieval (train, labels, vtype = "univariate")
     res = NULL
     if (!is.null (uninb) && (uninb > 0))
     {
@@ -163,7 +165,7 @@ fs.ranking <-
       meval = sapply (size, function (index)
       {
         subset = train [, features [1:index]]
-        return (multieval (subset, labels, type = "multivariate", wrapmethod = wrapmethod, ...))
+        return (multieval (subset, labels, vtype = "multivariate", wrapmethod = wrapmethod, ...))
       })
       selection = sort (features [1:which.max (meval)])
       res = list (selection = selection, unieval = eval, multieval = max (meval), algorithm = "ranking")
@@ -175,11 +177,11 @@ fs.ranking <-
 
 #' @keywords internal
 fseval.cfs <-
-  function (train, labels, type = c ("multivariate", "univariate"), ...)
+  function (train, labels, vtype = c ("multivariate", "univariate"), ...)
   {
     if (is.vector (train))
       train = matrix (train, ncol = 1)
-    if (type [1] == "univariate")
+    if (vtype [1] == "univariate")
     {
       message ("CFS is an multivariate measure")
       return (NULL)
@@ -199,11 +201,11 @@ fseval.cfs <-
 
 #' @keywords internal
 fseval.inertiaratio <-
-  function (train, labels, type = c ("univariate", "multivariate"), ...)
+  function (train, labels, vtype = c ("univariate", "multivariate"), ...)
   {
     if (is.vector (train))
       train = matrix (train, ncol = 1)
-    if (type [1] == "univariate")
+    if (vtype [1] == "univariate")
     {
       return (apply (train, 2, function (v)
       {
@@ -230,9 +232,9 @@ fseval.inertiaratio <-
 
 #' @keywords internal
 fseval.fisher <-
-  function (train, labels, type = c ("univariate", "multivariate"), ...)
+  function (train, labels, vtype = c ("univariate", "multivariate"), ...)
   {
-    if (type [1] == "univariate")
+    if (vtype [1] == "univariate")
     {
       n = as.vector (table (labels))
       centers = apply (train, 2, function (v) tapply (v, labels, mean))
@@ -249,12 +251,12 @@ fseval.fisher <-
 
 #' @keywords internal
 fseval.fstat <-
-  function (train, labels, type = c ("univariate", "multivariate"), ...)
+  function (train, labels, vtype = c ("univariate", "multivariate"), ...)
   {
     if (is.vector (train))
       train = matrix (train, ncol = 1)
     k = nlevels (labels)
-    if (type [1] == "univariate")
+    if (vtype [1] == "univariate")
     {
       return (apply (train, 2, function (v)
       {
@@ -286,11 +288,11 @@ fseval.fstat <-
 
 #' @keywords internal
 fseval.mrmr <-
-  function (train, labels, type = c ("multivariate", "univariate"), ...)
+  function (train, labels, vtype = c ("multivariate", "univariate"), ...)
   {
     if (is.vector (train))
       train = matrix (train, ncol = 1)
-    if (type [1] == "univariate")
+    if (vtype [1] == "univariate")
     {
       message ("mRMR is an multivariate measure")
       return (NULL)
@@ -314,11 +316,11 @@ fseval.mrmr <-
 
 #' @keywords internal
 fseval.relief <-
-  function (train, labels, type = c ("univariate", "multivariate"), nsamples = length (labels), k = 10, ...)
+  function (train, labels, vtype = c ("univariate", "multivariate"), nsamples = length (labels), k = 10, ...)
   {
     if (is.vector (train))
       train = matrix (train, ncol = 1)
-    if (type [1] == "univariate")
+    if (vtype [1] == "univariate")
     {
       samples = sample (nrow (train), nsamples, replace = nsamples > nrow (train))
       dis = flexclust::dist2 (train, train)
@@ -375,7 +377,7 @@ fseval.wrapper <-
     if (is.null (wrapmethod))
       message ("Cannot select features")
     else
-      res = bootstrap (methods = wrapmethod, x = train, y = labels, eval = wrapeval [1], ...)
+      res = performance (methods = wrapmethod, train.x = train, train.y = labels, type = "evaluation", protocol = "bootstrap", eval = wrapeval [1], ...)
     return (res)
   }
 
@@ -425,11 +427,13 @@ mutualinformation <-
 #' @method predict selection
 #' @seealso \code{\link{FEATURESELECTION}}, \code{\link{selection-class}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
 #' d = splitdata (iris, 5)
 #' model = FEATURESELECTION (d$train.x, d$train.y, uninb = 2, mainmethod = LDA)
 #' predict (model, d$test.x)
+#' }
 predict.selection <-
   function (object, test, fuzzy = FALSE, ...)
   {
@@ -493,12 +497,14 @@ proba <-
 #' @export
 #' @seealso \code{\link{FEATURESELECTION}}, \code{\link{selection-class}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
 #' selectfeatures (iris [, -5], iris [, 5], algorithm = "forward", multieval = "fstat")
 #' selectfeatures (iris [, -5], iris [, 5], algorithm = "ranking", uninb = 2)
 #' selectfeatures (iris [, -5], iris [, 5], algorithm = "ranking",
 #'                 multieval = "wrapper", wrapmethod = LDA)
+#' }
 selectfeatures <-
   function (train,
             labels,

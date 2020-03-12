@@ -113,7 +113,7 @@ createvectorizer <-
 #'
 #' Most frequent words of the corpus.
 #' @name frequentwords
-#' @param d The corpus of documents (a vector of characters) or the vocabulary of the documents (result of function \code{getvocab}).
+#' @param corpus The corpus of documents (a vector of characters) or the vocabulary of the documents (result of function \code{getvocab}).
 #' @param nb The number of words to be returned.
 #' @param mincount Minimum word count to be considered as frequent.
 #' @param minphrasecount Minimum collocation of words count to be considered as frequent.
@@ -131,13 +131,13 @@ createvectorizer <-
 #' frequentwords (vocab, 100)
 #' }
 frequentwords <-
-  function (d, nb, mincount = 5, minphrasecount = NULL, ngram = 1, lang = "en", stopwords = lang)
+  function (corpus, nb, mincount = 5, minphrasecount = NULL, ngram = 1, lang = "en", stopwords = lang)
   {
     vocab = NULL
-    if ("text2vec_vocabulary" %in% class (d))
-      vocab = d
+    if ("text2vec_vocabulary" %in% class (corpus))
+      vocab = corpus
     else
-      vocab = getvocab (d, mincount = mincount, minphrasecount = minphrasecount, ngram = ngram, lang = lang, stopwords = stopwords)
+      vocab = getvocab (corpus, mincount = mincount, minphrasecount = minphrasecount, ngram = ngram, lang = lang, stopwords = stopwords)
     return (vocab [vocab [, "term_count"] >= vocab [nrow (vocab) + 1 - nb, "term_count"], "term"])
   }
 
@@ -245,8 +245,10 @@ loadtext <-
 #'
 #' Plot a word cloud based on the word frequencies in the documents.
 #' @name plotcloud
-#' @param d The corpus of documents (a vector of characters) or the vocabulary of the documents (result of function \code{getvocab}).
+#' @param corpus The corpus of documents (a vector of characters) or the vocabulary of the documents (result of function \code{getvocab}).
+#' @param k A categorial variable (vector or factor).
 #' @param stopwords Stopwords, or the language of the documents. NULL if stop words should not be removed.
+#' @param ... Other parameters.
 #' @export
 #' @seealso \code{\link{plotzipf}}, \code{\link{getvocab}}, \code{\link[wordcloud]{wordcloud}}
 #' @examples
@@ -257,32 +259,56 @@ loadtext <-
 #' plotcloud (vocab)
 #' }
 plotcloud <-
-  function (d, stopwords = "en")
+  function (corpus, k = NULL, stopwords = "en", ...)
   {
-    vocab = NULL
-    freq = NULL
-    words = NULL
-    if ("text2vec_vocabulary" %in% class (d))
-    {
-      words = d [, "term"]
-      freq = d [, "term_count"]
-    }
+    l = NULL
+    labels = NULL
+    kk = 1
+    if (is.null (k))
+      l = list (corpus)
     else
     {
-      vocab = getvocab (d, mincount = 1, stopwords = stopwords, lang = NULL)
-      words = vocab [, "term"]
-      freq = vocab [, "term_count"]
+      kk = sort (unique (k))
+      for (i in kk)
+        l = c (l, list (corpus [k == i]))
+      if (is.factor (k))
+        labels = levels (k)
+      else
+        labels = paste ("Cluster", kk)
     }
-    maxfreq = max (freq)
-    col = unique (grDevices::gray (1 - ((tail (freq, 200) + maxfreq) / (maxfreq * 2))))
-    wordcloud::wordcloud (words = words, freq = freq, min.freq = 1, max.words = 200, random.order = FALSE, rot.per = 1 / 3, colors = col)
+    n = length (kk)
+    nrow = round (sqrt (n))
+    ncol = ceiling (n / nrow)
+    graphics::layout (matrix (1:(nrow * ncol), ncol = ncol, byrow = TRUE))
+    on.exit (graphics::layout (1))
+    for (i in 1:n)
+    {
+      vocab = NULL
+      freq = NULL
+      words = NULL
+      if ("text2vec_vocabulary" %in% class (l [[i]]))
+      {
+        words = l [[i]] [, "term"]
+        freq = l [[i]] [, "term_count"]
+      }
+      else
+      {
+        vocab = getvocab (l [[i]], mincount = 1, stopwords = stopwords, lang = NULL)
+        words = vocab [, "term"]
+        freq = vocab [, "term_count"]
+      }
+      maxfreq = max (freq)
+      col = unique (grDevices::gray (1 - ((tail (freq, 200) + maxfreq) / (maxfreq * 2))))
+      wordcloud::wordcloud (words = words, freq = freq, min.freq = 1, max.words = 200, random.order = FALSE, rot.per = 1 / 3, colors = col)
+      graphics::title (main = labels [i])
+    }
   }
 
 #' Plot rank versus frequency
 #'
 #' Plot the frequency of words in a document agains the ranks of those words. It also plot the Zipf law.
 #' @name plotzipf
-#' @param d The corpus of documents (a vector of characters) or the vocabulary of the documents (result of function \code{getvocab}).
+#' @param corpus The corpus of documents (a vector of characters) or the vocabulary of the documents (result of function \code{getvocab}).
 #' @export
 #' @seealso \code{\link{plotcloud}}, \code{\link{getvocab}}
 #' @examples
@@ -293,13 +319,13 @@ plotcloud <-
 #' plotzipf (vocab)
 #' }
 plotzipf <-
-  function (d)
+  function (corpus)
   {
     freq = NULL
-    if ("text2vec_vocabulary" %in% class (d))
-      freq = d [, "term_count"]
+    if ("text2vec_vocabulary" %in% class (corpus))
+      freq = corpus [, "term_count"]
     else
-      freq = getvocab (d, mincount = 1, stopwords = NULL, lang = NULL) [, "term_count"]
+      freq = getvocab (corpus, mincount = 1, stopwords = NULL, lang = NULL) [, "term_count"]
     rank = 1:length (freq)
     freq = freq [rev (rank)]
     logd = data.frame (logrank = log2 (rank), logfreq = log2 (freq))
@@ -425,7 +451,7 @@ stemtokenizer <-
 #' @name TEXTMINING
 #' @param corpus The corpus.
 #' @param miningmethod The data mining method.
-#' @param vector Indicates the type of vecrtorization, documents (TF-IDF) or words (GloVe).
+#' @param vector Indicates the type of vectorization, documents (TF-IDF) or words (GloVe).
 #' @param ... Parameters passed to the vectorisation and to the data mining method.
 #' @return The result of the data mining method.
 #' @export
@@ -549,7 +575,7 @@ vectorize.docs <-
 
 #' Word vectorization
 #'
-#' Vectorize wrods from a corpus of documents.
+#' Vectorize words from a corpus of documents.
 #' @name vectorize.words
 #' @param corpus The corpus of documents (a vector of characters).
 #' @param ndim The number of dimensions of the vector space.

@@ -21,9 +21,11 @@ SPECTRAL(d, k, sigma = 1, graph = TRUE, ...)
 Run a Spectral clustering algorithm.
 }
 \examples{
+\dontrun{
 require (datasets)
 data (iris)
 SPECTRAL (iris [, -5], k = 3)
+}
 }
 \seealso{
 \code{\link{spectral-class}}

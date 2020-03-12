@@ -39,9 +39,11 @@ The clustering (\code{meanshift} object).
 Run MeanShift for clustering.
 }
 \examples{
+\dontrun{
 require (datasets)
 data (iris)
 MEANSHIFT (iris [, -5], bandwidth = .75)
+}
 }
 \seealso{
 \code{\link[meanShiftR]{meanShift}}, \code{\link{predict.meanshift}}

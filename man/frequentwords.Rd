@@ -5,7 +5,7 @@
 \title{Frequent words}
 \usage{
 frequentwords(
-  d,
+  corpus,
   nb,
   mincount = 5,
   minphrasecount = NULL,
@@ -15,7 +15,7 @@ frequentwords(
 )
 }
 \arguments{
-\item{d}{The corpus of documents (a vector of characters) or the vocabulary of the documents (result of function \code{getvocab}).}
+\item{corpus}{The corpus of documents (a vector of characters) or the vocabulary of the documents (result of function \code{getvocab}).}
 
 \item{nb}{The number of words to be returned.}
 

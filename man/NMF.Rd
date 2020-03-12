@@ -19,9 +19,11 @@ NMF(x, rank = 2, nstart = 10, ...)
 Return the NMF decomposition.
 }
 \examples{
+\dontrun{
 require (datasets)
 data (iris)
-NMF (iris [, -5], nstart = 1)
+NMF (iris [, -5])
+}
 }
 \seealso{
 \code{\link[NMF]{nmf}}

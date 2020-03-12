@@ -37,9 +37,11 @@ The classification model.
 This function builds a classification model using Multilayer Perceptron.
 }
 \examples{
+\dontrun{
 require (datasets)
 data (iris)
 MLP (iris [, -5], iris [, 5], size = 4, decay = .1)
+}
 }
 \seealso{
 \code{\link[nnet]{nnet}}

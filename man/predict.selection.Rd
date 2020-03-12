@@ -22,11 +22,13 @@ A vector of predicted values (\code{factor}).
 This function predicts values based upon a model trained by any classification or regression model.
 }
 \examples{
+\dontrun{
 require (datasets)
 data (iris)
 d = splitdata (iris, 5)
 model = FEATURESELECTION (d$train.x, d$train.y, uninb = 2, mainmethod = LDA)
 predict (model, d$test.x)
+}
 }
 \seealso{
 \code{\link{FEATURESELECTION}}, \code{\link{selection-class}}

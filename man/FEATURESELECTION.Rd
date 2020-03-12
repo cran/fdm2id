@@ -47,9 +47,11 @@ FEATURESELECTION(
 Apply a classification method after a subset of features has been selected.
 }
 \examples{
+\dontrun{
 require (datasets)
 data (iris)
 FEATURESELECTION (iris [, -5], iris [, 5], uninb = 2, mainmethod = LDA)
+}
 }
 \seealso{
 \code{\link{selectfeatures}}, \code{\link{predict.selection}}, \code{\link{selection-class}}

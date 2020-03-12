@@ -31,5 +31,5 @@ pred.lda = predict (model.lda, d [, -5])
 roc.curves (c ("NB", "LDA"), cbind (pred.nb, pred.lda), d [, 5])
 }
 \seealso{
-\code{\link{cost.curves}}
+\code{\link{cost.curves}}, \code{\link{performance}}
 }

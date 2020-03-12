@@ -11,7 +11,7 @@ TEXTMINING(corpus, miningmethod, vector = c("docs", "words"), ...)
 
 \item{miningmethod}{The data mining method.}
 
-\item{vector}{Indicates the type of vecrtorization, documents (TF-IDF) or words (GloVe).}
+\item{vector}{Indicates the type of vectorization, documents (TF-IDF) or words (GloVe).}
 
 \item{...}{Parameters passed to the vectorisation and to the data mining method.}
 }

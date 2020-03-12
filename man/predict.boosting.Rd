@@ -22,6 +22,7 @@ A vector of predicted values (\code{factor}).
 This function predicts values based upon a model trained by a boosting method.
 }
 \examples{
+\dontrun{
 require (datasets)
 data (iris)
 d = splitdata (iris, 5)
@@ -29,6 +30,7 @@ model = BAGGING (d$train.x, d$train.y, NB)
 predict (model, d$test.x)
 model = ADABOOST (d$train.x, d$train.y, NB)
 predict (model, d$test.x)
+}
 }
 \seealso{
 \code{\link{ADABOOST}}, \code{\link{BAGGING}}, \code{\link{boosting-class}}

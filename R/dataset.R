@@ -512,6 +512,19 @@ NULL
 #' @source \url{https://husson.github.io/data.html}
 NULL
 
+#' @name vowels
+#' @aliases vowels.train vowels.test
+#' @title Vowels dataset
+#' @description Excerpt of the Letter Recognition Data Set (UCI repository).
+#' @docType data
+#' @usage vowels
+#' vowels.train
+#' vowels.test
+#' @format The dataset has 4664 instances described by 17 variables. The first variable is the classification into 6 classes (letter A, E, I, O, U and Y).
+#' \code{vowels.train} contains 233 instances and \code{vowels.test} contains 4431.
+#' @source \url{https://archive.ics.uci.edu/ml/datasets/letter+recognition}
+NULL
+
 #' @name wine
 #' @title Wine dataset
 #' @description These data are the results of a chemical analysis of wines grown in the same region in Italy but derived from three different cultivars.

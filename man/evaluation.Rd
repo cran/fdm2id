@@ -44,7 +44,7 @@ pred.linreg = predict (model.linreg, d$test.x)
 evaluation (pred.linreg, d$test.y)
 }
 \seealso{
-\code{\link{evaluation.accuracy}}, \code{\link{evaluation.fmeasure}}, \code{\link{evaluation.fowlkesmallows}}, \code{\link{evaluation.goodness}}, \code{\link{evaluation.jaccard}}, \code{\link{evaluation.kappa}},
+\code{\link{confusion}}, \code{\link{evaluation.accuracy}}, \code{\link{evaluation.fmeasure}}, \code{\link{evaluation.fowlkesmallows}}, \code{\link{evaluation.goodness}}, \code{\link{evaluation.jaccard}}, \code{\link{evaluation.kappa}},
 \code{\link{evaluation.precision}}, \code{\link{evaluation.recall}},
-\code{\link{evaluation.msep}}, \code{\link{evaluation.r2}}
+\code{\link{evaluation.msep}}, \code{\link{evaluation.r2}}, \code{\link{performance}}
 }

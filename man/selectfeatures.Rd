@@ -44,12 +44,14 @@ selectfeatures(
 Select a subset of features for a classification task.
 }
 \examples{
+\dontrun{
 require (datasets)
 data (iris)
 selectfeatures (iris [, -5], iris [, 5], algorithm = "forward", multieval = "fstat")
 selectfeatures (iris [, -5], iris [, 5], algorithm = "ranking", uninb = 2)
 selectfeatures (iris [, -5], iris [, 5], algorithm = "ranking",
                 multieval = "wrapper", wrapmethod = LDA)
+}
 }
 \seealso{
 \code{\link{FEATURESELECTION}}, \code{\link{selection-class}}

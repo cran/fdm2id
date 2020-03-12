@@ -17,11 +17,13 @@
 Return the closest MeanShift cluster for a new dataset.
 }
 \examples{
+\dontrun{
 require (datasets)
 data (iris)
 d = splitdata (iris, 5)
 model = MEANSHIFT (d$train.x, bandwidth = .75)
 predict (model, d$test.x)
+}
 }
 \seealso{
 \code{\link{MEANSHIFT}}

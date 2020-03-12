@@ -4,10 +4,10 @@
 \alias{plotzipf}
 \title{Plot rank versus frequency}
 \usage{
-plotzipf(d)
+plotzipf(corpus)
 }
 \arguments{
-\item{d}{The corpus of documents (a vector of characters) or the vocabulary of the documents (result of function \code{getvocab}).}
+\item{corpus}{The corpus of documents (a vector of characters) or the vocabulary of the documents (result of function \code{getvocab}).}
 }
 \description{
 Plot the frequency of words in a document agains the ranks of those words. It also plot the Zipf law.

@@ -735,9 +735,11 @@ kmeans.getk <-
 #' @export
 #' @seealso \code{\link[meanShiftR]{meanShift}}, \code{\link{predict.meanshift}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
 #' MEANSHIFT (iris [, -5], bandwidth = .75)
+#' }
 MEANSHIFT <-
   function (d, kernel = "NORMAL", bandwidth = rep (1, ncol (d)), alpha = 0, iterations = 10, epsilon = 1e-08, epsilonCluster = 1e-04, ...)
   {
@@ -864,6 +866,7 @@ plot.som <-
 #' @export
 #' @seealso \code{\link{treeplot}}, \code{\link{scatterplot}}, \code{\link{plot.som}}, \code{\link{boxclus}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
 #' ward = HCA (iris [, -5], method = "ward", k = 3)
@@ -874,10 +877,11 @@ plot.som <-
 #' som = SOM (iris [, -5], xdim = 5, ydim = 5, post = "ward", k = 3)
 #' plotclus (som, iris [, -5], type = "scatter") # Scatter plot for SOM
 #' plotclus (som, iris [, -5], type = "mapping") # Kohonen map
+#' }
 plotclus <-
   function (clustering,
             d = NULL,
-            type = c ("scatter", "boxplot", "tree", "height", "mapping"),
+            type = c ("scatter", "boxplot", "tree", "height", "mapping", "words"),
             centers = FALSE,
             k = NULL,
             tailsize = 9,
@@ -932,7 +936,7 @@ plotclus <-
       clusters = stats::cutree (clustering, k)
     }
     if ((type [1] == "tree") & ("hca" %in% method))
-      treeplot (clustering, ...)
+      treeplot (clustering, k = k, ...)
     else if (type [1] == "height" & ("hca" %in% method))
       graphics::barplot (utils::tail (sort (clustering$height), n = tailsize), names.arg = tailsize:1,
                          xlab = "Number of clusters", ylab = "Height", main = "", sub = "")
@@ -944,6 +948,8 @@ plotclus <-
       scatterplot (d, clusters, centres, ...)
     else if (type [1] == "boxplot")
       boxclus (d, clusters, ...)
+    else if (type [1] == "words")
+      plotcloud (d, clusters, ...)
     else
       stop ("Uncorrect parameters. Plot type is not available for the clustering method.")
   }
@@ -1027,11 +1033,13 @@ predict.kmeans <-
 #' @method predict meanshift
 #' @seealso \code{\link{MEANSHIFT}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
 #' d = splitdata (iris, 5)
 #' model = MEANSHIFT (d$train.x, bandwidth = .75)
 #' predict (model, d$test.x)
+#' }
 predict.meanshift <-
   function (object, newdata, ...)
   {
@@ -1244,9 +1252,11 @@ SOM <-
 #' @export
 #' @seealso \code{\link{spectral-class}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
 #' SPECTRAL (iris [, -5], k = 3)
+#' }
 SPECTRAL <-
   function (d, k, sigma = 1, graph = TRUE, ...)
   {
@@ -1261,7 +1271,7 @@ SPECTRAL <-
     km = stats::kmeans (proj, centers = k, nstart = 100)
     cluster = km$cluster
     if (graph)
-      plotdata (proj, paste ("Cluster", cluster))
+      plotdata (d = proj, k = factor (paste ("Cluster", cluster)))
     res = list (cluster = cluster, proj = proj, centers = km$centers)
     class (res) = "spectral"
     return (res)
@@ -1285,22 +1295,24 @@ SPECTRAL <-
 #' @export
 #' @seealso \code{\link{compare}}, \code{\link{intern}}
 #' @examples
+#' \dontrun{
 #' require (datasets)
 #' data (iris)
 #' stability (KMEANS, iris [, -5], seed = 0, k = 3)
-#' stability (KMEANS, iris [, -5], seed = 0, k = 3, eval = c ("jaccard", "accuracy"), comp = "max")
+#' stability (KMEANS, iris [, -5], seed = 0, k = 3, eval = c ("jaccard", "accuracy"), comp = "global")
 #' stability (KMEANS, iris [, -5], seed = 0, k = 3, comp = "cluster")
 #' stability (KMEANS, iris [, -5], seed = 0, k = 3, eval = c ("jaccard", "accuracy"), comp = "cluster")
 #' stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3)
 #' stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3,
-#' eval = c ("jaccard", "accuracy"), comp = "max")
+#' eval = c ("jaccard", "accuracy"), comp = "global")
 #' stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3, comp = "cluster")
 #' stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3,
 #' eval = c ("jaccard", "accuracy"), comp = "cluster")
 #' stability (KMEANS, iris [, -5], originals = KMEANS (iris [, -5], k = 3)$cluster, seed = 0, k = 3)
 #' stability (KMEANS, iris [, -5], originals = KMEANS (iris [, -5], k = 3), seed = 0, k = 3)
+#' }
 stability <-
-  function (clusteringmethods, d, originals = NULL, eval = "jaccard", comp = c ("cluster", "max"), nsampling = 10, seed = NULL, names = NULL, graph = FALSE, ...)
+  function (clusteringmethods, d, originals = NULL, eval = "jaccard", comp = c ("cluster", "global"), nsampling = 10, seed = NULL, names = NULL, graph = FALSE, ...)
   {
     methodNames = names
     if (is.character (clusteringmethods))
@@ -1396,6 +1408,7 @@ stability <-
 #' @name treeplot
 #' @param clustering The dendrogram to be plotted (result of \code{\link[stats]{hclust}}, \code{\link[cluster]{agnes}} or \code{\link{HCA}}).
 #' @param labels Indicates whether or not labels (row names) should be showned on the plot.
+#' @param k Number of clusters. If not specified an "optimal" value is determined.
 #' @param ... Other parameters.
 #' @export
 #' @seealso \code{\link[stats]{dendrogram}}, \code{\link{HCA}}, \code{\link[stats]{hclust}}, \code{\link[cluster]{agnes}}
@@ -1407,11 +1420,18 @@ stability <-
 treeplot <-
   function (clustering,
             labels = FALSE,
+            k = NULL,
             ...)
   {
     tree = stats::as.dendrogram (clustering)
     graphics::plot (tree, ylab = "Height",
                     leaflab = ifelse (labels, "perpendicular", "none"))
-    k = length (unique (clustering$cluster))
+    if (is.null (k))
+    {
+      if (is.null (clustering$cluster))
+        k = 1 + which.min (diff (sort (clustering$height, decreasing = TRUE)))
+      else
+        k = length (unique (clustering$cluster))
+    }
     stats::rect.hclust (clustering, k = k, border = 2:(k + 1))
   }

@@ -4,12 +4,16 @@
 \alias{plotcloud}
 \title{Plot word cloud}
 \usage{
-plotcloud(d, stopwords = "en")
+plotcloud(corpus, k = NULL, stopwords = "en", ...)
 }
 \arguments{
-\item{d}{The corpus of documents (a vector of characters) or the vocabulary of the documents (result of function \code{getvocab}).}
+\item{corpus}{The corpus of documents (a vector of characters) or the vocabulary of the documents (result of function \code{getvocab}).}
+
+\item{k}{A categorial variable (vector or factor).}
 
 \item{stopwords}{Stopwords, or the language of the documents. NULL if stop words should not be removed.}
+
+\item{...}{Other parameters.}
 }
 \description{
 Plot a word cloud based on the word frequencies in the documents.

@@ -42,10 +42,12 @@ The classification model.
 This function builds a regression model using Support Vector Machine.
 }
 \examples{
+\dontrun{
 require (datasets)
 data (trees)
 SVR (trees [, -3], trees [, 3], kernel = "linear", cost = 1)
 SVR (trees [, -3], trees [, 3], kernel = "radial", gamma = 1, cost = 1)
+}
 }
 \seealso{
 \code{\link[e1071]{svm}}, \code{\link{SVRl}}, \code{\link{SVRr}}

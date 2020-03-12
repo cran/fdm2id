@@ -49,6 +49,7 @@ This function builds a linear regression model.
 Standard least square method, variable selection, factorial methods are available.
 }
 \examples{
+\dontrun{
 require (datasets)
 # With one independant variable
 data (cars)
@@ -70,6 +71,7 @@ LINREG (mtcars [, -1], mtcars [, 1], reg = "lasso")
 LINREG (mtcars [, -1], mtcars [, 1], reg = "elastic")
 LINREG (mtcars [, -1], mtcars [, 1], reg = "pcr")
 LINREG (mtcars [, -1], mtcars [, 1], reg = "plsr")
+}
 }
 \seealso{
 \code{\link[stats]{lm}}, \code{\link[leaps]{regsubsets}}, \code{\link[pls]{mvr}}, \code{\link[glmnet]{glmnet}}

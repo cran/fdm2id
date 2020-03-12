@@ -39,9 +39,11 @@ The classification model.
 Ensemble learning, through AdaBoost Algorithm.
 }
 \examples{
+\dontrun{
 require (datasets)
 data (iris)
 ADABOOST (iris [, -5], iris [, 5], NB)
+}
 }
 \seealso{
 \code{\link{BAGGING}}, \code{\link{predict.boosting}}

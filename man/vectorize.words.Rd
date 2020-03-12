@@ -48,7 +48,7 @@ vectorize.words(
 The vectorized words.
 }
 \description{
-Vectorize wrods from a corpus of documents.
+Vectorize words from a corpus of documents.
 }
 \examples{
 \dontrun{

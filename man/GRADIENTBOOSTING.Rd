@@ -33,9 +33,11 @@ The classification model.
 This function builds a classification model using Gradient Boosting
 }
 \examples{
+\dontrun{
 require (datasets)
 data (iris)
 GRADIENTBOOSTING (iris [, -5], iris [, 5])
+}
 }
 \seealso{
 \code{\link[xgboost]{xgboost}}

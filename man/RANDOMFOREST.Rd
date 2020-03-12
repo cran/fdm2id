@@ -34,9 +34,11 @@ The classification model.
 This function builds a classification model using Random Forest
 }
 \examples{
+\dontrun{
 require (datasets)
 data (iris)
 RANDOMFOREST (iris [, -5], iris [, 5])
+}
 }
 \seealso{
 \code{\link[randomForest]{randomForest}}

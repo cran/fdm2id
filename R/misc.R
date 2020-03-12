@@ -139,6 +139,8 @@ splitdata <-
   function (dataset, target, size = round (0.7 * nrow (dataset)), seed = NULL)
   {
     set.seed (seed)
+    if (size < 1)
+      size = round (size * nrow (dataset))
     s = sample (nrow (dataset), size)
     train.x = dataset [s, -target]
     train.y = dataset [s, target]

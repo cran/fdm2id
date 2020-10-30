@@ -4,7 +4,9 @@
 \name{zoo}
 \alias{zoo}
 \title{Zoo dataset}
-\format{The dataset has 101 instances described by 17 qualitative variables.}
+\format{
+The dataset has 101 instances described by 17 qualitative variables.
+}
 \source{
 \url{https://archive.ics.uci.edu/ml/datasets/zoo}
 }

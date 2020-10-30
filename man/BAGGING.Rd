@@ -4,7 +4,15 @@
 \alias{BAGGING}
 \title{Classification using Bagging}
 \usage{
-BAGGING(x, y, learningmethod, nsamples = 100, size = nrow(x), seed = NULL, ...)
+BAGGING(
+  x,
+  y,
+  learningmethod,
+  nsamples = 100,
+  bag.size = nrow(x),
+  seed = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{The dataset (description/predictors), a \code{matrix} or \code{data.frame}.}
@@ -15,7 +23,7 @@ BAGGING(x, y, learningmethod, nsamples = 100, size = nrow(x), seed = NULL, ...)
 
 \item{nsamples}{The number of samplings.}
 
-\item{size}{The size of the samples.}
+\item{bag.size}{The size of the samples.}
 
 \item{seed}{A specified seed for random number generation.}
 

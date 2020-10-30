@@ -4,7 +4,8 @@
 \name{decathlon}
 \alias{decathlon}
 \title{Decathlon dataset}
-\format{The dataset has 41 instances described by 13 variables.
+\format{
+The dataset has 41 instances described by 13 variables.
 The variables are as follows:
 \describe{
 \item{\code{100m}}{In seconds.}
@@ -20,7 +21,8 @@ The variables are as follows:
 \item{\code{Rank}}{The rank at the competition.}
 \item{\code{Points}}{The number of points obtained by the athlete.}
 \item{\code{Competition}}{\code{Olympics} or \code{Decastar}.}
-}}
+}
+}
 \source{
 \url{https://husson.github.io/data.html}
 }

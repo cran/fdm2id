@@ -6,11 +6,13 @@
 \alias{spine.train}
 \alias{spine.test}
 \title{Spine dataset}
-\format{The dataset has 310 instances described by 8 variables.
+\format{
+The dataset has 310 instances described by 8 variables.
 Variables V1 to V6 are biomechanical attributes derived from the shape and orientation of the pelvis and lumbar spine.
 The variable Classif2 is the classification into two classes \code{AB} and \code{NO}.
 The variable Classif3 is the classification into 3 classes \code{DH}, \code{SL} and \code{NO}.
-\code{spine.train} contains 217 instances and \code{spine.test} contains 93.}
+\code{spine.train} contains 217 instances and \code{spine.test} contains 93.
+}
 \source{
 \url{http://archive.ics.uci.edu/ml/datasets/vertebral+column}
 }

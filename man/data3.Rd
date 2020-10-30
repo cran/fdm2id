@@ -4,7 +4,9 @@
 \name{data3}
 \alias{data3}
 \title{"data3" dataset}
-\format{300 observations described by 3 variables and grouped into 3 classes.}
+\format{
+300 observations described by 3 variables and grouped into 3 classes.
+}
 \usage{
 data3
 }

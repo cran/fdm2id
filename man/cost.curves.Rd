@@ -4,14 +4,14 @@
 \alias{cost.curves}
 \title{Plot Cost Curves}
 \usage{
-cost.curves(methods.names, predictions, labels)
+cost.curves(predictions, gt, methods.names = NULL)
 }
 \arguments{
-\item{methods.names}{The name of the compared methods (\code{vector}).}
-
 \item{predictions}{The predictions of a classification model (\code{factor} or \code{vector}).}
 
-\item{labels}{Actual labels of the dataset (\code{factor} or \code{vector}).}
+\item{gt}{Actual labels of the dataset (\code{factor} or \code{vector}).}
+
+\item{methods.names}{The name of the compared methods (\code{vector}).}
 }
 \value{
 The evaluation of the predictions (numeric value).
@@ -28,7 +28,7 @@ model.nb = NB (d [, -5], d [, 5])
 model.lda = LDA (d [, -5], d [, 5])
 pred.nb = predict (model.nb, d [, -5])
 pred.lda = predict (model.lda, d [, -5])
-cost.curves (c ("NB", "LDA"), cbind (pred.nb, pred.lda), d [, 5])
+cost.curves (cbind (pred.nb, pred.lda), d [, 5], c ("NB", "LDA"))
 }
 \seealso{
 \code{\link{roc.curves}}, \code{\link{performance}}

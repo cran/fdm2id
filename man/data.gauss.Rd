@@ -42,5 +42,5 @@ Generate a random multidimentional gaussian mixture.
 data.gauss ()
 }
 \seealso{
-\code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
+\code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}
 }

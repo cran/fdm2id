@@ -7,7 +7,7 @@
 PCA(
   d,
   scale.unit = TRUE,
-  ncp = 5,
+  ncp = ncol(d) - length(quanti.sup) - length(quali.sup),
   ind.sup = NULL,
   quanti.sup = NULL,
   quali.sup = NULL,

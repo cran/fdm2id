@@ -4,13 +4,15 @@
 \name{beetles}
 \alias{beetles}
 \title{Flea beetles dataset}
-\format{The dataset has 74 instances described by 3 variables.
+\format{
+The dataset has 74 instances described by 3 variables.
 The variables are as follows:
 \describe{
 \item{\code{Width}}{The maximal width of aedeagus in the forpart (in microns).}
 \item{\code{Angle}}{The front angle of the aedeagus (1 unit = 7.5 degrees).}
 \item{\code{Shot.put}}{Species of flea beetle from the genus \emph{Chaetocnema}.}
-}}
+}
+}
 \source{
 Lubischew, A.A. (1962) On the use of discriminant functions in taxonomy. Biometrics, 18, 455-477.
 }

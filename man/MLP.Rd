@@ -7,7 +7,7 @@
 MLP(
   train,
   labels,
-  size = ifelse(is.vector(train), 2:(1 + nlevels(labels)), 2:(ncol(train) +
+  hidden = ifelse(is.vector(train), 2:(1 + nlevels(labels)), 2:(ncol(train) +
     nlevels(labels))),
   decay = 10^(-3:-1),
   methodparameters = NULL,
@@ -20,7 +20,7 @@ MLP(
 
 \item{labels}{Class labels of the training set (\code{vector} or \code{factor}).}
 
-\item{size}{The size of the hidden layer (if a vector, cross-over validation is used to chose the best size).}
+\item{hidden}{The size of the hidden layer (if a vector, cross-over validation is used to chose the best size).}
 
 \item{decay}{The decay (between 0 and 1) of the backpropagation algorithm (if a vector, cross-over validation is used to chose the best size).}
 
@@ -40,7 +40,7 @@ This function builds a classification model using Multilayer Perceptron.
 \dontrun{
 require (datasets)
 data (iris)
-MLP (iris [, -5], iris [, 5], size = 4, decay = .1)
+MLP (iris [, -5], iris [, 5], hidden = 4, decay = .1)
 }
 }
 \seealso{

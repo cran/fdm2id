@@ -4,7 +4,14 @@
 \alias{treeplot}
 \title{Dendrogram Plots}
 \usage{
-treeplot(clustering, labels = FALSE, k = NULL, ...)
+treeplot(
+  clustering,
+  labels = FALSE,
+  k = NULL,
+  split = TRUE,
+  horiz = FALSE,
+  ...
+)
 }
 \arguments{
 \item{clustering}{The dendrogram to be plotted (result of \code{\link[stats]{hclust}}, \code{\link[cluster]{agnes}} or \code{\link{HCA}}).}
@@ -12,6 +19,10 @@ treeplot(clustering, labels = FALSE, k = NULL, ...)
 \item{labels}{Indicates whether or not labels (row names) should be showned on the plot.}
 
 \item{k}{Number of clusters. If not specified an "optimal" value is determined.}
+
+\item{split}{Indicates wheather or not the clusters should be highlighted in the graphics.}
+
+\item{horiz}{Indicates if the dendrogram should be drawn horizontally or not.}
 
 \item{...}{Other parameters.}
 }

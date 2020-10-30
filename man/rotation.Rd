@@ -15,6 +15,9 @@ rotation(d, angle, axis = 1:2, range = 2 * pi)
 
 \item{range}{The range of the angle (360, 2*pi, 100, ...)}
 }
+\value{
+A rotated data matrix.
+}
 \description{
 Rotation on two variables of a numeric dataset
 }

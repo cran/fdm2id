@@ -4,7 +4,9 @@
 \name{britpop}
 \alias{britpop}
 \title{Population and location of 18 major british cities.}
-\format{The dataset has 18 instances described by 3 variables.}
+\format{
+The dataset has 18 instances described by 3 variables.
+}
 \usage{
 britpop
 }

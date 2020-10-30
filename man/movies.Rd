@@ -4,7 +4,9 @@
 \name{movies}
 \alias{movies}
 \title{Movies dataset}
-\format{A set of 49 movies, rated by 55 users.}
+\format{
+A set of 49 movies, rated by 55 users.
+}
 \source{
 \url{https://grouplens.org/datasets/movielens/}
 }

@@ -36,5 +36,5 @@ Generate a random dataset shaped like two moons.
 data.twomoons ()
 }
 \seealso{
-\code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}
+\code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.xor}}
 }

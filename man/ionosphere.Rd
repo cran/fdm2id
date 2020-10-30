@@ -4,7 +4,9 @@
 \name{ionosphere}
 \alias{ionosphere}
 \title{Ionosphere dataset}
-\format{The dataset has 351 instances described by 34. The last variable is the class.}
+\format{
+The dataset has 351 instances described by 34. The last variable is the class.
+}
 \source{
 \url{https://archive.ics.uci.edu/ml/datasets/ionosphere}
 }

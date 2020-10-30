@@ -9,7 +9,7 @@ stability(
   d,
   originals = NULL,
   eval = "jaccard",
-  comp = c("cluster", "global"),
+  type = c("cluster", "global"),
   nsampling = 10,
   seed = NULL,
   names = NULL,
@@ -26,7 +26,7 @@ stability(
 
 \item{eval}{The evaluation criteria.}
 
-\item{comp}{The comparison method.}
+\item{type}{The comparison method.}
 
 \item{nsampling}{The number of bootstrap runs.}
 
@@ -49,15 +49,15 @@ Evaluation a clustering algorithm according to stability, through a bootstrap pr
 require (datasets)
 data (iris)
 stability (KMEANS, iris [, -5], seed = 0, k = 3)
-stability (KMEANS, iris [, -5], seed = 0, k = 3, eval = c ("jaccard", "accuracy"), comp = "global")
-stability (KMEANS, iris [, -5], seed = 0, k = 3, comp = "cluster")
-stability (KMEANS, iris [, -5], seed = 0, k = 3, eval = c ("jaccard", "accuracy"), comp = "cluster")
+stability (KMEANS, iris [, -5], seed = 0, k = 3, eval = c ("jaccard", "accuracy"), type = "global")
+stability (KMEANS, iris [, -5], seed = 0, k = 3, type = "cluster")
+stability (KMEANS, iris [, -5], seed = 0, k = 3, eval = c ("jaccard", "accuracy"), type = "cluster")
 stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3)
 stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3,
-eval = c ("jaccard", "accuracy"), comp = "global")
-stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3, comp = "cluster")
+eval = c ("jaccard", "accuracy"), type = "global")
+stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3, type = "cluster")
 stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3,
-eval = c ("jaccard", "accuracy"), comp = "cluster")
+eval = c ("jaccard", "accuracy"), type = "cluster")
 stability (KMEANS, iris [, -5], originals = KMEANS (iris [, -5], k = 3)$cluster, seed = 0, k = 3)
 stability (KMEANS, iris [, -5], originals = KMEANS (iris [, -5], k = 3), seed = 0, k = 3)
 }

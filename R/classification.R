@@ -240,7 +240,7 @@ ADABOOST <-
 #' @param y The target (class labels or numeric values), a \code{factor} or \code{vector}.
 #' @param learningmethod The boosted method.
 #' @param nsamples The number of samplings.
-#' @param size The size of the samples.
+#' @param bag.size The size of the samples.
 #' @param seed A specified seed for random number generation.
 #' @param ... Other specific parameters for the leaning method.
 #' @return The classification model.
@@ -253,12 +253,12 @@ ADABOOST <-
 #' BAGGING (iris [, -5], iris [, 5], NB)
 #' }
 BAGGING <-
-  function (x, y, learningmethod, nsamples = 100, size = nrow (x), seed = NULL, ...)
+  function (x, y, learningmethod, nsamples = 100, bag.size = nrow (x), seed = NULL, ...)
   {
     set.seed (seed)
     if (is.vector (x))
       x = matrix (x, ncol = 1)
-    s = matrix (sample (nrow (x), nsamples * size, replace = TRUE), ncol = nsamples)
+    s = matrix (sample (nrow (x), nsamples * bag.size, replace = TRUE), ncol = nsamples)
     models = apply (s, 2, function (v)
     {
       train = x [v, ]
@@ -519,8 +519,8 @@ cda.transform <-
 #'
 #' Plot a confusion matrix.
 #' @name confusion
+#' @param predictions The prediction.
 #' @param gt The ground truth.
-#' @param pred The prediction.
 #' @param norm Whether or not the confusion matrix is normalized
 #' @param graph Whether or not a graphic is displayed.
 #' @return The confusion matrix.
@@ -534,12 +534,12 @@ cda.transform <-
 #' pred = predict (model, d$test.x)
 #' confusion (d$test.y, pred)
 confusion <-
-  function (gt, pred, norm = TRUE, graph = TRUE)
+  function (predictions, gt, norm = TRUE, graph = TRUE)
   {
     graphics::layout (matrix (1:2, ncol = 2), width = c (2, 1), height = c (1, 1))
     on.exit (graphics::layout (1))
 
-    conf = table (gt, pred, dnn = c ("True lables", "Predicted labels"))
+    conf = table (gt, predictions, dnn = c ("True lables", "Predicted labels"))
     color = NULL
     maxval = 1
     if (norm)
@@ -566,12 +566,12 @@ confusion <-
                              col = palette [color [rrow, col]], border = FALSE)
           graphics::text (col + .5, row + .5, round (conf [rrow, col], 2))
         }
-      cex = min (5, .15 / log10 (1 + max (graphics::strwidth (c (levels (gt), levels (pred))))))
+      cex = min (5, .15 / log10 (1 + max (graphics::strwidth (c (levels (gt), levels (predictions))))))
       graphics::polygon (x = c (1, 1, ncol (conf) + 1, ncol (conf) + 1), y = c (1, nrow (conf) + 1, nrow (conf) + 1, 1))
       graphics::axis (side = 1, at = seq (1.5, by = 1, length.out = ncol (conf)), lwd = 0, lwd.ticks = 1,
                       labels = levels (gt), pos = 1, cex.axis = cex)
       graphics::axis (side = 2, at = seq (1.5, by = 1, length.out = nrow (conf)), lwd = 0, lwd.ticks = 1,
-                      labels = rev (levels (pred)), pos = 1, cex.axis = cex)
+                      labels = rev (levels (predictions)), pos = 1, cex.axis = cex)
       graphics::title (xlab = "Predicted labels")
       graphics::mtext ("True labels", side = 2, line = 3)
 
@@ -593,9 +593,9 @@ confusion <-
 #'
 #' This function plots Cost Curves of several classification predictions.
 #' @name cost.curves
-#' @param methods.names The name of the compared methods (\code{vector}).
 #' @param predictions The predictions of a classification model (\code{factor} or \code{vector}).
-#' @param labels Actual labels of the dataset (\code{factor} or \code{vector}).
+#' @param gt Actual labels of the dataset (\code{factor} or \code{vector}).
+#' @param methods.names The name of the compared methods (\code{vector}).
 #' @return The evaluation of the predictions (numeric value).
 #' @export
 #' @seealso \code{\link{roc.curves}}, \code{\link{performance}}
@@ -608,28 +608,29 @@ confusion <-
 #' model.lda = LDA (d [, -5], d [, 5])
 #' pred.nb = predict (model.nb, d [, -5])
 #' pred.lda = predict (model.lda, d [, -5])
-#' cost.curves (c ("NB", "LDA"), cbind (pred.nb, pred.lda), d [, 5])
+#' cost.curves (cbind (pred.nb, pred.lda), d [, 5], c ("NB", "LDA"))
 cost.curves <-
-  function (methods.names, predictions, labels)
+  function (predictions, gt, methods.names = NULL)
   {
     if (is.factor (predictions))
     {
-      pred = ROCR::prediction (as.numeric (predictions), as.numeric (labels))
+      pred = ROCR::prediction (as.numeric (predictions), as.numeric (gt))
       perf = ROCR::performance (pred, "ecost")
       ROCR::plot (perf, xlab = "", ylab = "Error")
     }
     else
     {
-      pred = ROCR::prediction (as.numeric (predictions [, 1]), as.numeric (labels))
+      pred = ROCR::prediction (as.numeric (predictions [, 1]), as.numeric (gt))
       perf = ROCR::performance (pred, "ecost")
       ROCR::plot (perf, xlab = "", ylab = "Error")
       for (i in 2:ncol (predictions))
       {
-        pred = ROCR::prediction (as.numeric (predictions [, i]), as.numeric (labels))
+        pred = ROCR::prediction (as.numeric (predictions [, i]), as.numeric (gt))
         perf = ROCR::performance (pred, "ecost")
         ROCR::plot (perf, add = TRUE, lty = i, col = i)
       }
-      graphics::legend ("topleft", methods.names, lty = 1:ncol (predictions), col = 1:ncol (predictions), bty = "n")
+      if (!is.null (methods.names))
+        graphics::legend ("topleft", methods.names, lty = 1:ncol (predictions), col = 1:ncol (predictions), bty = "n")
     }
   }
 
@@ -728,7 +729,7 @@ eval.recall <-
 #' Evaluation predictions of a classification or a regression model.
 #' @name evaluation
 #' @param predictions The predictions of a classification model (\code{factor} or \code{vector}).
-#' @param targets The actual targets of the dataset (\code{factor} or \code{vector}).
+#' @param gt The ground truth of the dataset (\code{factor} or \code{vector}).
 #' @param eval The evaluation method.
 #' @param ... Other parameters.
 #' @return The evaluation of the predictions (numeric value).
@@ -753,19 +754,19 @@ eval.recall <-
 #' # Default evaluation for regression
 #' evaluation (pred.linreg, d$test.y)
 evaluation <-
-  function (predictions, targets, eval = ifelse (is.factor (targets), "accuracy", "r2"), ...)
+  function (predictions, gt, eval = ifelse (is.factor (gt), "accuracy", "r2"), ...)
   {
     precision = NULL
     recall = NULL
-    if (is.factor (targets) & nlevels (targets) == 2)
+    if (is.factor (gt) & nlevels (gt) == 2)
     {
-      precision = evaluation.precision (predictions = predictions, targets = targets, ...)
-      recall = evaluation.recall (predictions, targets, ...)
+      precision = evaluation.precision (predictions = predictions, targets = gt, ...)
+      recall = evaluation.recall (predictions, gt, ...)
     }
     res = NULL
     for (e in eval)
     {
-      tmp = get (paste ("eval", e, sep = ".")) (predictions = predictions, targets = targets, precision = precision, recall = recall, ...)
+      tmp = get (paste ("eval", e, sep = ".")) (predictions = predictions, targets = gt, precision = precision, recall = recall, ...)
       res = c (res, tmp)
     }
     if (!is.null (res))
@@ -1150,7 +1151,7 @@ LR <-
 #' @name MLP
 #' @param train The training set (description), as a \code{data.frame}.
 #' @param labels Class labels of the training set (\code{vector} or \code{factor}).
-#' @param size The size of the hidden layer (if a vector, cross-over validation is used to chose the best size).
+#' @param hidden The size of the hidden layer (if a vector, cross-over validation is used to chose the best size).
 #' @param decay The decay (between 0 and 1) of the backpropagation algorithm (if a vector, cross-over validation is used to chose the best size).
 #' @param methodparameters Object containing the parameters. If given, it replaces \code{size} and \code{decay}.
 #' @param tune If true, the function returns paramters instead of a classification model.
@@ -1162,12 +1163,12 @@ LR <-
 #' \dontrun{
 #' require (datasets)
 #' data (iris)
-#' MLP (iris [, -5], iris [, 5], size = 4, decay = .1)
+#' MLP (iris [, -5], iris [, 5], hidden = 4, decay = .1)
 #' }
 MLP <-
   function (train,
             labels,
-            size = ifelse (is.vector (train), 2:(1 + nlevels (labels)), 2:(ncol (train) + nlevels (labels))),
+            hidden = ifelse (is.vector (train), 2:(1 + nlevels (labels)), 2:(ncol (train) + nlevels (labels))),
             decay = 10^(-3:-1),
             methodparameters = NULL,
             tune = FALSE,
@@ -1179,17 +1180,17 @@ MLP <-
     d = cbind.data.frame (Class = labels, train)
     if (!is.null (methodparameters))
     {
-      size = methodparameters$hidden
+      hidden = methodparameters$hidden
       decay = methodparameters$decay
     }
-    if (length (size) > 1 | length (decay) > 1)
+    if (length (hidden) > 1 | length (decay) > 1)
     {
       tunecontrol = e1071::tune.control(sampling = "bootstrap", nboot = 20, boot.size = 1)
-      model = e1071::tune.nnet (Class~., data = d, size = size, decay = decay,
+      model = e1071::tune.nnet (Class~., data = d, size = hidden, decay = decay,
                                 tunecontrol = tunecontrol, ...)$best.model
     }
     else
-      model = nnet::nnet (Class~., data = d, size = size, decay = decay, trace = FALSE, ...)
+      model = nnet::nnet (Class~., data = d, size = hidden, decay = decay, trace = FALSE, ...)
     res = NULL
     if (tune)
     {
@@ -1253,7 +1254,7 @@ panel.compare <-
 #' @param train.y The target (class labels or numeric values), a \code{factor} or \code{vector}.
 #' @param test.x The test dataset (description/predictors), a \code{matrix} or \code{data.frame}.
 #' @param test.y The (test) target (class labels or numeric values), a \code{factor} or \code{vector}.
-#' @param size The size of the training set (holdout estimation).
+#' @param train.size The size of the training set (holdout estimation).
 #' @param type The type of evaluation (confusion matrix, ROC curve, ...)
 #' @param protocol The evaluation protocol (crossvalidation, bootstrap, ...)
 #' @param eval The evaluation functions.
@@ -1290,7 +1291,7 @@ panel.compare <-
 #'              protocol = "crossvalidation", seed = 0)
 #' }
 performance <-
-  function (methods, train.x, train.y, test.x = NULL, test.y = NULL, size = round (0.7 * nrow (train.x)), type = c ("evaluation", "confusion", "roc", "cost", "scatter"),
+  function (methods, train.x, train.y, test.x = NULL, test.y = NULL, train.size = round (0.7 * nrow (train.x)), type = c ("evaluation", "confusion", "roc", "cost", "scatter"),
             protocol = c ("bootstrap", "crossvalidation", "loocv", "holdout", "train"),
             eval = ifelse (is.factor (train.y), "accuracy", "r2"),
             nruns = 10, nfolds = 10, new = TRUE, lty = 1,
@@ -1329,7 +1330,7 @@ performance <-
       else
         methodparameters = sapply (methods, function (method) method (train.x, train.y, tune = TRUE, ...))
     }
-    tmp = get (paste ("protocol.", protocol [1], sep = "")) (methods = methods, train.x = train.x, train.y = train.y, test.x = test.x, test.y = test.y, size = size,
+    tmp = get (paste ("protocol.", protocol [1], sep = "")) (methods = methods, train.x = train.x, train.y = train.y, test.x = test.x, test.y = test.y, train.size = train.size,
                                                              methodparameters = methodparameters, nruns = nruns, nfolds = nfolds, seed = seed, ...)
     predictions = tmp$predictions
     targets = tmp$targets
@@ -1374,10 +1375,10 @@ performance <-
     {
       res = NULL
       if (length (methods) == 1)
-        res = evaluation (predictions = predictions, targets = targets, eval = eval, ...)
+        res = evaluation (predictions = predictions, gt = targets, eval = eval, ...)
       else
       {
-        res = t (as.data.frame (lapply (predictions, function (column) evaluation (predictions = column, targets = targets, eval = eval, ...))))
+        res = t (as.data.frame (lapply (predictions, function (column) evaluation (predictions = column, gt = targets, eval = eval, ...))))
         rownames (res) = methodNames
       }
       return (res)
@@ -1396,9 +1397,9 @@ performance <-
       return (res)
     }
     else if (type [1] == "roc")
-      roc.curves (methodNames, predictions, targets)
+      roc.curves (predictions, targets, methodNames)
     else if (type [1] == "cost")
-      cost.curves (methodNames, predictions, targets)
+      cost.curves (predictions, targets, methodNames)
     else if (type [1] == "scatter")
     {
       res = array (dim = c (length (targets), length (methods), length (eval)))
@@ -1892,15 +1893,15 @@ protocol.crossvalidation <-
 
 #' @keywords internal
 protocol.holdout <-
-  function (methods, train.x, train.y, test.x = NULL, test.y = NULL, size = round (0.7 * length (train.y)), methodparameters, seed, ...)
+  function (methods, train.x, train.y, test.x = NULL, test.y = NULL, train.size = round (0.7 * length (train.y)), methodparameters, seed, ...)
   {
     set.seed (seed)
     if (is.null (test.x) | is.null (test.y))
     {
       set.seed (seed)
-      if (size < 1)
-        size = round (size * length (train.y))
-      s = sample (nrow (train.x), size)
+      if (train.size < 1)
+        train.size = round (train.size * length (train.y))
+      s = sample (nrow (train.x), train.size)
       test.x = train.x [-s, ]
       train.x = train.x [s, ]
       if (is.vector (train.x))
@@ -2037,9 +2038,9 @@ RANDOMFOREST <-
 #'
 #' This function plots ROC Curves of several classification predictions.
 #' @name roc.curves
-#' @param methods.names The name of the compared methods (\code{vector}).
 #' @param predictions The predictions of a classification model (\code{factor} or \code{vector}).
-#' @param labels Actual labels of the dataset (\code{factor} or \code{vector}).
+#' @param gt Actual labels of the dataset (\code{factor} or \code{vector}).
+#' @param methods.names The name of the compared methods (\code{vector}).
 #' @return The evaluation of the predictions (numeric value).
 #' @export
 #' @seealso \code{\link{cost.curves}}, \code{\link{performance}}
@@ -2052,28 +2053,29 @@ RANDOMFOREST <-
 #' model.lda = LDA (d [, -5], d [, 5])
 #' pred.nb = predict (model.nb, d [, -5])
 #' pred.lda = predict (model.lda, d [, -5])
-#' roc.curves (c ("NB", "LDA"), cbind (pred.nb, pred.lda), d [, 5])
+#' roc.curves (cbind (pred.nb, pred.lda), d [, 5], c ("NB", "LDA"))
 roc.curves <-
-  function (methods.names, predictions, labels)
+  function (predictions, gt, methods.names = NULL)
   {
     if (is.factor (predictions))
     {
-      pred = ROCR::prediction (as.numeric (predictions), as.numeric (labels))
+      pred = ROCR::prediction (as.numeric (predictions), as.numeric (gt))
       perf = ROCR::performance (pred, "tpr", "fpr")
       ROCR::plot (perf, asp = 1)
     }
     else
     {
-      pred = ROCR::prediction (as.numeric (predictions [, 1]), as.numeric (labels))
+      pred = ROCR::prediction (as.numeric (predictions [, 1]), as.numeric (gt))
       perf = ROCR::performance (pred, "tpr", "fpr")
       ROCR::plot (perf, asp = 1)
       for (i in 2:ncol (predictions))
       {
-        pred = ROCR::prediction (as.numeric (predictions [, i]), as.numeric (labels))
+        pred = ROCR::prediction (as.numeric (predictions [, i]), as.numeric (gt))
         perf = ROCR::performance (pred, "tpr", "fpr")
         ROCR::plot (perf, add = TRUE, lty = i, col = i)
       }
-      graphics::legend ("bottomright", methods.names, lty = 1:ncol (predictions), col = 1:ncol (predictions), bty = "n")
+      if (!is.null (methods.names))
+        graphics::legend ("bottomright", methods.names, lty = 1:ncol (predictions), col = 1:ncol (predictions), bty = "n")
     }
   }
 

@@ -4,7 +4,8 @@
 \name{snore}
 \alias{snore}
 \title{Snore dataset}
-\format{The dataset has 100 instances described by 7 variables.
+\format{
+The dataset has 100 instances described by 7 variables.
 The variables are as follows:
 \describe{
 \item{\code{Age}}{In years.}
@@ -14,7 +15,8 @@ The variables are as follows:
 \item{\code{Sex}}{M for male or F for female.}
 \item{\code{Snore}}{Snoring diagnosis (Y or N).}
 \item{\code{Tobacco}}{Y or N.}
-}}
+}
+}
 \source{
 \url{http://forge.info.univ-angers.fr/~gh/Datasets/datasets.htm}
 }

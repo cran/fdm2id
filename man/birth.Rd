@@ -4,7 +4,9 @@
 \name{birth}
 \alias{birth}
 \title{Birth dataset}
-\format{The dataset is a names vector of nine values (birth years).}
+\format{
+The dataset is a names vector of nine values (birth years).
+}
 \usage{
 birth
 }

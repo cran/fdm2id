@@ -6,15 +6,15 @@
 \usage{
 evaluation(
   predictions,
-  targets,
-  eval = ifelse(is.factor(targets), "accuracy", "r2"),
+  gt,
+  eval = ifelse(is.factor(gt), "accuracy", "r2"),
   ...
 )
 }
 \arguments{
 \item{predictions}{The predictions of a classification model (\code{factor} or \code{vector}).}
 
-\item{targets}{The actual targets of the dataset (\code{factor} or \code{vector}).}
+\item{gt}{The ground truth of the dataset (\code{factor} or \code{vector}).}
 
 \item{eval}{The evaluation method.}
 

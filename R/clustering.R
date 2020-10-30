@@ -417,8 +417,8 @@ EM <-
     if (length (clusters) == 1)
       clusters = stats::kmeans (d, clusters, nstart = 10)$cluster
     z = mclust::unmap (clusters)
-    p = mclust::mstep (model, d, z)
-    res = mclust::em (model, d, p$parameters)
+    p = mclust::mstep (data = d, modelName = model, z = z)
+    res = mclust::em (data = d, modelName = model, parameters = p$parameters)
     res = c (res, list (cluster = apply (res$z, 1, which.max)))
     class (res) = "em"
     return (res)
@@ -447,7 +447,7 @@ HCA <-
       k = 1 + which.min (diff (sort (hc$height, decreasing = TRUE)))
     cluster = stats::cutree (hc, k)
     hc = stats::as.hclust (hc)
-    r = c (hc, list (cluster = cluster))
+    r = c (hc, list (cluster = cluster, k = k))
     class (r) = c ("hca", class (hc))
     return (r)
   }
@@ -512,7 +512,7 @@ intern <-
 intern.dunn <-
   function (clus, d, type = c ("global"))
   {
-    if (type != "global")
+    if (type [1] != "global")
     {
       message ("Dunn index only works for global evaluation.")
       return (NULL)
@@ -1285,7 +1285,7 @@ SPECTRAL <-
 #' @param d The dataset.
 #' @param originals The original clustering.
 #' @param eval The evaluation criteria.
-#' @param comp The comparison method.
+#' @param type The comparison method.
 #' @param nsampling The number of bootstrap runs.
 #' @param seed A specified seed for random number generation (useful for testing different method with the same bootstap samplings).
 #' @param names Method names.
@@ -1299,21 +1299,22 @@ SPECTRAL <-
 #' require (datasets)
 #' data (iris)
 #' stability (KMEANS, iris [, -5], seed = 0, k = 3)
-#' stability (KMEANS, iris [, -5], seed = 0, k = 3, eval = c ("jaccard", "accuracy"), comp = "global")
-#' stability (KMEANS, iris [, -5], seed = 0, k = 3, comp = "cluster")
-#' stability (KMEANS, iris [, -5], seed = 0, k = 3, eval = c ("jaccard", "accuracy"), comp = "cluster")
+#' stability (KMEANS, iris [, -5], seed = 0, k = 3, eval = c ("jaccard", "accuracy"), type = "global")
+#' stability (KMEANS, iris [, -5], seed = 0, k = 3, type = "cluster")
+#' stability (KMEANS, iris [, -5], seed = 0, k = 3, eval = c ("jaccard", "accuracy"), type = "cluster")
 #' stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3)
 #' stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3,
-#' eval = c ("jaccard", "accuracy"), comp = "global")
-#' stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3, comp = "cluster")
+#' eval = c ("jaccard", "accuracy"), type = "global")
+#' stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3, type = "cluster")
 #' stability (c (KMEANS, HCA), iris [, -5], seed = 0, k = 3,
-#' eval = c ("jaccard", "accuracy"), comp = "cluster")
+#' eval = c ("jaccard", "accuracy"), type = "cluster")
 #' stability (KMEANS, iris [, -5], originals = KMEANS (iris [, -5], k = 3)$cluster, seed = 0, k = 3)
 #' stability (KMEANS, iris [, -5], originals = KMEANS (iris [, -5], k = 3), seed = 0, k = 3)
 #' }
 stability <-
-  function (clusteringmethods, d, originals = NULL, eval = "jaccard", comp = c ("cluster", "global"), nsampling = 10, seed = NULL, names = NULL, graph = FALSE, ...)
+  function (clusteringmethods, d, originals = NULL, eval = "jaccard", type = c ("cluster", "global"), nsampling = 10, seed = NULL, names = NULL, graph = FALSE, ...)
   {
+    comp = ifelse (type [1] == "cluster", "cluster", "max")
     methodNames = names
     if (is.character (clusteringmethods))
     {
@@ -1378,7 +1379,7 @@ stability <-
           colnames (res) = eval
           rownames (res) = clusternames
         }
-        else if (comp == "cluster")
+        else if (type [1] == "cluster")
         {
           rescomp = unlist (rescomp)
           dim = c (length (rescomp) / (nsampling * length (eval)), length (eval), nsampling)
@@ -1409,6 +1410,8 @@ stability <-
 #' @param clustering The dendrogram to be plotted (result of \code{\link[stats]{hclust}}, \code{\link[cluster]{agnes}} or \code{\link{HCA}}).
 #' @param labels Indicates whether or not labels (row names) should be showned on the plot.
 #' @param k Number of clusters. If not specified an "optimal" value is determined.
+#' @param split Indicates wheather or not the clusters should be highlighted in the graphics.
+#' @param horiz Indicates if the dendrogram should be drawn horizontally or not.
 #' @param ... Other parameters.
 #' @export
 #' @seealso \code{\link[stats]{dendrogram}}, \code{\link{HCA}}, \code{\link[stats]{hclust}}, \code{\link[cluster]{agnes}}
@@ -1421,11 +1424,26 @@ treeplot <-
   function (clustering,
             labels = FALSE,
             k = NULL,
+            split = TRUE,
+            horiz = FALSE,
             ...)
   {
+    if (labels)
+    {
+      if (horiz)
+      {
+        opar = graphics::par (mar = graphics::par ("mar") + c (0, 0, 0, max (graphics::strwidth (clustering$labels, units = "figure") * 30)))
+        on.exit (graphics::par (opar))
+      }
+      else
+      {
+        opar = graphics::par (mar = graphics::par("mar") + c (max (graphics::strwidth (clustering$labels, units = "figure") * 30), 0, 0, 0))
+        on.exit (graphics::par (opar))
+      }
+    }
     tree = stats::as.dendrogram (clustering)
     graphics::plot (tree, ylab = "Height",
-                    leaflab = ifelse (labels, "perpendicular", "none"))
+                    leaflab = ifelse (labels, "perpendicular", "none"), horiz = horiz)
     if (is.null (k))
     {
       if (is.null (clustering$cluster))
@@ -1433,5 +1451,6 @@ treeplot <-
       else
         k = length (unique (clustering$cluster))
     }
-    stats::rect.hclust (clustering, k = k, border = 2:(k + 1))
+    if (split)
+      stats::rect.hclust (clustering, k = k, border = 2:(k + 1))
   }

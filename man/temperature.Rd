@@ -4,8 +4,10 @@
 \name{temperature}
 \alias{temperature}
 \title{Temperature dataset}
-\format{The dataset has 35 instances described by 17 variables.
-Average temperature of the 12 month. Mean and amplitude of the temperature. Latitude and longitude of the city. Localisation in Europe.}
+\format{
+The dataset has 35 instances described by 17 variables.
+Average temperature of the 12 month. Mean and amplitude of the temperature. Latitude and longitude of the city. Localisation in Europe.
+}
 \usage{
 temperature
 }

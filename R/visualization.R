@@ -24,6 +24,9 @@ histogram <- function(d, main)
 #' @seealso \code{\link[NMF]{nmf}}
 #' @examples
 #' \dontrun{
+#' install.packages ("BiocManager")
+#' BiocManager::install ("Biobase")
+#' install.packages ("NMF")
 #' require (datasets)
 #' data (iris)
 #' NMF (iris [, -5])
@@ -32,7 +35,7 @@ NMF <-
   function (x, rank = 2, nstart = 10, ...)
   {
     res = NULL
-    if (requireNamespace (NMF, quietly = TRUE))
+    if (requireNamespace ("NMF", quietly = TRUE))
     {
       res = NMF::nmf (x, rank)
       eval = res@residuals

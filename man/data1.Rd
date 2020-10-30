@@ -4,7 +4,9 @@
 \name{data1}
 \alias{data1}
 \title{"data1" dataset}
-\format{240 observations described by 4 variables and grouped into 16 classes.}
+\format{
+240 observations described by 4 variables and grouped into 16 classes.
+}
 \usage{
 data1
 }

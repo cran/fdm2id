@@ -10,7 +10,7 @@ performance(
   train.y,
   test.x = NULL,
   test.y = NULL,
-  size = round(0.7 * nrow(train.x)),
+  train.size = round(0.7 * nrow(train.x)),
   type = c("evaluation", "confusion", "roc", "cost", "scatter"),
   protocol = c("bootstrap", "crossvalidation", "loocv", "holdout", "train"),
   eval = ifelse(is.factor(train.y), "accuracy", "r2"),
@@ -35,7 +35,7 @@ performance(
 
 \item{test.y}{The (test) target (class labels or numeric values), a \code{factor} or \code{vector}.}
 
-\item{size}{The size of the training set (holdout estimation).}
+\item{train.size}{The size of the training set (holdout estimation).}
 
 \item{type}{The type of evaluation (confusion matrix, ROC curve, ...)}
 

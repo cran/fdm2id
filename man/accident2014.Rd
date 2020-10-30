@@ -4,7 +4,9 @@
 \name{accident2014}
 \alias{accident2014}
 \title{Sample of car accident location in the UK during year 2014.}
-\format{The dataset has 500 instances described by 2 variables (coordinates).}
+\format{
+The dataset has 500 instances described by 2 variables (coordinates).
+}
 \source{
 \url{https://data.gov.uk/}
 }

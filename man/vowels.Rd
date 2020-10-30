@@ -6,8 +6,10 @@
 \alias{vowels.train}
 \alias{vowels.test}
 \title{Vowels dataset}
-\format{The dataset has 4664 instances described by 17 variables. The first variable is the classification into 6 classes (letter A, E, I, O, U and Y).
-\code{vowels.train} contains 233 instances and \code{vowels.test} contains 4431.}
+\format{
+The dataset has 4664 instances described by 17 variables. The first variable is the classification into 6 classes (letter A, E, I, O, U and Y).
+\code{vowels.train} contains 233 instances and \code{vowels.test} contains 4431.
+}
 \source{
 \url{https://archive.ics.uci.edu/ml/datasets/letter+recognition}
 }

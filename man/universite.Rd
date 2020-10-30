@@ -4,10 +4,12 @@
 \name{universite}
 \alias{universite}
 \title{University dataset}
-\format{The dataset has 10 instances (university departments) described by 12 variables.
+\format{
+The dataset has 10 instances (university departments) described by 12 variables.
 The fist six variables are the number of female and male student
 studying for bachelor degree (Licence), master degree (Master) and doctorate (Doctorat).
-The six last variables are obtained by combining the first ones.}
+The six last variables are obtained by combining the first ones.
+}
 \source{
 \url{https://husson.github.io/data.html}
 }

@@ -101,7 +101,7 @@ NULL
 #' @param seed A specified seed for random number generation.
 #' @return A randomly generated dataset.
 #' @export
-#' @seealso \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
+#' @seealso \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}
 #' @examples
 #' data.gauss ()
 data.gauss = function (n = 1000, k = 2, prob = rep (1 / k, k), mu = cbind (rep (0, k), seq (from = 0, by = 3, length.out = k)), cov = rep (list (matrix (c (6,0.9,0.9,0.3), ncol = 2, nrow = 2)), k), levels = NULL, graph = TRUE, seed = NULL)
@@ -138,7 +138,7 @@ data.gauss = function (n = 1000, k = 2, prob = rep (1 / k, k), mu = cbind (rep (
 #' @param seed A specified seed for random number generation.
 #' @return A randomly generated dataset.
 #' @export
-#' @seealso \code{\link{data.diag}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
+#' @seealso \code{\link{data.diag}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}
 #' @examples
 #' data.parabol ()
 data.parabol <-
@@ -171,7 +171,7 @@ data.parabol <-
 #' @param seed A specified seed for random number generation.
 #' @return A randomly generated dataset.
 #' @export
-#' @seealso \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
+#' @seealso \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}
 #' @examples
 #' data.square ()
 data.square <- function (n = 200, min = 0, max = 1, f = function (x) x, levels = NULL, graph = TRUE,
@@ -205,7 +205,7 @@ data.square <- function (n = 200, min = 0, max = 1, f = function (x) x, levels =
 #' @param seed A specified seed for random number generation.
 #' @return A randomly generated dataset.
 #' @export
-#' @seealso \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
+#' @seealso \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}
 #' @examples
 #' data.target1 ()
 data.target1 <-
@@ -241,7 +241,7 @@ data.target1 <-
 #' @param seed A specified seed for random number generation.
 #' @return A randomly generated dataset.
 #' @export
-#' @seealso \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.twomoons}}
+#' @seealso \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}
 #' @examples
 #' data.target2 ()
 data.target2 <-
@@ -274,7 +274,7 @@ data.target2 <-
 #' @param seed A specified seed for random number generation.
 #' @return A randomly generated dataset.
 #' @export
-#' @seealso \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}
+#' @seealso \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.xor}}
 #' @examples
 #' data.twomoons ()
 data.twomoons <-
@@ -300,6 +300,39 @@ data.twomoons <-
       plotdata (d [, -3], d [, 3])
     return (d)
   }
+
+#' XOR dataset
+#'
+#' Generate "XOR" dataset.
+#' @name data.xor
+#' @param n Number of observations in each cluster.
+#' @param ndim The number of dimensions (2^ndim clusters are formed, grouped into two classes).
+#' @param sigma The variance.
+#' @param levels Name of each class.
+#' @param graph A logical indicating whether or not a graphic should be plotted.
+#' @param seed A specified seed for random number generation.
+#' @return A randomly generated dataset.
+#' @export
+#' @seealso \code{\link{data.diag}}, \code{\link{data.gauss}}, \code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
+#' @examples
+#' data.xor ()
+data.xor = function (n = 100, ndim = 2, sigma = .25, levels = NULL, graph = TRUE, seed = NULL)
+{
+  set.seed (seed)
+  if (is.null (levels))
+    levels = levels = paste ("Class", 1:2)
+  base = c (-1, 1)
+  l = rep (list (base), ndim)
+  grid = expand.grid (l)
+  labels = factor (apply (grid, 1, prod), labels = levels)
+  labels = rep (labels, each = n)
+  d = do.call (rbind, apply (grid, 1, function (v) data.frame (sapply (v, function (mu) stats::rnorm (n, mu, sigma)))))
+  colnames (d) = paste ("X", 1:ncol (d), sep = "")
+  d = cbind.data.frame (d, Class = labels)
+  if (graph)
+    plotdata (d)
+  return (d)
+}
 
 #' @name data1
 #' @title "data1" dataset
@@ -360,7 +393,7 @@ NULL
 #' @docType data
 #' @usage eucalyptus
 #' @format The dataset has 1429 instances (eucalyptus trees) with 2 measurements: the height and the circumference.
-#' @source \url{http://www.cmap.polytechnique.fr/~lepennec/enseignement/MAP553/Lab2_Linear.html}
+#' @source \url{http://www.cmap.polytechnique.fr/~lepennec/fr/teaching/}
 NULL
 
 #' @name ionosphere

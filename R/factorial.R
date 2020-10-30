@@ -100,7 +100,7 @@ MCA <-
 #' data (iris)
 #' PCA (iris, quali.sup = 5)
 PCA <-
-  function (d, scale.unit = TRUE, ncp = 5, ind.sup = NULL,
+  function (d, scale.unit = TRUE, ncp = ncol (d) - length (quanti.sup) - length (quali.sup), ind.sup = NULL,
                  quanti.sup = NULL, quali.sup = NULL, row.w = NULL,
                  col.w = NULL)
   {

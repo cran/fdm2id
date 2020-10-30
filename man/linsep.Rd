@@ -4,8 +4,10 @@
 \name{linsep}
 \alias{linsep}
 \title{Linsep dataset}
-\format{Class \code{A} contains 50 observations and class \code{B} contains 500 observations.
-There are two numeric variables: \code{X} and \code{Y}.}
+\format{
+Class \code{A} contains 50 observations and class \code{B} contains 500 observations.
+There are two numeric variables: \code{X} and \code{Y}.
+}
 \usage{
 linsep
 }

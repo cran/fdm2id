@@ -4,7 +4,9 @@
 \name{credit}
 \alias{credit}
 \title{Credit dataset}
-\format{The dataset has 66 instances described by 11 qualitative variables.}
+\format{
+The dataset has 66 instances described by 11 qualitative variables.
+}
 \usage{
 credit
 }

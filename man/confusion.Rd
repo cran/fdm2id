@@ -4,12 +4,12 @@
 \alias{confusion}
 \title{Confuion matrix}
 \usage{
-confusion(gt, pred, norm = TRUE, graph = TRUE)
+confusion(predictions, gt, norm = TRUE, graph = TRUE)
 }
 \arguments{
-\item{gt}{The ground truth.}
+\item{predictions}{The prediction.}
 
-\item{pred}{The prediction.}
+\item{gt}{The ground truth.}
 
 \item{norm}{Whether or not the confusion matrix is normalized}
 

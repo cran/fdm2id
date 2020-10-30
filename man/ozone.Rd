@@ -4,8 +4,10 @@
 \name{ozone}
 \alias{ozone}
 \title{Ozone dataset}
-\format{Each instance is described by the maximum level of ozone measured during the day.
-Temperature, clouds, and wind are also recorded.}
+\format{
+Each instance is described by the maximum level of ozone measured during the day.
+Temperature, clouds, and wind are also recorded.
+}
 \source{
 \url{https://r-stat-sc-donnees.github.io/ozone.txt}
 }

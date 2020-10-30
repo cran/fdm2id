@@ -36,5 +36,5 @@ Generate a random dataset shaped like a target.
 data.target2 ()
 }
 \seealso{
-\code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.twomoons}}
+\code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}
 }

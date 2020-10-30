@@ -4,8 +4,10 @@
 \name{alcohol}
 \alias{alcohol}
 \title{Alcohol dataset}
-\format{The dataset has 27 instances described by 4 variables.
-The variables are the average amount of alcool of different types per year par inhabitent.}
+\format{
+The dataset has 27 instances described by 4 variables.
+The variables are the average amount of alcool of different types per year par inhabitent.
+}
 \source{
 \url{https://www.who.int/}
 }

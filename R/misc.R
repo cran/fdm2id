@@ -15,6 +15,53 @@ addalpha <-
     }))
   }
 
+#' Correlated variables
+#'
+#' Return the list of correlated variables
+#' @name correlated
+#' @param d A data matrix.
+#' @param threshold The threshold on the (absolute) Pearson coefficient. If NULL, return the most correlated variables.
+#' @return The list of correlated variables (as a matrix of column names).
+#' @seealso \code{\link[stats]{cor}}
+#' @export
+#' @examples
+#' data (iris)
+#' correlated (iris)
+correlated <-
+  function (d, threshold = 0.8)
+  {
+    factors = NULL
+    if (is.factor (d))
+      factors = TRUE
+    else if (is.vector (d))
+      factors = FALSE
+    else
+      factors = sapply (as.data.frame (d), is.factor)
+    if (sum (factors) > 0)
+      d = d [, !factors]
+    cm = stats::cor (d)
+    n = colnames (d)
+    l = length (n)
+    res = NULL
+    if (is.null (threshold))
+    {
+      cm = abs (cm - diag (l))
+      threshold = max (cm)
+    }
+    res = which (lower.tri (cm) & (abs (cm) >= threshold), arr.ind = TRUE)
+    if (nrow (res) == 1)
+      res = matrix (n [sort (res [1, ])], ncol = 2)
+    else
+    {
+      res = t (apply (res, 1, sort))
+      res = res [order (res [, 1], res [, 2]), ]
+      res = apply (res, 2, function (indices) return (n [indices]))
+    }
+    colnames (res) = c ("Var. 1", "Var. 2")
+    rownames (res) = 1:nrow (res)
+    return (res)
+  }
+
 #' Close a graphics device
 #'
 #' Close the graphics device driver
@@ -84,6 +131,7 @@ exportgraphics.on <-
 #' @param angle The angle of the rotation.
 #' @param axis The axis.
 #' @param range The range of the angle (360, 2*pi, 100, ...)
+#' @return A rotated data matrix.
 #' @export
 #' @examples
 #' d = data.parabol ()

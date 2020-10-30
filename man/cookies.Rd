@@ -8,10 +8,12 @@
 \alias{cookies.y.train}
 \alias{cookies.y.test}
 \title{Cookies dataset}
-\format{The cookies.desc.* datasets contains the 700 columns that correspond to the NIR reflectance spectrum.
+\format{
+The cookies.desc.* datasets contains the 700 columns that correspond to the NIR reflectance spectrum.
 The cookies.y.* datasets contains four columns that correspond to the four constituents fat, sucrose, dry flour, and water.
 The cookies.*.train contains 40 rows that correspond to the calibration data.
-The cookies.*.test contains 32 rows that correspond to the prediction data.}
+The cookies.*.test contains 32 rows that correspond to the prediction data.
+}
 \source{
 P. J. Brown and T. Fearn and M. Vannucci (2001) "Bayesian wavelet regression on curves with applications to a spectroscopic calibration problem", Journal of the American Statistical Association, 96(454), pp. 398-408.
 }

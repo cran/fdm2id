@@ -4,8 +4,10 @@
 \name{wheat}
 \alias{wheat}
 \title{Wheat dataset}
-\format{The dataset has 210 instances described by 8 variables:
-area, perimeter, compactness, length, width, asymmetry coefficient, groove length and variery.}
+\format{
+The dataset has 210 instances described by 8 variables:
+area, perimeter, compactness, length, width, asymmetry coefficient, groove length and variery.
+}
 \source{
 \url{https://archive.ics.uci.edu/ml/datasets/seeds}
 }

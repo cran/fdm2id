@@ -4,9 +4,11 @@
 \name{eucalyptus}
 \alias{eucalyptus}
 \title{Eucalyptus dataset}
-\format{The dataset has 1429 instances (eucalyptus trees) with 2 measurements: the height and the circumference.}
+\format{
+The dataset has 1429 instances (eucalyptus trees) with 2 measurements: the height and the circumference.
+}
 \source{
-\url{http://www.cmap.polytechnique.fr/~lepennec/enseignement/MAP553/Lab2_Linear.html}
+\url{http://www.cmap.polytechnique.fr/~lepennec/fr/teaching/}
 }
 \usage{
 eucalyptus

@@ -20,6 +20,9 @@ Return the NMF decomposition.
 }
 \examples{
 \dontrun{
+install.packages ("BiocManager")
+BiocManager::install ("Biobase")
+install.packages ("NMF")
 require (datasets)
 data (iris)
 NMF (iris [, -5])

@@ -6,7 +6,9 @@
 \alias{reg2.train}
 \alias{reg2.test}
 \title{reg2 dataset}
-\format{50 instances and 2 variables. \code{X} and \code{Y} (the target variable) are both numeric variables.}
+\format{
+50 instances and 2 variables. \code{X} and \code{Y} (the target variable) are both numeric variables.
+}
 \usage{
 reg2
 reg2.train

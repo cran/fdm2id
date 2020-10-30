@@ -40,5 +40,5 @@ Generate a random dataset shaped like a square divided by a custom function
 data.square ()
 }
 \seealso{
-\code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
+\code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}
 }

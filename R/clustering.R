@@ -996,7 +996,7 @@ predict.dbs <-
 predict.em <-
   function (object, newdata, ...)
   {
-    apply (mclust::estep (object$modelName, newdata, object$parameters)$z, 1, which.max)
+    apply (mclust::estep (data = newdata, modelName = object$modelName, parameters = object$parameters)$z, 1, which.max)
   }
 
 #' Predict function for K-means
@@ -1151,7 +1151,7 @@ scatterplot <-
     if (ellipses)
     {
       z = mclust::unmap (clusters [clusters != 0])
-      p = mclust::mstep ("VVV", dd [clusters != 0, ], z)
+      p = mclust::mstep (data = dd [clusters != 0, ], modelName = "VVV", z = z)
       if (is.null (centers))
         centers = t (p$parameters$mean)
       for (i in unique (clusters))

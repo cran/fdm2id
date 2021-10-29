@@ -4,7 +4,13 @@
 \alias{loadtext}
 \title{load a text file}
 \usage{
-loadtext(file = file.choose(), dir = "~/", collapse = TRUE)
+loadtext(
+  file = file.choose(),
+  dir = "~/",
+  collapse = TRUE,
+  sep = NULL,
+  categories = NULL
+)
 }
 \arguments{
 \item{file}{The path or URL of the text file.}
@@ -12,6 +18,10 @@ loadtext(file = file.choose(), dir = "~/", collapse = TRUE)
 \item{dir}{The (temporary) directory, where the file is downloaded. The file is deleted at the end of this function.}
 
 \item{collapse}{Indicates whether or not lines of each documents should collapse together or not.}
+
+\item{sep}{Separator between text fields.}
+
+\item{categories}{Columns that should be considered as categorial data.}
 }
 \value{
 The text contained in the dowloaded file.

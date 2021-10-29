@@ -4,12 +4,14 @@
 \alias{resplot}
 \title{Plot the studentized residuals of a linear regression model}
 \usage{
-resplot(model, index = NULL)
+resplot(model, index = NULL, labels = NULL)
 }
 \arguments{
 \item{model}{The model to be plotted.}
 
 \item{index}{The index of the variable used for for the x-axis.}
+
+\item{labels}{The labels of the instances.}
 }
 \description{
 Plot the studentized residuals of a linear regression model.

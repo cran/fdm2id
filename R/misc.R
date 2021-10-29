@@ -49,6 +49,7 @@ correlated <-
       threshold = max (cm)
     }
     res = which (lower.tri (cm) & (abs (cm) >= threshold), arr.ind = TRUE)
+    val = cm [res]
     if (nrow (res) == 1)
       res = matrix (n [sort (res [1, ])], ncol = 2)
     else
@@ -58,6 +59,8 @@ correlated <-
       res = apply (res, 2, function (indices) return (n [indices]))
     }
     colnames (res) = c ("Var. 1", "Var. 2")
+    res = cbind.data.frame (res, r = val)
+    res = res [order (-val), ]
     rownames (res) = 1:nrow (res)
     return (res)
   }

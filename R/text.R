@@ -199,6 +199,8 @@ getvocab <-
 #' @param file The path or URL of the text file.
 #' @param dir The (temporary) directory, where the file is downloaded. The file is deleted at the end of this function.
 #' @param collapse Indicates whether or not lines of each documents should collapse together or not.
+#' @param sep Separator between text fields.
+#' @param categories Columns that should be considered as categorial data.
 #' @return The text contained in the dowloaded file.
 #' @export
 #' @seealso \code{\link[utils]{download.file}}, \code{\link[utils]{unzip}}
@@ -207,7 +209,7 @@ getvocab <-
 #' text = loadtext ("http://mattmahoney.net/dc/text8.zip")
 #' }
 loadtext <-
-  function (file = file.choose (), dir = "~/", collapse = TRUE)
+  function (file = file.choose (), dir = "~/", collapse = TRUE, sep = NULL, categories = NULL)
   {
     mainfile = file
     download = grepl ("^https?://", file)
@@ -226,14 +228,32 @@ loadtext <-
     }
     else
       files = mainfile
-    corpus = as.vector (sapply (files, function (file)
+    corpus = NULL
+    if (is.null (sep))
     {
-      text = readLines (file, n = -1, warn = FALSE)
-      if (collapse)
-        text = paste (text, collapse = " ")
-      return (text)
+      corpus = as.vector (sapply (files, function (file)
+      {
+        text = readLines (file, n = -1, warn = FALSE)
+        if (collapse)
+          text = paste (text, collapse = " ")
+        return (text)
     }))
-    corpus = corpus [!sapply (corpus, function (text) grepl ("^\\s*$", text))]
+      corpus = corpus [!sapply (corpus, function (text) grepl ("^\\s*$", text))]
+    }
+    else
+    {
+      corpus = lapply (files, function (file)
+      {
+        text = utils::read.table (file, sep = sep, quote = "")
+        return (text)
+      })
+      if (length (corpus) > 1)
+        corpus = do.call (rbind, corpus)
+      corpus [] = lapply(corpus, as.character)
+      if (!is.null (categories))
+        corpus [categories] = lapply(corpus [categories], factor)
+    }
+
     if (download)
       file.remove (mainfile)
     if (ext %in% c ("zip"))
@@ -613,7 +633,7 @@ vectorize.words <-
     vocab = getvocab (corpus, mincount = mincount, minphrasecount = minphrasecount, ngram = 1, stopwords = stopwords, it = it, lang = lang)
     vectorizer = createvectorizer (corpus, it = it, phrases = phrases, vocab = vocab, stopwords = stopwords, ngram = 1, mincount = mincount, minphrasecount = minphrasecount)
     tcm = text2vec::create_tcm (vectorizer$tokens, vectorizer$vectorizer, skip_grams_window = window)
-    glove = text2vec::GlobalVectors$new (word_vectors_size = ndim, vocabulary = vocab, x_max = maxcooc)
+    glove = text2vec::GlobalVectors$new (rank = ndim, x_max = maxcooc)
     words = glove$fit_transform (tcm, n_iter = maxiter, convergence_tol = epsilon)
     words = words + t (glove$components)
     if (!is.null (maxwords))

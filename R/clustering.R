@@ -1339,7 +1339,7 @@ stability <-
         set.seed (seed + 1)
       else
         set.seed (seed)
-      originals = sapply (clusteringmethods, function (clus) {clus (d, ...)$cluster})
+      originals = sapply (clusteringmethods, function (clus) {clus (d, graph = graph, ...)$cluster})
       originals = split (originals, rep (1:ncol (originals), each = nrow (originals)))
     }
     else
@@ -1361,12 +1361,12 @@ stability <-
         s = matrix (sample (nrow (d), nsampling * nrow (d), replace = T), ncol = nsampling)
         rescomp = apply (s, 2, function (v)
         {
-          clusters = clus (d [v, ], ...)
+          clusters = clus (d [v, ], graph = graph, ...)
           if (graph)
             plotclus (clusters, d [v, ])
           compare (original [unique (v)], clusters$cluster [!duplicated (v)], eval = eval, comp = comp)
         })
-        rescomp = apply (s, 2, function (v) compare (original [unique (v)], clus (d [v, ], ...)$cluster [!duplicated (v)], eval = eval, comp = comp))
+        rescomp = apply (s, 2, function (v) compare (original [unique (v)], clus (d [v, ], graph = graph,...)$cluster [!duplicated (v)], eval = eval, comp = comp))
         if (is.vector (rescomp))
         {
           res = mean (rescomp, na.rm = TRUE)

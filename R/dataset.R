@@ -173,8 +173,8 @@ data.parabol <-
 #' @export
 #' @seealso \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}
 #' @examples
-#' data.square ()
-data.square <- function (n = 200, min = 0, max = 1, f = function (x) x, levels = NULL, graph = TRUE,
+#' data.diag ()
+data.diag <- function (n = 200, min = 0, max = 1, f = function (x) x, levels = NULL, graph = TRUE,
                          seed = NULL)
 {
   set.seed(seed)

@@ -5,6 +5,7 @@
 #' @name cookplot
 #' @param model The model to be plotted.
 #' @param index The index of the variable used for for the x-axis.
+#' @param labels The labels of the instances.
 #' @export
 #' @examples
 #' require (datasets)
@@ -12,13 +13,15 @@
 #' model = LINREG (trees [, -3], trees [, 3])
 #' cookplot (model)
 cookplot <-
-  function (model, index = NULL)
+  function (model, index = NULL, labels = NULL)
   {
     mod = model
     xlab = "Index"
     if (methods::is (mod, "model"))
       mod = mod$model
     y = stats::rstudent (mod)
+    if (is.null (labels))
+      labels = 1:length (mod$residuals)
     if (is.null (index))
       index = 1:length (mod$residuals)
     else if (length (index) == 1)
@@ -36,7 +39,7 @@ cookplot <-
     graphics::abline (h = threshold, lty = 2, lwd = 2)
     select = which (y > threshold)
     if (length (select) > 0)
-      graphics::text (index [select], y [select], select, pos = 3, cex = 1)
+      graphics::text (index [select], y [select], labels [select], pos = 3, cex = 1)
   }
 
 #' @keywords internal
@@ -120,6 +123,7 @@ KERREG <-
 #' @name leverageplot
 #' @param model The model to be plotted.
 #' @param index The index of the variable used for for the x-axis.
+#' @param labels The labels of the instances.
 #' @export
 #' @examples
 #' require (datasets)
@@ -127,13 +131,15 @@ KERREG <-
 #' model = LINREG (trees [, -3], trees [, 3])
 #' leverageplot (model)
 leverageplot <-
-  function (model, index = NULL)
+  function (model, index = NULL, labels = NULL)
   {
     mod = model
     xlab = "Index"
     if (methods::is (mod, "model"))
       mod = mod$model
     y = stats::rstudent (mod)
+    if (is.null (labels))
+      labels = 1:length (mod$residuals)
     if (is.null (index))
       index = 1:length (mod$residuals)
     else if (length (index) == 1)
@@ -152,7 +158,7 @@ leverageplot <-
     graphics::abline (h = thresholds, lty = 2:3, lwd = 2)
     select = which (y > thresholds [1])
     if (length (select) > 0)
-      graphics::text (index [select], y [select], select, pos = 3, cex = 1)
+      graphics::text (index [select], y [select], labels [select], pos = 3, cex = 1)
   }
 
 #' Linear Regression
@@ -488,6 +494,7 @@ regplot <-
 #' @name resplot
 #' @param model The model to be plotted.
 #' @param index The index of the variable used for for the x-axis.
+#' @param labels The labels of the instances.
 #' @export
 #' @examples
 #' require (datasets)
@@ -498,13 +505,15 @@ regplot <-
 #' resplot (model, index = 1) # Ordered by variable "Girth" (independant variable)
 #' resplot (model, index = 2) # Ordered by variable "Height" (independant variable)
 resplot <-
-  function (model, index = NULL)
+  function (model, index = NULL, labels = NULL)
   {
     mod = model
     xlab = "Index"
     if (methods::is (mod, "model"))
       mod = mod$model
     y = stats::rstudent (mod)
+    if (is.null (labels))
+      labels = 1:length (mod$residuals)
     if (is.null (index))
       index = 1:length (mod$residuals)
     else if (length (index) == 1)
@@ -522,7 +531,7 @@ resplot <-
     graphics::abline (h = c (-2, 0, 2), lty = c (2, 1, 2), lwd = 2)
     select = which (abs (y) > 2)
     if (length (select) > 0)
-      graphics::text (index [select], y [select], select, pos = 3, cex = 1)
+      graphics::text (index [select], y [select], labels = labels [select], pos = 3, cex = 1)
   }
 
 #' Regression using Support Vector Machine

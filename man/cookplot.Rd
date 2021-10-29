@@ -4,12 +4,14 @@
 \alias{cookplot}
 \title{Plot the Cook's distance of a linear regression model}
 \usage{
-cookplot(model, index = NULL)
+cookplot(model, index = NULL, labels = NULL)
 }
 \arguments{
 \item{model}{The model to be plotted.}
 
 \item{index}{The index of the variable used for for the x-axis.}
+
+\item{labels}{The labels of the instances.}
 }
 \description{
 Plot the Cook's distance of a linear regression model.

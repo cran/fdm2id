@@ -2,10 +2,9 @@
 % Please edit documentation in R/dataset.R
 \name{data.diag}
 \alias{data.diag}
-\alias{data.square}
 \title{Square dataset}
 \usage{
-data.square(
+data.diag(
   n = 200,
   min = 0,
   max = 1,
@@ -37,7 +36,7 @@ A randomly generated dataset.
 Generate a random dataset shaped like a square divided by a custom function
 }
 \examples{
-data.square ()
+data.diag ()
 }
 \seealso{
 \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}

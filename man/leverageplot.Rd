@@ -4,12 +4,14 @@
 \alias{leverageplot}
 \title{Plot the leverage points of a linear regression model}
 \usage{
-leverageplot(model, index = NULL)
+leverageplot(model, index = NULL, labels = NULL)
 }
 \arguments{
 \item{model}{The model to be plotted.}
 
 \item{index}{The index of the variable used for for the x-axis.}
+
+\item{labels}{The labels of the instances.}
 }
 \description{
 Plot the leverage points of a linear regression model.

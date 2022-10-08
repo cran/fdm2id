@@ -15,6 +15,34 @@ addalpha <-
     }))
   }
 
+#' Duplicate and add noise to a dataset
+#'
+#' This function is a data augmentation technique. It duplicates rows and add gaussian noise to the duplicates.
+#' @name augmentation
+#' @param dataset The dataset to be split (\code{data.frame} or \code{matrix}).
+#' @param target The column index of the target variable (class label or response variable).
+#' @param n The scaling factor (as an integer value).
+#' @param sigma The baseline variance for the noise generation.
+#' @param seed A specified seed for random number generation.
+#' @return An augmented dataset.
+#' @export
+#' @examples
+#' require (datasets)
+#' data (iris)
+#' d = augmentation (iris, 5)
+#' summary (iris)
+#' summary (d)
+augmentation <-
+  function (dataset, target, n = 5, sigma = .1, seed = NULL)
+  {
+    std = apply (dataset [, -(target)], 2, stats::sd) * sigma
+    copy = dataset [rep (seq_len (nrow (dataset)), n - 1), ]
+    set.seed (seed)
+    copy [, -(target)] = copy [, -(target)] + mapply (function (x, y) {stats::rnorm (x, y, n = nrow (copy))}, x = 0, y = std)
+    res = rbind (dataset, copy)
+    return (res)
+  }
+
 #' Correlated variables
 #'
 #' Return the list of correlated variables

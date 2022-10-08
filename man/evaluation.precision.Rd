@@ -4,12 +4,12 @@
 \alias{evaluation.precision}
 \title{Precision of classification predictions}
 \usage{
-evaluation.precision(predictions, targets, positive = levels(targets)[1], ...)
+evaluation.precision(predictions, gt, positive = levels(gt)[1], ...)
 }
 \arguments{
 \item{predictions}{The predictions of a classification model (\code{factor} or \code{vector}).}
 
-\item{targets}{Actual targets of the dataset (\code{factor} or \code{vector}).}
+\item{gt}{The ground truth (\code{factor} or \code{vector}).}
 
 \item{positive}{The label of the positive class.}
 

@@ -178,10 +178,14 @@ boxclus <-
 #' data (iris)
 #' km = KMEANS (iris [, -5], k = 3)
 #' compare (km$cluster, iris [, 5])
+#' \dontrun{
 #' compare (km$cluster, iris [, 5], eval = c ("accuracy", "kappa"), comp = "pairwise")
+#' }
 compare <-
   function (clus, gt, eval = "accuracy", comp = c ("max", "pairwise", "cluster"))
   {
+    if (!is.vector (clus))
+      clus = clus$cluster
     res = NULL
     for (e in eval)
     {
@@ -211,6 +215,8 @@ compare <-
 compare.accuracy <-
   function (clus, gt, comp = c ("max", "pairwise", "cluster"))
   {
+    if (!is.vector (clus))
+      clus = clus$cluster
     kk1 = as.numeric (clus)
     kk2 = as.numeric (gt)
     res = 0
@@ -254,6 +260,8 @@ compare.accuracy <-
 compare.jaccard <-
   function (clus, gt, comp = c ("max", "pairwise", "cluster"))
   {
+    if (!is.vector (clus))
+      clus = clus$cluster
     kk1 = as.numeric (clus)
     kk2 = as.numeric (gt)
     res = 0
@@ -297,6 +305,8 @@ compare.jaccard <-
 compare.kappa <-
   function (clus, gt, comp = c ("max", "pairwise", "cluster"))
   {
+    if (!is.vector (clus))
+      clus = clus$cluster
     kk1 = as.numeric (clus)
     kk2 = as.numeric (gt)
     res = 0
@@ -349,7 +359,7 @@ comparison.matrix <-
 #' @name DBSCAN
 #' @param d The dataset (\code{matrix} or \code{data.frame}).
 #' @param minpts Reachability minimum no. of points.
-#' @param eps Reachability distance.
+#' @param epsilonDist Reachability distance.
 #' @param ... Other parameters.
 #' @return A clustering model obtained by DBSCAN.
 #' @export
@@ -357,11 +367,11 @@ comparison.matrix <-
 #' @examples
 #' require (datasets)
 #' data (iris)
-#' DBSCAN (iris [, -5], minpts = 5, eps = 1)
+#' DBSCAN (iris [, -5], minpts = 5, epsilonDist = 1)
 DBSCAN <-
-  function (d, minpts, eps, ...)
+  function (d, minpts, epsilonDist, ...)
   {
-    res = fpc::dbscan (d, MinPts = minpts, eps = eps)
+    res = fpc::dbscan (d, MinPts = minpts, eps = epsilonDist)
     res = c (res, list (data = d))
     class (res) = "dbs"
     return (res)
@@ -512,6 +522,8 @@ intern <-
 intern.dunn <-
   function (clus, d, type = c ("global"))
   {
+    if (!is.vector (clus))
+      clus = clus$cluster
     if (type [1] != "global")
     {
       message ("Dunn index only works for global evaluation.")
@@ -551,6 +563,8 @@ intern.dunn <-
 intern.interclass <-
   function (clus, d, type = c ("global", "cluster"))
   {
+    if (!is.vector (clus))
+      clus = clus$cluster
     centers = apply (d, 2, function (v) tapply (v, clus, mean))
     center = matrix (apply (d, 2, mean), nrow = 1)
     res = flexclust::dist2 (center, centers)^2 * as.numeric (table (clus))
@@ -577,6 +591,8 @@ intern.interclass <-
 intern.intraclass <-
   function (clus, d, type = c ("global", "cluster"))
   {
+    if (!is.vector (clus))
+      clus = clus$cluster
     centers = apply (d, 2, function (v) tapply (v, clus, mean))
     indices = sort (unique (clus))
     res = sapply (indices, function (index)
@@ -593,6 +609,8 @@ intern.intraclass <-
 jaccard0 <-
   function (clus, gt)
   {
+    if (!is.vector (clus))
+      clus = clus$cluster
     return (sum (clus & gt) / sum (clus | gt))
   }
 
@@ -600,6 +618,8 @@ jaccard0 <-
 jaccard1 <-
   function (clus, gt)
   {
+    if (!is.vector (clus))
+      clus = clus$cluster
     if (sum (clus) == 0)
       return (NA)
     res = jaccard0 (clus, gt == min (gt))
@@ -616,6 +636,8 @@ jaccard1 <-
 kappa0 <-
   function (clus, gt)
   {
+    if (!is.vector (clus))
+      clus = clus$cluster
     return (irr::kappa2 (cbind (clus, gt), weight = "equal")$value)
   }
 
@@ -623,6 +645,8 @@ kappa0 <-
 kappa1 <-
   function (clus, gt)
   {
+    if (!is.vector (clus))
+      clus = clus$cluster
     res = kappa0 (clus, gt == min (gt))
     for (i in (min (gt) + 1):(max (gt)))
     {
@@ -724,7 +748,7 @@ kmeans.getk <-
 #' Run MeanShift for clustering.
 #' @name MEANSHIFT
 #' @param d The dataset (\code{matrix} or \code{data.frame}).
-#' @param kernel A string indicating the kernel associated with the kernel density estimate that the mean shift is optimizing over.
+#' @param mskernel A string indicating the kernel associated with the kernel density estimate that the mean shift is optimizing over.
 #' @param bandwidth Used in the kernel density estimate for steepest ascent classification.
 #' @param alpha A scalar tuning parameter for normal kernels.
 #' @param iterations The number of iterations to perform mean shift.
@@ -741,17 +765,17 @@ kmeans.getk <-
 #' MEANSHIFT (iris [, -5], bandwidth = .75)
 #' }
 MEANSHIFT <-
-  function (d, kernel = "NORMAL", bandwidth = rep (1, ncol (d)), alpha = 0, iterations = 10, epsilon = 1e-08, epsilonCluster = 1e-04, ...)
+  function (d, mskernel = "NORMAL", bandwidth = rep (1, ncol (d)), alpha = 0, iterations = 10, epsilon = 1e-08, epsilonCluster = 1e-04, ...)
   {
     dd = as.matrix (d)
     if (length (bandwidth) == 1)
       bandwidth = rep (bandwidth, ncol (d))
-    res = meanShiftR::meanShift (dd, kernelType = kernel, bandwidth = bandwidth, alpha = alpha, iterations = iterations, epsilon = epsilon, epsilonCluster = epsilonCluster)
+    res = meanShiftR::meanShift (dd, kernelType = mskernel, bandwidth = bandwidth, alpha = alpha, iterations = iterations, epsilon = epsilon, epsilonCluster = epsilonCluster)
     names (res) [1] = "cluster"
     res [[1]] = as.vector (res [[1]])
     res = c (res,
              data = list (dd),
-             kernel = list (kernel),
+             kernel = list (mskernel),
              bandwidth = list (bandwidth),
              alpha = list (alpha),
              iterations = list (iterations),

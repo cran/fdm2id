@@ -6,7 +6,7 @@
 \usage{
 MEANSHIFT(
   d,
-  kernel = "NORMAL",
+  mskernel = "NORMAL",
   bandwidth = rep(1, ncol(d)),
   alpha = 0,
   iterations = 10,
@@ -18,7 +18,7 @@ MEANSHIFT(
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}
 
-\item{kernel}{A string indicating the kernel associated with the kernel density estimate that the mean shift is optimizing over.}
+\item{mskernel}{A string indicating the kernel associated with the kernel density estimate that the mean shift is optimizing over.}
 
 \item{bandwidth}{Used in the kernel density estimate for steepest ascent classification.}
 

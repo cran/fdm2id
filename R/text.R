@@ -587,7 +587,7 @@ vectorize.docs <-
         dtm = vectorizer$tfidf$transform(dtm)
         dtm = vectorizer$lsa$transform(dtm)
       }
-      return (dtm)
+      return (as.data.frame (as.matrix (dtm)))
     }
     else
       return (vectorizer)
@@ -641,5 +641,5 @@ vectorize.words <-
       fw = frequentwords (vocab, maxwords)
       words = words [fw, ]
     }
-    return (words)
+    return (as.data.frame (words))
   }

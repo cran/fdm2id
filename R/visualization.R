@@ -157,8 +157,8 @@ plotdata <-
     {
       if (!is.factor (k))
         k = factor (k)
-      pch = as.numeric (k)
-      col = pch + 1
+      pch = as.numeric (k) + 1
+      col = pch
     }
     lcol = sort (unique (col))
     lpch = sort (unique (pch))

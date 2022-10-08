@@ -33,10 +33,10 @@ CA <-
     return (ca)
   }
 
-#' Keiser rule
+#' Kaiser rule
 #'
-#' Apply the keiser rule to determine the appropriate number of PCA axes.
-#' @name keiser
+#' Apply the Kaiser rule to determine the appropriate number of PCA axes.
+#' @name kaiser
 #' @param pca The PCA result (object of class \code{factorial-class}).
 #' @export
 #' @seealso \code{\link{PCA}}, \code{\link{factorial-class}}
@@ -44,8 +44,8 @@ CA <-
 #' require (datasets)
 #' data (iris)
 #' pca = PCA (iris, quali.sup = 5)
-#' keiser (pca)
-keiser <-
+#' kaiser (pca)
+kaiser <-
   function (pca)
   {
     return (max (which (pca$eig [, 1] > mean (pca$eig [, 1]))))
@@ -94,7 +94,7 @@ MCA <-
 #' @param col.w An optional column weights (by default, uniform column weights); the weights are given only for the active variables.
 #' @return The PCA on the dataset.
 #' @export
-#' @seealso \code{\link[FactoMineR]{PCA}}, \code{\link{CA}}, \code{\link{MCA}}, \code{\link{plot.factorial}}, \code{\link{keiser}}, \code{\link{factorial-class}}
+#' @seealso \code{\link[FactoMineR]{PCA}}, \code{\link{CA}}, \code{\link{MCA}}, \code{\link{plot.factorial}}, \code{\link{kaiser}}, \code{\link{factorial-class}}
 #' @examples
 #' require (datasets)
 #' data (iris)

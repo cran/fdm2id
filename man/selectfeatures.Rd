@@ -8,8 +8,8 @@ selectfeatures(
   train,
   labels,
   algorithm = c("ranking", "forward", "backward", "exhaustive"),
-  unieval = if (algorithm[1] == "ranking") c("fisher", "fstat", "relief",
-    "inertiaratio") else NULL,
+  unieval = if (algorithm[1] == "ranking") c("fisher", "fstat", "relief", "inertiaratio")
+    else NULL,
   uninb = NULL,
   unithreshold = NULL,
   multieval = if (algorithm[1] == "ranking") NULL else c("mrmr", "cfs", "fstat",

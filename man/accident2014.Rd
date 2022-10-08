@@ -8,11 +8,11 @@
 The dataset has 500 instances described by 2 variables (coordinates).
 }
 \source{
-\url{https://data.gov.uk/}
+\url{https://www.data.gov.uk/}
 }
 \usage{
 accident2014
 }
 \description{
-Longitude and latitude of 500 car accident during year 2014 (source: data.gov.uk).
+Longitude and latitude of 500 car accident during year 2014 (source: www.data.gov.uk).
 }

@@ -309,13 +309,14 @@ CART <-
       complexity = cp
       if (is.null (cp))
       {
-        model = rpart::rpart (Class~., d, minsplit = minsplit, xval = nrow (d), maxdepth = maxdepth, maxcompete = 0)
+        model = rpart::rpart (Class~., d, minsplit = minsplit, xval = nrow (d), maxdepth = maxdepth, maxcompete = 0, model = TRUE)
         mini = which.min (model$cptable [, 4])
         threshold = model$cptable [mini, 4] + model$cptable [mini, 5]
         complexity = model$cptable [which (model$cptable [, 4] < threshold) [1], 1]
       }
-      model = rpart::rpart (Class~., d, minsplit = minsplit, cp = complexity, maxdepth = maxdepth, maxcompete = 0)
-      res = list (model = model, method = "CART")
+      model = rpart::rpart (Class~., d, minsplit = minsplit, cp = complexity, maxdepth = maxdepth, maxcompete = 0, model = TRUE)
+      type = ifelse (is.factor (labels), "class", "reg")
+      res = list (model = model, method = "CART", type = type)
       class (res) = "model"
     }
     return (res)
@@ -402,13 +403,6 @@ cartnodes <-
 #' Plot a decision tree obtained by CART.
 #' @name cartplot
 #' @param model The decision tree.
-#' @param margin an extra fraction of white space to leave around the borders of the tree. (Long labels sometimes get cut off by the default computation).
-#' @param branch controls the shape of the branches from parent to child node. Any number from 0 to 1 is allowed. A value of 1 gives square shouldered branches, a value of 0 give V shaped branches, with other values being intermediate.
-#' @param uniform if \code{TRUE}, uniform vertical spacing of the nodes is used; this may be less cluttered when fitting a large plot onto a page. The default is to use a non-uniform spacing proportional to the error in the fit.
-#' @param fancy Logical. If \code{TRUE}, nodes are represented by ellipses (interior nodes) and rectangles (leaves) and labeled by yval. The edges connecting the nodes are labeled by left and right splits.
-#' @param pretty an alternative to the minlength argument, see \code{\link[rpart]{labels.rpart}}.
-#' @param fwidth Relates to option \code{fancy} and the width of the ellipses and rectangles. If \code{fwidth < 1} then it is a scaling factor (default = 0.8). If \code{fwidth > 1} then it represents the number of character widths (for current graphical device) to use.
-#' @param fheight Relates to option \code{fancy} and the width of the ellipses and rectangles. If \code{fwidth < 1} then it is a scaling factor (default = 0.8). If \code{fwidth > 1} then it represents the number of character heights (for current graphical device) to use.
 #' @param ... Other parameters.
 #' @export
 #' @seealso \code{\link{CART}}, \code{\link{cartdepth}}, \code{\link{cartinfo}}, \code{\link{cartleafs}}, \code{\link{cartnodes}}
@@ -418,10 +412,10 @@ cartnodes <-
 #' model = CART (iris [, -5], iris [, 5])
 #' cartplot (model)
 cartplot <-
-  function (model, margin = .2, branch = .3, uniform = TRUE, fancy = TRUE, pretty = TRUE, fwidth = 0, fheight = 0, ...)
+  function (model, ...)
   {
-    graphics::plot (model$model, margin = margin, branch = branch, uniform = uniform, ...)
-    graphics::text (model$model, fancy = fancy, pretty = pretty, fwidth = fwidth, fheight = fheight, ...)
+    col = as.list (sort (unique (as.numeric (model$model$model$Class) + 1)))
+    rpart.plot::rpart.plot (model$model, box.palette = col, type = 0)
   }
 
 #' Classification using Canonical Discriminant Analysis
@@ -645,57 +639,57 @@ emptyparams <-
 
 #' @keywords internal
 eval.accuracy <-
-  function (predictions, targets, precision, recall, ...)
+  function (predictions, gt, precision, recall, ...)
   {
     p = as.numeric (predictions)
-    l = as.numeric (targets)
+    l = as.numeric (gt)
     sum (diag (table (p, l))) / length (l)
   }
 
 #' @keywords internal
 eval.fmeasure <-
-  function (predictions, targets, precision = NULL, recall = NULL, beta = 1, positive = levels (targets) [1], ...)
+  function (predictions, gt, precision = NULL, recall = NULL, beta = 1, positive = levels (gt) [1], ...)
   {
     if (is.null (precision))
-      precision = evaluation.precision (predictions, targets, positive)
+      precision = evaluation.precision (predictions, gt, positive)
     if (is.null (recall))
-      recall = evaluation.recall (predictions, targets, positive)
+      recall = evaluation.recall (predictions, gt, positive)
     res = (1 + beta * beta) * precision * recall / (beta * beta * precision + recall)
     return (res)
   }
 
 #' @keywords internal
 eval.fowlkesmallows <-
-  function (predictions, targets, precision = NULL, recall = NULL, positive = levels (targets) [1], ...)
+  function (predictions, gt, precision = NULL, recall = NULL, positive = levels (gt) [1], ...)
   {
     if (is.null (precision))
-      precision = evaluation.precision (predictions, targets, positive)
+      precision = evaluation.precision (predictions, gt, positive)
     if (is.null (recall))
-      recall = evaluation.recall (predictions, targets, positive)
+      recall = evaluation.recall (predictions, gt, positive)
     res = sqrt (precision * recall)
     return (res)
   }
 
 #' @keywords internal
 eval.goodness <-
-  function (predictions, targets, beta = 1, precision = NULL, recall = NULL, positive = levels (targets) [1], ...)
+  function (predictions, gt, beta = 1, precision = NULL, recall = NULL, positive = levels (gt) [1], ...)
   {
     if (is.null (precision))
-      precision = evaluation.precision (predictions, targets, positive)
+      precision = evaluation.precision (predictions, gt, positive)
     if (is.null (recall))
-      recall = evaluation.recall (predictions, targets, positive)
+      recall = evaluation.recall (predictions, gt, positive)
     res = (beta * precision + recall) / (beta + 1)
     return (res)
   }
 
 #' @keywords internal
 eval.jaccard <-
-  function (predictions, targets, precision = NULL, recall = NULL, positive = levels (targets) [1], ...)
+  function (predictions, gt, precision = NULL, recall = NULL, positive = levels (gt) [1], ...)
   {
     if (is.null (precision))
-      precision = evaluation.precision (predictions, targets, positive)
+      precision = evaluation.precision (predictions, gt, positive)
     if (is.null (recall))
-      recall = evaluation.recall (predictions, targets, positive)
+      recall = evaluation.recall (predictions, gt, positive)
     pr = precision * recall
     res = pr / (precision + recall - pr)
     return (res)
@@ -703,23 +697,23 @@ eval.jaccard <-
 
 #' @keywords internal
 eval.kappa <-
-  function (predictions, targets, precision = NULL, recall = NULL, ...)
+  function (predictions, gt, precision = NULL, recall = NULL, ...)
   {
     p = as.numeric (predictions)
-    l = as.numeric (targets)
+    l = as.numeric (gt)
     irr::kappa2 (cbind (p, l), weight = "equal")$value
   }
 
 #' @keywords internal
 eval.precision <-
-  function (predictions, targets, precision, recall, positive = levels (targets) [1], ...)
+  function (predictions, gt, precision, recall, positive = levels (gt) [1], ...)
   {
     return (precision)
   }
 
 #' @keywords internal
 eval.recall <-
-  function (predictions, targets, precision, recall, positive = levels (targets) [1], ...)
+  function (predictions, gt, precision, recall, positive = levels (gt) [1], ...)
   {
     return (recall)
   }
@@ -760,13 +754,13 @@ evaluation <-
     recall = NULL
     if (is.factor (gt) & nlevels (gt) == 2)
     {
-      precision = evaluation.precision (predictions = predictions, targets = gt, ...)
+      precision = evaluation.precision (predictions = predictions, gt = gt, ...)
       recall = evaluation.recall (predictions, gt, ...)
     }
     res = NULL
     for (e in eval)
     {
-      tmp = get (paste ("eval", e, sep = ".")) (predictions = predictions, targets = gt, precision = precision, recall = recall, ...)
+      tmp = get (paste ("eval", e, sep = ".")) (predictions = predictions, gt = gt, precision = precision, recall = recall, ...)
       res = c (res, tmp)
     }
     if (!is.null (res))
@@ -779,7 +773,7 @@ evaluation <-
 #' Evaluation predictions of a classification model according to accuracy.
 #' @name evaluation.accuracy
 #' @param predictions The predictions of a classification model (\code{factor} or \code{vector}).
-#' @param targets Actual targets of the dataset (\code{factor} or \code{vector}).
+#' @param gt The ground truth (\code{factor} or \code{vector}).
 #' @return The evaluation of the predictions (numeric value).
 #' @param ... Other parameters.
 #' @export
@@ -794,9 +788,9 @@ evaluation <-
 #' pred.nb = predict (model.nb, d$test.x)
 #' evaluation.accuracy (pred.nb, d$test.y)
 evaluation.accuracy <-
-  function (predictions, targets, ...)
+  function (predictions, gt, ...)
   {
-    return (eval.accuracy (predictions, targets, NULL, NULL))
+    return (eval.accuracy (predictions, gt, NULL, NULL))
   }
 
 #' F-measure
@@ -804,7 +798,7 @@ evaluation.accuracy <-
 #' Evaluation predictions of a classification model according to the F-measure index.
 #' @name evaluation.fmeasure
 #' @param predictions The predictions of a classification model (\code{factor} or \code{vector}).
-#' @param targets Actual targets of the dataset (\code{factor} or \code{vector}).
+#' @param gt The ground truth (\code{factor} or \code{vector}).
 #' @param beta The weight given to precision.
 #' @param positive The label of the positive class.
 #' @param ... Other parameters.
@@ -823,9 +817,9 @@ evaluation.accuracy <-
 #' pred.nb = predict (model.nb, d$test.x)
 #' evaluation.fmeasure (pred.nb, d$test.y)
 evaluation.fmeasure <-
-  function (predictions, targets, beta = 1, positive = levels (targets) [1], ...)
+  function (predictions, gt, beta = 1, positive = levels (gt) [1], ...)
   {
-    return (eval.fmeasure (predictions, targets, beta = beta, positive = positive))
+    return (eval.fmeasure (predictions, gt, beta = beta, positive = positive))
   }
 
 #' Fowlkes–Mallows index
@@ -833,7 +827,7 @@ evaluation.fmeasure <-
 #' Evaluation predictions of a classification model according to the Fowlkes–Mallows index.
 #' @name evaluation.fowlkesmallows
 #' @param predictions The predictions of a classification model (\code{factor} or \code{vector}).
-#' @param targets Actual targets of the dataset (\code{factor} or \code{vector}).
+#' @param gt The ground truth (\code{factor} or \code{vector}).
 #' @param positive The label of the positive class.
 #' @param ... Other parameters.
 #' @return The evaluation of the predictions (numeric value).
@@ -851,9 +845,9 @@ evaluation.fmeasure <-
 #' pred.nb = predict (model.nb, d$test.x)
 #' evaluation.fowlkesmallows (pred.nb, d$test.y)
 evaluation.fowlkesmallows <-
-  function (predictions, targets, positive = levels (targets) [1], ...)
+  function (predictions, gt, positive = levels (gt) [1], ...)
   {
-    return (eval.fowlkesmallows (predictions, targets, positive = positive))
+    return (eval.fowlkesmallows (predictions, gt, positive = positive))
   }
 
 #' Goodness
@@ -861,7 +855,7 @@ evaluation.fowlkesmallows <-
 #' Evaluation predictions of a classification model according to Goodness index.
 #' @name evaluation.goodness
 #' @param predictions The predictions of a classification model (\code{factor} or \code{vector}).
-#' @param targets Actual targets of the dataset (\code{factor} or \code{vector}).
+#' @param gt The ground truth (\code{factor} or \code{vector}).
 #' @param beta The weight given to precision.
 #' @param positive The label of the positive class.
 #' @param ... Other parameters.
@@ -880,9 +874,9 @@ evaluation.fowlkesmallows <-
 #' pred.nb = predict (model.nb, d$test.x)
 #' evaluation.goodness (pred.nb, d$test.y)
 evaluation.goodness <-
-  function (predictions, targets, beta = 1, positive = levels (targets) [1], ...)
+  function (predictions, gt, beta = 1, positive = levels (gt) [1], ...)
   {
-    return (eval.goodness (predictions, targets, beta = beta, positive = positive))
+    return (eval.goodness (predictions, gt, beta = beta, positive = positive))
   }
 
 #' Jaccard index
@@ -890,7 +884,7 @@ evaluation.goodness <-
 #' Evaluation predictions of a classification model according to Jaccard index.
 #' @name evaluation.jaccard
 #' @param predictions The predictions of a classification model (\code{factor} or \code{vector}).
-#' @param targets Actual targets of the dataset (\code{factor} or \code{vector}).
+#' @param gt The ground truth (\code{factor} or \code{vector}).
 #' @param positive The label of the positive class.
 #' @param ... Other parameters.
 #' @return The evaluation of the predictions (numeric value).
@@ -908,9 +902,9 @@ evaluation.goodness <-
 #' pred.nb = predict (model.nb, d$test.x)
 #' evaluation.jaccard (pred.nb, d$test.y)
 evaluation.jaccard <-
-  function (predictions, targets, positive = levels (targets) [1], ...)
+  function (predictions, gt, positive = levels (gt) [1], ...)
   {
-    return (eval.fmeasure (predictions, targets, positive = positive))
+    return (eval.fmeasure (predictions, gt, positive = positive))
   }
 
 #' Kappa evaluation of classification predictions
@@ -918,7 +912,7 @@ evaluation.jaccard <-
 #' Evaluation predictions of a classification model according to kappa.
 #' @name evaluation.kappa
 #' @param predictions The predictions of a classification model (\code{factor} or \code{vector}).
-#' @param targets Actual targets of the dataset (\code{factor} or \code{vector}).
+#' @param gt The ground truth (\code{factor} or \code{vector}).
 #' @param ... Other parameters.
 #' @return The evaluation of the predictions (numeric value).
 #' @export
@@ -933,9 +927,9 @@ evaluation.jaccard <-
 #' pred.nb = predict (model.nb, d$test.x)
 #' evaluation.kappa (pred.nb, d$test.y)
 evaluation.kappa <-
-  function (predictions, targets, ...)
+  function (predictions, gt, ...)
   {
-    return (eval.kappa (predictions, targets))
+    return (eval.kappa (predictions, gt))
   }
 
 #' Precision of classification predictions
@@ -943,7 +937,7 @@ evaluation.kappa <-
 #' Evaluation predictions of a classification model according to precision. Works only for two classes problems.
 #' @name evaluation.precision
 #' @param predictions The predictions of a classification model (\code{factor} or \code{vector}).
-#' @param targets Actual targets of the dataset (\code{factor} or \code{vector}).
+#' @param gt The ground truth (\code{factor} or \code{vector}).
 #' @param positive The label of the positive class.
 #' @param ... Other parameters.
 #' @return The evaluation of the predictions (numeric value).
@@ -960,11 +954,11 @@ evaluation.kappa <-
 #' pred.nb = predict (model.nb, d$test.x)
 #' evaluation.precision (pred.nb, d$test.y)
 evaluation.precision <-
-  function (predictions, targets, positive = levels (targets) [1], ...)
+  function (predictions, gt, positive = levels (gt) [1], ...)
   {
-    if (nlevels (targets) != 2)
+    if (nlevels (gt) != 2)
       stop ("evaluation.precision only works on data with two classes in the current implementation")
-    t = table (targets, predictions)
+    t = table (gt, predictions)
     return (t [positive, positive] / sum (t [positive, ]))
   }
 
@@ -973,7 +967,7 @@ evaluation.precision <-
 #' Evaluation predictions of a classification model according to recall. Works only for two classes problems.
 #' @name evaluation.recall
 #' @param predictions The predictions of a classification model (\code{factor} or \code{vector}).
-#' @param targets Actual targets of the dataset (\code{factor} or \code{vector}).
+#' @param gt The ground truth (\code{factor} or \code{vector}).
 #' @param positive The label of the positive class.
 #' @param ... Other parameters.
 #' @return The evaluation of the predictions (numeric value).
@@ -990,11 +984,11 @@ evaluation.precision <-
 #' pred.nb = predict (model.nb, d$test.x)
 #' evaluation.recall (pred.nb, d$test.y)
 evaluation.recall <-
-  function (predictions, targets, positive = levels (targets) [1], ...)
+  function (predictions, gt, positive = levels (gt) [1], ...)
   {
-    if (nlevels (targets) != 2)
+    if (nlevels (gt) != 2)
       stop ("evaluation.precision only works on data with two classes in the current implementation")
-    t = table (targets, predictions)
+    t = table (gt, predictions)
     return (t [positive, positive] / sum (t [, positive]))
   }
 
@@ -1030,7 +1024,7 @@ GRADIENTBOOSTING <-
     {
       l = as.numeric (labels) - 1
       k = nlevels (labels)
-      model = xgboost::xgboost (data = as.matrix (train), label = l, nrounds = ntree, objective = "multi:softprob", num_class = k, verbose = 0)
+      model = xgboost::xgboost (data = as.matrix (train), label = l, nrounds = ntree, objective = "multi:softprob", eval_metric = "mlogloss", num_class = k, verbose = 0)
       res = list (model = model, lev = levels (labels), method = "XGB")
       class (res) = "model"
     }
@@ -1289,9 +1283,12 @@ panel.compare <-
 #' classif = c ("NB", "LDA", "LR")
 #' performance (classif, iris [, -5], iris [, 5], type = "scatter",
 #'              protocol = "crossvalidation", seed = 0)
+#' # Actual vs. predicted
+#' data (trees)
+#' performance (LINREG, trees [, -3], trees [, 3], type = "avsp")
 #' }
 performance <-
-  function (methods, train.x, train.y, test.x = NULL, test.y = NULL, train.size = round (0.7 * nrow (train.x)), type = c ("evaluation", "confusion", "roc", "cost", "scatter"),
+  function (methods, train.x, train.y, test.x = NULL, test.y = NULL, train.size = round (0.7 * nrow (train.x)), type = c ("evaluation", "confusion", "roc", "cost", "scatter", "avsp"),
             protocol = c ("bootstrap", "crossvalidation", "loocv", "holdout", "train"),
             eval = ifelse (is.factor (train.y), "accuracy", "r2"),
             nruns = 10, nfolds = 10, new = TRUE, lty = 1,
@@ -1334,7 +1331,7 @@ performance <-
                                                              methodparameters = methodparameters, nruns = nruns, nfolds = nfolds, seed = seed, ...)
     predictions = tmp$predictions
     targets = tmp$targets
-    if (type [1] %in% c ("evaluation", "confusion", "roc", "cost"))
+    if (type [1] %in% c ("evaluation", "confusion", "roc", "cost", "avsp"))
     {
       if (length (methods) == 1)
         predictions = unlist (predictions)
@@ -1375,10 +1372,10 @@ performance <-
     {
       res = NULL
       if (length (methods) == 1)
-        res = evaluation (predictions = predictions, gt = targets, eval = eval, ...)
+        res = evaluation (predictions = predictions, gt = targets, eval = eval, ncol = ncol (train.x), ...)
       else
       {
-        res = t (as.data.frame (lapply (predictions, function (column) evaluation (predictions = column, gt = targets, eval = eval, ...))))
+        res = t (as.data.frame (lapply (predictions, function (column) evaluation (predictions = column, gt = targets, eval = eval, ncol = ncol (train.x), ...))))
         rownames (res) = methodNames
       }
       return (res)
@@ -1387,15 +1384,17 @@ performance <-
     {
       res = NULL
       if (length (methods) == 1)
-        res = confusion (targets, predictions)
+        res = confusion (targets, predictions, ...)
       else
       {
         for (prediction in predictions)
-          res = c (res, list (confusion (targets, prediction)))
+          res = c (res, list (confusion (targets, prediction, ...)))
         names (res) = methodNames
       }
       return (res)
     }
+    else if (type [1] == "avsp")
+      plotavsp (predictions, targets)
     else if (type [1] == "roc")
       roc.curves (predictions, targets, methodNames)
     else if (type [1] == "cost")
@@ -1434,9 +1433,9 @@ performance <-
           }
           gt = factor (gt, labels = levels (train.y))
           if (length (methods) == 1)
-            res [i, , ] = as.matrix (evaluation (predictions = pred, targets = gt, eval = eval, ...))
+            res [i, , ] = as.matrix (evaluation (predictions = pred, gt = gt, eval = eval, ncol = ncol (train.x), ...))
           else
-            res [i, , ] = as.matrix (t (as.data.frame (lapply (pred, function (column) evaluation (predictions = column, targets = gt, eval = eval, ...)))))
+            res [i, , ] = as.matrix (t (as.data.frame (lapply (pred, function (column) evaluation (predictions = column, gt = gt, eval = eval, ncol = ncol (train.x), ...)))))
         }
       }
       for (i in 1:dim (res) [3])
@@ -1692,7 +1691,12 @@ predict.model <-
       if (fuzzy)
         res = stats::predict (object$model, as.data.frame (test))
       else
-        res = stats::predict (object$model, as.data.frame (test), type = "class")
+      {
+        if (object$type == "class")
+          res = stats::predict (object$model, as.data.frame (test), type = "class")
+        else
+          res = stats::predict (object$model, as.data.frame (test))
+      }
     }
     else if ((object$method == "LDA") | (object$method == "QDA"))
     {

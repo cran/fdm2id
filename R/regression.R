@@ -43,19 +43,48 @@ cookplot <-
   }
 
 #' @keywords internal
+eval.adjr2 <-
+  function (predictions, gt, nrow = length (predictions), ncol, ...)
+    1 - ((sum ((predictions - gt)^2) / sum ((gt - mean (gt))^2))) * ((nrow - 1) / (nrow - ncol))
+
+#' @keywords internal
 eval.msep <-
-  function (predictions, targets, ...) mean ((predictions - targets)^2)
+  function (predictions, gt, ...) mean ((predictions - gt)^2)
 
 #' @keywords internal
 eval.r2 <-
-  function (predictions, targets, ...) 1 - ((sum ((predictions - targets)^2) / sum ((targets - mean (targets))^2)))
+  function (predictions, gt, ...) 1 - ((sum ((predictions - gt)^2) / sum ((gt - mean (gt))^2)))
+
+#' Adjusted R2 evaluation of regression predictions
+#'
+#' Evaluation predictions of a regression model according to R2
+#' @name evaluation.adjr2
+#' @param predictions The predictions of a regression model (\code{vector}).
+#' @param gt The ground truth (\code{vector}).
+#' @param nrow Number of observations.
+#' @param ncol Number of variables
+#' @param ... Other parameters.
+#' @return The evaluation of the predictions (numeric value).
+#' @export
+#' @seealso \code{\link{evaluation.msep}}, \code{\link{evaluation}}
+#' @examples
+#' require (datasets)
+#' data (trees)
+#' d = splitdata (trees, 3)
+#' model.linreg = LINREG (d$train.x, d$train.y)
+#' pred.linreg = predict (model.linreg, d$test.x)
+#' evaluation.r2 (pred.linreg, d$test.y)
+evaluation.adjr2 <-
+  function (predictions, gt, nrow = length (predictions), ncol, ...)
+    1 - ((sum ((predictions - gt)^2) / sum ((gt - mean (gt))^2))) * ((nrow - 1) / (nrow - ncol))
 
 #' MSEP evaluation of regression predictions
 #'
 #' Evaluation predictions of a regression model according to MSEP
 #' @name evaluation.msep
 #' @param predictions The predictions of a regression model (\code{vector}).
-#' @param targets Actual targets of the dataset (\code{vector}).
+#' @param gt The ground truth (\code{vector}).
+#' @param ... Other parameters.
 #' @return The evaluation of the predictions (numeric value).
 #' @export
 #' @seealso \code{\link{evaluation.r2}}, \code{\link{evaluation}}
@@ -67,14 +96,15 @@ eval.r2 <-
 #' pred.lin = predict (model.lin, d$test.x)
 #' evaluation.msep (pred.lin, d$test.y)
 evaluation.msep <-
-  function (predictions, targets) mean ((predictions - targets)^2)
+  function (predictions, gt, ...) mean ((predictions - gt)^2)
 
 #' R2 evaluation of regression predictions
 #'
 #' Evaluation predictions of a regression model according to R2
 #' @name evaluation.r2
 #' @param predictions The predictions of a regression model (\code{vector}).
-#' @param targets Actual targets of the dataset (\code{vector}).
+#' @param gt The ground truth (\code{vector}).
+#' @param ... Other parameters.
 #' @return The evaluation of the predictions (numeric value).
 #' @export
 #' @seealso \code{\link{evaluation.msep}}, \code{\link{evaluation}}
@@ -86,7 +116,7 @@ evaluation.msep <-
 #' pred.linreg = predict (model.linreg, d$test.x)
 #' evaluation.r2 (pred.linreg, d$test.y)
 evaluation.r2 <-
-  function (predictions, targets) 1 - ((sum ((predictions - targets)^2) / sum ((targets - mean (targets))^2)))
+  function (predictions, gt, ...) 1 - ((sum ((predictions - gt)^2) / sum ((gt - mean (gt))^2)))
 
 #' Kernel Regression
 #'
@@ -168,7 +198,7 @@ leverageplot <-
 #' @name LINREG
 #' @param x Predictor \code{matrix}.
 #' @param y Response \code{vector}.
-#' @param formula A symbolic description of the model to be fitted (as a character string).
+#' @param quali Indicates how to use the qualitative variables.
 #' @param reg The algorithm.
 #' @param regeval The evaluation criterion for subset selection.
 #' @param scale If true, PCR and PLS use scaled dataset.
@@ -191,9 +221,9 @@ leverageplot <-
 #' LINREG (trees [, -3], trees [, 3])
 #' # With non numeric variables
 #' data (ToothGrowth)
-#' LINREG (ToothGrowth [, -1], ToothGrowth [, 1], formula = "-1+supp+dose") # Different intersept
-#' LINREG (ToothGrowth [, -1], ToothGrowth [, 1], formula = "dose:supp") # Different slope
-#' LINREG (ToothGrowth [, -1], ToothGrowth [, 1], formula = "-1+supp+dose:supp") # Complete model
+#' LINREG (ToothGrowth [, -1], ToothGrowth [, 1], quali = "intercept") # Different intersept
+#' LINREG (ToothGrowth [, -1], ToothGrowth [, 1], quali = "slope") # Different slope
+#' LINREG (ToothGrowth [, -1], ToothGrowth [, 1], quali = "both") # Complete model
 #' # With multiple numeric variables
 #' data (mtcars)
 #' LINREG (mtcars [, -1], mtcars [, 1])
@@ -205,7 +235,7 @@ leverageplot <-
 #' LINREG (mtcars [, -1], mtcars [, 1], reg = "plsr")
 #' }
 LINREG <-
-  function (x, y, formula = ".",
+  function (x, y, quali = c ("none", "intercept", "slope", "both"),
             reg = c ("linear", "subset", "ridge", "lasso", "elastic", "pcr", "plsr"),
             regeval = c ("r2", "bic", "adjr2", "cp", "msep"),
             scale = TRUE,
@@ -224,7 +254,23 @@ LINREG <-
       model = NULL
       if (reg [1] == "linear")
       {
+        isquali = sapply (as.data.frame (x), is.factor)
+        if (!any (isquali))
+          quali = "none"
+        nquali = colnames (x) [isquali]
+        nquanti = colnames (x) [!isquali]
+        lquali = paste (nquali, collapse = "+")
+        lquanti = paste (nquanti, collapse = "+")
+        if (quali [1] == "none")
+          formula = lquanti
+        if (quali [1] == "intercept")
+          formula = paste ("-1", lquali, lquanti, sep = "+")
+        if (quali [1] == "slope")
+          formula = paste (apply (expand.grid (nquali, nquanti), 1, paste, collapse = ":"), collapse = "+")
+        if (quali [1] == "both")
+          formula = paste ("-1", lquali, paste (apply (expand.grid (nquali, nquanti), 1, paste, collapse = ":"), collapse = "+"), sep = "+")
         f = stats::as.formula (paste ("y~", formula, sep = ""))
+        print (f)
         model = stats::lm (formula = f, x)
         model = list (model = model, method = "lm")
         class (model) = "model"
@@ -399,6 +445,32 @@ nbcomp <-
       graphics::text (ncomp, bottom + delta * .5, paste ("Nb. comp. :", ncomp), pos = 4)
     }
     return (ncomp)
+  }
+
+#' Plot actual vs. predictions
+#'
+#' Plot actual vs. predictions of a regression model.
+#' @name plotavsp
+#' @param predictions The predictions of a classification model (\code{vector}).
+#' @param gt The ground truth of the dataset (\code{vector}).
+#' @export
+#' @seealso \code{\link{confusion}}, \code{\link{evaluation.accuracy}}, \code{\link{evaluation.fmeasure}}, \code{\link{evaluation.fowlkesmallows}}, \code{\link{evaluation.goodness}}, \code{\link{evaluation.jaccard}}, \code{\link{evaluation.kappa}},
+#' \code{\link{evaluation.precision}}, \code{\link{evaluation.recall}},
+#' \code{\link{evaluation.msep}}, \code{\link{evaluation.r2}}, \code{\link{performance}}
+#' @examples
+#' require (datasets)
+#' data (trees)
+#' model = LINREG (trees [, -3], trees [, 3])
+#' pred = predict (model, trees [, -3])
+#' plotavsp (pred, trees [, 3])
+plotavsp <-
+  function (predictions, gt)
+  {
+    palette = grDevices::colorRampPalette (c ("forestgreen", "red")) (101)
+    sqres = (gt - predictions)^2 / mean ((gt - mean (gt))^2)
+    col = palette [1 + round (100 * sapply (sqres, FUN = function (x) min (x, 1)), 0)]
+    plot (gt, predictions, asp = 1, xlab = "Actual", ylab = "Predicted", col = col)
+    graphics::abline (0, 1, col = "forestgreen")
   }
 
 #' @keywords internal

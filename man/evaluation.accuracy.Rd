@@ -4,12 +4,12 @@
 \alias{evaluation.accuracy}
 \title{Accuracy of classification predictions}
 \usage{
-evaluation.accuracy(predictions, targets, ...)
+evaluation.accuracy(predictions, gt, ...)
 }
 \arguments{
 \item{predictions}{The predictions of a classification model (\code{factor} or \code{vector}).}
 
-\item{targets}{Actual targets of the dataset (\code{factor} or \code{vector}).}
+\item{gt}{The ground truth (\code{factor} or \code{vector}).}
 
 \item{...}{Other parameters.}
 }

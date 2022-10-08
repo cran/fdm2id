@@ -45,5 +45,5 @@ data (iris)
 PCA (iris, quali.sup = 5)
 }
 \seealso{
-\code{\link[FactoMineR]{PCA}}, \code{\link{CA}}, \code{\link{MCA}}, \code{\link{plot.factorial}}, \code{\link{keiser}}, \code{\link{factorial-class}}
+\code{\link[FactoMineR]{PCA}}, \code{\link{CA}}, \code{\link{MCA}}, \code{\link{plot.factorial}}, \code{\link{kaiser}}, \code{\link{factorial-class}}
 }

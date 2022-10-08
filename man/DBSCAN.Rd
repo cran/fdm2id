@@ -4,14 +4,14 @@
 \alias{DBSCAN}
 \title{DBSCAN clustering method}
 \usage{
-DBSCAN(d, minpts, eps, ...)
+DBSCAN(d, minpts, epsilonDist, ...)
 }
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}
 
 \item{minpts}{Reachability minimum no. of points.}
 
-\item{eps}{Reachability distance.}
+\item{epsilonDist}{Reachability distance.}
 
 \item{...}{Other parameters.}
 }
@@ -24,7 +24,7 @@ Run the DBSCAN algorithm for clustering.
 \examples{
 require (datasets)
 data (iris)
-DBSCAN (iris [, -5], minpts = 5, eps = 1)
+DBSCAN (iris [, -5], minpts = 5, epsilonDist = 1)
 }
 \seealso{
 \code{\link[fpc]{dbscan}}, \code{\link{dbs-class}}, \code{\link{distplot}}, \code{\link{predict.dbs}}

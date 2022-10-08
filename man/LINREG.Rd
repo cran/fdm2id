@@ -7,7 +7,7 @@
 LINREG(
   x,
   y,
-  formula = ".",
+  quali = c("none", "intercept", "slope", "both"),
   reg = c("linear", "subset", "ridge", "lasso", "elastic", "pcr", "plsr"),
   regeval = c("r2", "bic", "adjr2", "cp", "msep"),
   scale = TRUE,
@@ -23,7 +23,7 @@ LINREG(
 
 \item{y}{Response \code{vector}.}
 
-\item{formula}{A symbolic description of the model to be fitted (as a character string).}
+\item{quali}{Indicates how to use the qualitative variables.}
 
 \item{reg}{The algorithm.}
 
@@ -59,9 +59,9 @@ data (trees)
 LINREG (trees [, -3], trees [, 3])
 # With non numeric variables
 data (ToothGrowth)
-LINREG (ToothGrowth [, -1], ToothGrowth [, 1], formula = "-1+supp+dose") # Different intersept
-LINREG (ToothGrowth [, -1], ToothGrowth [, 1], formula = "dose:supp") # Different slope
-LINREG (ToothGrowth [, -1], ToothGrowth [, 1], formula = "-1+supp+dose:supp") # Complete model
+LINREG (ToothGrowth [, -1], ToothGrowth [, 1], quali = "intercept") # Different intersept
+LINREG (ToothGrowth [, -1], ToothGrowth [, 1], quali = "slope") # Different slope
+LINREG (ToothGrowth [, -1], ToothGrowth [, 1], quali = "both") # Complete model
 # With multiple numeric variables
 data (mtcars)
 LINREG (mtcars [, -1], mtcars [, 1])

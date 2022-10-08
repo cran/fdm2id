@@ -4,12 +4,14 @@
 \alias{evaluation.msep}
 \title{MSEP evaluation of regression predictions}
 \usage{
-evaluation.msep(predictions, targets)
+evaluation.msep(predictions, gt, ...)
 }
 \arguments{
 \item{predictions}{The predictions of a regression model (\code{vector}).}
 
-\item{targets}{Actual targets of the dataset (\code{vector}).}
+\item{gt}{The ground truth (\code{vector}).}
+
+\item{...}{Other parameters.}
 }
 \value{
 The evaluation of the predictions (numeric value).

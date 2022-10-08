@@ -26,7 +26,9 @@ require (datasets)
 data (iris)
 km = KMEANS (iris [, -5], k = 3)
 compare (km$cluster, iris [, 5])
+\dontrun{
 compare (km$cluster, iris [, 5], eval = c ("accuracy", "kappa"), comp = "pairwise")
+}
 }
 \seealso{
 \code{\link{compare.accuracy}}, \code{\link{compare.jaccard}}, \code{\link{compare.kappa}}, \code{\link{intern}}, \code{\link{stability}}

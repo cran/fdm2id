@@ -11,7 +11,7 @@ performance(
   test.x = NULL,
   test.y = NULL,
   train.size = round(0.7 * nrow(train.x)),
-  type = c("evaluation", "confusion", "roc", "cost", "scatter"),
+  type = c("evaluation", "confusion", "roc", "cost", "scatter", "avsp"),
   protocol = c("bootstrap", "crossvalidation", "loocv", "holdout", "train"),
   eval = ifelse(is.factor(train.y), "accuracy", "r2"),
   nruns = 10,
@@ -85,6 +85,9 @@ performance (classif, iris [, -5], iris [, 5], type = "confusion",
 classif = c ("NB", "LDA", "LR")
 performance (classif, iris [, -5], iris [, 5], type = "scatter",
              protocol = "crossvalidation", seed = 0)
+# Actual vs. predicted
+data (trees)
+performance (LINREG, trees [, -3], trees [, 3], type = "avsp")
 }
 }
 \seealso{

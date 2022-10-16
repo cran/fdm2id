@@ -258,7 +258,11 @@ LINREG <-
         if (!any (isquali))
           quali = "none"
         nquali = colnames (x) [isquali]
+        if (sum (isquali) > 0)
+          nquali = paste ("`", nquali, "`", sep = "")
         nquanti = colnames (x) [!isquali]
+        if (sum (!isquali) > 0)
+          nquanti = paste ("`", nquanti, "`", sep = "")
         lquali = paste (nquali, collapse = "+")
         lquanti = paste (nquanti, collapse = "+")
         if (quali [1] == "none")
@@ -270,7 +274,6 @@ LINREG <-
         if (quali [1] == "both")
           formula = paste ("-1", lquali, paste (apply (expand.grid (nquali, nquanti), 1, paste, collapse = ":"), collapse = "+"), sep = "+")
         f = stats::as.formula (paste ("y~", formula, sep = ""))
-        print (f)
         model = stats::lm (formula = f, x)
         model = list (model = model, method = "lm")
         class (model) = "model"

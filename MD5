@@ -1,10 +1,10 @@
-4eadc932bf34d332841376777dad7bcb *DESCRIPTION
+4e4985273e06c44fc26d318dc7183a50 *DESCRIPTION
 2a9d318b3b2b465f03d2dae4e650f3c1 *NAMESPACE
 1c416440223c1483f6bb0987dfce1fbc *R/association.R
 651431d44a3adb38638c488decd68eaf *R/classification.R
 671b0b98ec73f2f99a44c49c1b80f738 *R/clustering.R
 1d1e40b5be73d696a6564b3c5a92a880 *R/dataset.R
-a35cdc83c4015183765b407330f712fd *R/factorial.R
+e60cf5d27fbc4acb3ff2de7778d91a89 *R/factorial.R
 656a133e07afe25a845f4d93789c52d8 *R/feature.R
 f05aad30ffc0b6c69b7b773766972a0d *R/imports.R
 e74a5d47af1a22bcfd9a436ead3a3973 *R/misc.R

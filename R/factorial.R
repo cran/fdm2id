@@ -104,7 +104,7 @@ PCA <-
                  quanti.sup = NULL, quali.sup = NULL, row.w = NULL,
                  col.w = NULL)
   {
-    pca = FactoMineR::PCA (d, scale.unit = scale.unit, ncp = ncp, ind.sup = ind.sup, quanti.sup = quanti.sup,
+    pca = FactoMineR::PCA (d, scale.unit = scale.unit [1], ncp = ncp, ind.sup = ind.sup, quanti.sup = quanti.sup,
                      quali.sup = quali.sup, row.w = row.w, col.w = col.w, graph = FALSE)
     class (pca) = c ("factorial", "pca", class (pca) [-1])
     return (pca)

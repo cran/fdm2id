@@ -9,7 +9,7 @@ resplot(model, index = NULL, labels = NULL)
 \arguments{
 \item{model}{The model to be plotted.}
 
-\item{index}{The index of the variable used for for the x-axis.}
+\item{index}{The index of the variable used for the x-axis.}
 
 \item{labels}{The labels of the instances.}
 }
@@ -21,7 +21,7 @@ require (datasets)
 data (trees)
 model = LINREG (trees [, -3], trees [, 3])
 resplot (model) # Ordered by index
-resplot (model, index = 0) # Ordered by variable "Volume" (dependant variable)
-resplot (model, index = 1) # Ordered by variable "Girth" (independant variable)
-resplot (model, index = 2) # Ordered by variable "Height" (independant variable)
+resplot (model, index = 0) # Ordered by variable "Volume" (dependent variable)
+resplot (model, index = 1) # Ordered by variable "Girth" (independent variable)
+resplot (model, index = 2) # Ordered by variable "Height" (independent variable)
 }

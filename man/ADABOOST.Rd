@@ -11,6 +11,8 @@ ADABOOST(
   nsamples = 100,
   fuzzy = FALSE,
   tune = FALSE,
+  methodparameters = NULL,
+  graph = FALSE,
   seed = NULL,
   ...
 )
@@ -26,7 +28,15 @@ ADABOOST(
 
 \item{fuzzy}{Indicates whether or not fuzzy classification should be used or not.}
 
-\item{tune}{If true, the function returns paramters instead of a classification model.}
+\item{tune}{If true, the function returns parameters instead of a classification model.}
+
+\item{methodparameters}{Present for interface consistency with \code{\link{performance}}
+(which always passes it when fitting a model). Currently unused: \code{ADABOOST} does not
+support reusing pre-tuned parameters (the base learner given as \code{learningmethod} is
+tuned independently on each boosting sample).}
+
+\item{graph}{Present for interface consistency with \code{\link{performance}} (which always
+passes it when fitting a model). Currently unused: \code{ADABOOST} does not produce a plot.}
 
 \item{seed}{A specified seed for random number generation.}
 
@@ -39,7 +49,7 @@ The classification model.
 Ensemble learning, through AdaBoost Algorithm.
 }
 \examples{
-\dontrun{
+\donttest{
 require (datasets)
 data (iris)
 ADABOOST (iris [, -5], iris [, 5], NB)

@@ -4,7 +4,16 @@
 \alias{plot.factorial}
 \title{Plot function for factorial-class}
 \usage{
-\method{plot}{factorial}(x, type = c("ind", "cor", "eig"), axes = c(1, 2), ...)
+\method{plot}{factorial}(
+  x,
+  type = c("ind", "cor", "eig"),
+  axes = c(1, 2),
+  col = NULL,
+  pch = NULL,
+  labels = FALSE,
+  legendpos = "topleft",
+  ...
+)
 }
 \arguments{
 \item{x}{The PCA, CA or MCA result (object of class \code{factorial-class}).}
@@ -12,6 +21,17 @@
 \item{type}{The graph to plot.}
 
 \item{axes}{The factorial axes to be printed (numeric \code{vector}).}
+
+\item{col}{Color(s) of the individuals (\code{type = "ind"}). If \code{NULL} (the default)
+and a qualitative supplementary variable was given, the individuals are colored by it, as
+\code{\link{plotdata}} does; otherwise any value the base \code{col} parameter accepts, so
+that an external clustering can be used.}
+
+\item{pch}{Point style(s) of the individuals on the scatter plot (\code{type = "ind"}, PCA only -- \code{\link[FactoMineR]{plot.CA}} and \code{\link[FactoMineR]{plot.MCA}}, which draw the CA and MCA plots, have no equivalent argument). Same default/auto-detection logic as \code{col}. Accepts the same values as the base \code{pch} graphical parameter.}
+
+\item{labels}{Whether the row names are shown instead of points (\code{type = "ind"}).}
+
+\item{legendpos}{Position of the legend (\code{type = "ind"}, PCA only, when individuals are colored by a qualitative variable).}
 
 \item{...}{Other parameters.}
 }
@@ -22,10 +42,13 @@ Plot PCA, CA or MCA.
 require (datasets)
 data (iris)
 pca = PCA (iris, quali.sup = 5)
-plot (pca)
+plot (pca) # Automatically colored/legended by the qualitative supplementary variable
 plot (pca, type = "cor")
 plot (pca, type = "eig")
+# Overriding colors and point styles manually (e.g. by an external clustering)
+km = KMEANS (iris [, -5], k = 3)
+plot (pca, col = km$cluster + 1, pch = km$cluster + 1)
 }
 \seealso{
-\code{\link{CA}}, \code{\link{MCA}}, \code{\link{PCA}}, \code{\link[FactoMineR]{plot.CA}}, \code{\link[FactoMineR]{plot.MCA}}, \code{\link[FactoMineR]{plot.PCA}}, \code{\link{factorial-class}}
+\code{\link{CA}}, \code{\link{MCA}}, \code{\link{PCA}}, \code{\link{plotdata}}, \code{\link[FactoMineR]{plot.CA}}, \code{\link[FactoMineR]{plot.MCA}}, \code{\link[FactoMineR]{plot.PCA}}, \code{\link{factorial-class}}
 }

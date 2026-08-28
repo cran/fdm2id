@@ -22,13 +22,14 @@ A vector of predicted values (\code{factor}).
 This function predicts values based upon a model trained for text mining.
 }
 \examples{
-\dontrun{
+\donttest{
 require (text2vec)
+# A small subset of movie_review is used here so this example runs quickly.
 data ("movie_review")
-d = movie_review [, 2:3]
+d = movie_review [1:300, 2:3]
 d [, 1] = factor (d [, 1])
 d = splitdata (d, 1)
-model = TEXTMINING (d$train.x, NB, labels = d$train.y, mincount = 50)
+model = TEXTMINING (d$train.x, NB, labels = d$train.y, mincount = 10)
 pred = predict (model, d$test.x)
 evaluation (pred, d$test.y)
 }

@@ -5,14 +5,16 @@
 \alias{movies}
 \title{Movies dataset}
 \format{
-A set of 49 movies, rated by 55 users.
+A \code{matrix} of 49 films by 55 viewers. Ratings are whole numbers from 1 to 10.
 }
 \source{
-\url{https://grouplens.org/datasets/movielens/}
+The structure was estimated on the MovieLens 100K dataset
+(\url{https://grouplens.org/datasets/movielens/100k/}), whose terms do not permit
+redistributing the ratings themselves.
 }
 \usage{
 movies
 }
 \description{
-Extract from the movie lens dataset. Missing values have been imputed.
+Simulated ratings of 49 real films by 55 imaginary viewers.
 }

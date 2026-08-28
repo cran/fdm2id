@@ -9,7 +9,7 @@ There are 178 observations and 14 variables.
 The first variable is the class label (\code{1}, \code{2}, \code{3}).
 }
 \source{
-\url{https://archive.ics.uci.edu/ml/datasets/wine}
+\url{https://archive.ics.uci.edu/dataset/109/wine}
 }
 \usage{
 wine

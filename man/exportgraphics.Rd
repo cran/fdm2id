@@ -4,12 +4,23 @@
 \alias{exportgraphics}
 \title{Open a graphics device}
 \usage{
-exportgraphics(file, type = tail(strsplit(file, split = "\\\\.")[[1]], 1), ...)
+exportgraphics(
+  file,
+  type = tail(strsplit(file, split = "\\\\.")[[1]], 1),
+  export = fdm2id.globals$export,
+  ...
+)
 }
 \arguments{
 \item{file}{A character string giving the name of the file.}
 
-\item{type}{The type of graphics device.}
+\item{type}{The type of graphics device. Deduced from the file extension by default:
+\code{"eps"} and \code{"ps"} go to \code{\link[grDevices]{postscript}}, \code{"jpg"} to
+\code{\link[grDevices]{jpeg}}, and any other extension is taken as the name of an R
+function (\code{"pdf"}, \code{"png"}, ...).}
+
+\item{export}{If given, explicitly overrides the global export toggle set by \code{\link{toggleexport}} for
+this call only. By default, the global toggle is used, so existing code is unaffected.}
 
 \item{...}{Other parameters.}
 }
@@ -20,6 +31,10 @@ Starts the graphics device driver
 \dontrun{
 data (iris)
 exportgraphics ("export.pdf")
+plotdata (iris [, -5], iris [, 5])
+closegraphics()
+# Extensions that don't match an R function name directly are now handled:
+exportgraphics ("export.eps")
 plotdata (iris [, -5], iris [, 5])
 closegraphics()
 }

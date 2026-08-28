@@ -7,9 +7,11 @@
 KMEANS(
   d,
   k = 9,
-  criterion = c("none", "pseudo-F"),
-  graph = FALSE,
+  criterion = c("none", "pseudo-F", "silhouette", "gap", "elbow"),
   nstart = 10,
+  B = 100,
+  graph = FALSE,
+  seed = NULL,
   ...
 )
 }
@@ -18,11 +20,20 @@ KMEANS(
 
 \item{k}{The number of cluster.}
 
-\item{criterion}{The criterion for cluster number selection. If \code{none}, \code{k} is used, if not the number of cluster is selected between 2 and \code{k}.}
+\item{criterion}{How the number of clusters is chosen: \code{"none"} (the default, use
+\code{k} as it is), \code{"pseudo-F"}, \code{"silhouette"}, \code{"gap"} or
+\code{"elbow"}. With any but the first, \code{k} is read as the \emph{largest} number of
+clusters to consider. See the Details section.}
+
+\item{nstart}{Define how many random sets should be chosen.}
+
+\item{B}{The number of bootstrap samples used by \code{criterion = "gap"}.}
 
 \item{graph}{A logical indicating whether or not a graphic should be plotted (cluster number selection).}
 
-\item{nstart}{Define how many random sets should be chosen.}
+\item{seed}{A specified seed for random number generation. \emph{K}-means starts from a
+random initialisation, so without a seed two calls on the same data give different
+clusterings; every other clustering function of the package already had this parameter.}
 
 \item{...}{Other parameters.}
 }
@@ -31,6 +42,25 @@ The clustering (\code{kmeans} object).
 }
 \description{
 Run K-means for clustering.
+}
+\details{
+The four criteria \code{criterion} offers, all computed between 2 clusters and \code{k}:
+\describe{
+  \item{\code{"pseudo-F"}}{the Calinski-Harabasz index, between-cluster over within-cluster
+    variance corrected for the number of clusters. Maximised.}
+  \item{\code{"silhouette"}}{the mean silhouette width -- how much closer each observation
+    is to its own cluster than to the nearest other one. Maximised.}
+  \item{\code{"gap"}}{the gap statistic: the distance between the observed within-cluster
+    dispersion and the one expected with no cluster structure at all. The retained \code{k}
+    is the smallest whose gap is within one standard error of the next. It is the only
+    criterion that can answer \code{k = 1}, and much the slowest, needing \code{B}
+    bootstrap samples.}
+  \item{\code{"elbow"}}{the bend of the total within-cluster sum of squares. That quantity
+    decreases with \code{k} whatever the data, so there is no optimum to take: the retained
+    \code{k} is the point furthest from the chord joining the two ends of the curve, drawn
+    on the graphic.}
+}
+The last three need the \pkg{cluster} package.
 }
 \examples{
 require (datasets)

@@ -17,7 +17,10 @@ evaluation.kappa(predictions, gt, ...)
 The evaluation of the predictions (numeric value).
 }
 \description{
-Evaluation predictions of a classification model according to kappa.
+Evaluation predictions of a classification model according to Cohen's kappa: the proportion
+of correct predictions, corrected for the proportion two independent labellings would get
+right by chance. Class labels being nominal, the kappa is the unweighted one -- every
+mistake counts the same.
 }
 \examples{
 require (datasets)

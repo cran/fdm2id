@@ -9,12 +9,15 @@ vectorize.docs(
   corpus = NULL,
   lang = "en",
   stopwords = lang,
+  excludewords = NULL,
   ngram = 1,
   mincount = 10,
   minphrasecount = NULL,
   transform = c("tfidf", "lsa", "l1", "none"),
   latentdim = 50,
   returndata = TRUE,
+  removesinglechars = TRUE,
+  sparse = FALSE,
   ...
 )
 }
@@ -25,7 +28,10 @@ vectorize.docs(
 
 \item{lang}{The language of the documents (NULL if no stemming).}
 
-\item{stopwords}{Stopwords, or the language of the documents. NULL if stop words should not be removed.}
+\item{stopwords}{The language whose stop words are removed (\code{"en"}, ...), or
+\code{NULL} to keep them. A list of words of your own goes to \code{excludewords}.}
+
+\item{excludewords}{An optional custom vector of additional words to exclude from the vocabulary (e.g. corpus-specific stop words), on top of (or instead of) the language stopwords given through \code{stopwords}.}
 
 \item{ngram}{maximum size of n-grams.}
 
@@ -39,27 +45,38 @@ vectorize.docs(
 
 \item{returndata}{If true, the vectorized documents are returned. If false, a "vectorizer" is returned.}
 
+\item{removesinglechars}{Whether single-character tokens are removed during cleanup.}
+
+\item{sparse}{Whether the document-term matrix is returned as a sparse matrix
+(\code{dgCMatrix}) rather than as an ordinary \code{data.frame}. A document-term matrix is
+mostly zeros, and storing them all takes about 4.5 GB for 20000 documents and 30000 terms,
+so anything but a small corpus needs \code{TRUE}. Every method of the package accepts
+either.}
+
 \item{...}{Other parameters.}
 }
 \value{
-The vectorized documents.
+The vectorized documents, as a \code{data.frame} or, if \code{sparse} is
+\code{TRUE}, as a sparse matrix.
 }
 \description{
 Vectorize a corpus of documents.
 }
 \examples{
-\dontrun{
+\donttest{
 require (text2vec)
+# A small subset of movie_review is used here so this example runs quickly.
 data ("movie_review")
+reviews = movie_review [1:300, ]
 # Clustering
-docs = vectorize.docs (corpus = movie_review$review, transform = "tfidf")
-km = KMEANS (docs [sample (nrow (docs), 100), ], k = 10)
+docs = vectorize.docs (corpus = reviews$review, transform = "tfidf")
+km = KMEANS (docs [sample (nrow (docs), 50), ], k = 10)
 # Classification
-d = movie_review [, 2:3]
+d = reviews [, 2:3]
 d [, 1] = factor (d [, 1])
 d = splitdata (d, 1)
 vectorizer = vectorize.docs (corpus = d$train.x,
-                             returndata = FALSE, mincount = 50)
+                             returndata = FALSE, mincount = 10)
 train = vectorize.docs (corpus = d$train.x, vectorizer = vectorizer)
 test = vectorize.docs (corpus = d$test.x, vectorizer = vectorizer)
 model = NB (as.matrix (train), d$train.y)

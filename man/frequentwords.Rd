@@ -11,7 +11,9 @@ frequentwords(
   minphrasecount = NULL,
   ngram = 1,
   lang = "en",
-  stopwords = lang
+  stopwords = lang,
+  excludewords = NULL,
+  removesinglechars = TRUE
 )
 }
 \arguments{
@@ -27,7 +29,12 @@ frequentwords(
 
 \item{lang}{The language of the documents (NULL if no stemming).}
 
-\item{stopwords}{Stopwords, or the language of the documents. NULL if stop words should not be removed.}
+\item{stopwords}{The language whose stop words are removed (\code{"en"}, ...), or
+\code{NULL} to keep them. A list of words of your own goes to \code{excludewords}.}
+
+\item{excludewords}{An optional custom vector of additional words to exclude from the vocabulary (e.g. corpus-specific stop words), on top of (or instead of) the language stopwords given through \code{stopwords}.}
+
+\item{removesinglechars}{Whether single-character tokens are removed during cleanup.}
 }
 \value{
 The most frequent words of the corpus.
@@ -36,12 +43,10 @@ The most frequent words of the corpus.
 Most frequent words of the corpus.
 }
 \examples{
-\dontrun{
-text = loadtext ("http://mattmahoney.net/dc/text8.zip")
-frequentwords (text, 100)
-vocab = getvocab (text)
-frequentwords (vocab, 100)
-}
+data (capitals)
+frequentwords (capitals, 10, mincount = 2)
+vocab = getvocab (capitals, mincount = 2)
+frequentwords (vocab, 10)
 }
 \seealso{
 \code{\link{getvocab}}

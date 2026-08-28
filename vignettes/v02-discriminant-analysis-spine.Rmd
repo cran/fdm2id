@@ -1,0 +1,138 @@
+---
+title: "Discriminant analysis: the lumbar spine"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Discriminant analysis: the lumbar spine}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set (collapse = TRUE, comment = "#>", fig.width = 6, fig.height = 4.2,
+                       fig.align = "center")
+optional = c ("MASS", "e1071", "glmnet", "rpart", "rpart.plot")
+available = all (sapply (optional, requireNamespace, quietly = TRUE))
+knitr::opts_chunk$set (eval = available)
+```
+
+```{r, echo = FALSE, eval = !available, results = "asis"}
+cat ("**Note.** This vignette needs the following packages, some of which are missing:",
+     paste (optional, collapse = ", "), "-- the code is shown but not run.\n")
+```
+
+One of the case studies of the *Analyse de données (L3 Informatique) and Études de cas en
+statistique (M2 PSA)* course, for which `fdm2id` was written. Comparing classifiers under a
+resampling protocol, reading the errors rather than the accuracy, and asking whether a
+non-linear model earns its complexity.
+
+The other case studies are listed by `vignette (package = "fdm2id")`; they use the same
+handful of functions on other data, and can be read in any order.
+
+```{r, message = FALSE, warning = FALSE}
+library (fdm2id)
+```
+
+# The data
+
+A dataset collected by Henrique da Mota in Lyon, on lumbar spine conditions: 100 healthy
+patients, 60 with a disc hernia and 150 with a spondylolisthesis. The last two groups can be
+merged into a single "abnormal" group, which gives a second, two-class target. Each patient is
+described by six biomechanical attributes of the shape and orientation of the vertebrae.
+
+```{r}
+data (spine)
+summary (spine)
+```
+
+```{r, fig.height = 6}
+plotdata (spine, k = spine [, 7])
+```
+
+```{r, fig.height = 6}
+plotdata (spine, k = spine [, 8])
+```
+
+# Question 1. Which method predicts the two-class problem best?
+
+```{r}
+# Variable: the bootstrap draws its 100 resamples at random, so without 'seed' this table
+# changes at every run -- by a few thousandths here, enough to swap two close methods.
+performance (c (NB, LDA, CDA, LR), spine [, 1:6], spine [, 7], type = "evaluation",
+             protocol = "bootstrap", eval = "accuracy", nruns = 100, seed = 0)
+```
+
+**Answer.** *Under a bootstrap evaluation, logistic regression is the method with the best
+accuracy.*
+
+# Question 2. And the three-class problem?
+
+```{r}
+performance (c (NB, LDA, CDA, LR), spine [, 1:6], spine [, 8], type = "evaluation",
+             protocol = "bootstrap", eval = "accuracy", nruns = 100, seed = 0)
+```
+
+**Answer.** *Logistic regression again.*
+
+# Question 3. Is the three-class problem harder than the two-class one?
+
+The two tables above already hold the answer, for the method that won both of them:
+
+```{r}
+performance (LR, spine [, 1:6], spine [, 7], type = "evaluation",
+             protocol = "bootstrap", eval = "accuracy", nruns = 100, seed = 0)
+performance (LR, spine [, 1:6], spine [, 8], type = "evaluation",
+             protocol = "bootstrap", eval = "accuracy", nruns = 100, seed = 0)
+```
+
+**Answer.** *The two accuracies are very close, so no. Which is worth a pause: splitting the
+"abnormal" group in two adds a distinction that the six attributes apparently make quite
+well.*
+
+# Question 4. Which classes are hardest to separate?
+
+An accuracy says how often the model is right, not what it gets wrong. The confusion matrix
+does, and its rows are the truth.
+
+```{r, fig.height = 4.5}
+performance (LR, spine [, 1:6], spine [, 8], type = "confusion",
+             protocol = "bootstrap", nruns = 100, seed = 0)
+```
+
+**Answer.** *`SL` (spondylolisthesis) is rarely confused with the other two -- it is recovered
+96% of the time. Separating `NO` (healthy) from `DH` (disc hernia) is much harder: a third of
+the hernias are predicted healthy.*
+
+# Going further: are non-linear methods worth it?
+
+This continuation is taken from the *Études de cas en statistique* course (M2 PSA), which
+picks the same dataset up where the section above leaves it. The four methods above all come
+from linear discriminant analysis and its neighbourhood. Adding one more of that family, a
+linear-kernel SVM:
+
+```{r}
+performance (c (NB, LDA, CDA, LR, SVMl), spine [, 1:6], spine [, 8], type = "evaluation",
+             protocol = "bootstrap", eval = "accuracy", nruns = 100, seed = 0)
+```
+
+and then four methods that do not:
+
+```{r}
+# Variable, twice over: on top of the bootstrap, KNN, MLP and the SVMs search their
+# hyperparameter grid by cross-validation, so the model itself is drawn at random too.
+performance (c (KNN, CART, MLP, SVMr), spine [, 1:6], spine [, 8], type = "evaluation",
+             protocol = "bootstrap", eval = "accuracy", nruns = 100, seed = 0)
+```
+
+**Answer.** *Not one of the four beats the linear SVM, and the best of them stays two points
+behind it. So the linear model is the one to prefer here -- and it has the further advantage of
+being easier to interpret. A more flexible model is not a better one when the boundary it has
+to find is not, in fact, curved.*
+
+A decision tree is more explicit still about what it uses:
+
+```{r, fig.height = 5}
+cartplot (CART (spine [, 1:6], spine [, 8]))
+```
+
+**Answer.** *The tree keeps only three of the six attributes, and `V6` on its own separates
+`SL` from the other two classes.*

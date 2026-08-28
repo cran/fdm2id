@@ -7,7 +7,7 @@
 PCA(
   d,
   scale.unit = TRUE,
-  ncp = ncol(d) - length(quanti.sup) - length(quali.sup),
+  ncp = pca.ncp(d, ind.sup, quanti.sup, quali.sup),
   ind.sup = NULL,
   quanti.sup = NULL,
   quali.sup = NULL,
@@ -20,7 +20,8 @@ PCA(
 
 \item{scale.unit}{A boolean, if TRUE (value set by default) then data are scaled to unit variance.}
 
-\item{ncp}{The number of dimensions kept in the results (by default 5).}
+\item{ncp}{The number of dimensions kept in the results. All of them, by default: one per
+active variable, and never more than \eqn{n - 1}.}
 
 \item{ind.sup}{A vector indicating the indexes of the supplementary individuals.}
 

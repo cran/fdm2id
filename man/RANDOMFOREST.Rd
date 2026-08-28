@@ -11,6 +11,9 @@ RANDOMFOREST(
   nvar = if (!is.null(labels) && !is.factor(labels)) max(floor(ncol(train)/3), 1) else
     floor(sqrt(ncol(train))),
   tune = FALSE,
+  methodparameters = NULL,
+  graph = FALSE,
+  seed = NULL,
   ...
 )
 }
@@ -23,9 +26,22 @@ RANDOMFOREST(
 
 \item{nvar}{Number of variables randomly sampled as candidates at each split.}
 
-\item{tune}{If true, the function returns paramters instead of a classification model.}
+\item{tune}{If true, the function returns parameters instead of a classification model.}
 
-\item{...}{Other parameters.}
+\item{methodparameters}{Present for interface consistency with \code{\link{performance}}
+(which always passes it when fitting a model). Currently unused: \code{RANDOMFOREST} does
+not yet implement hyperparameter tuning, so \code{tune = TRUE} returns an empty
+\code{params} object and there is nothing for \code{methodparameters} to override.}
+
+\item{graph}{Present for interface consistency with \code{\link{performance}} (which
+always passes it when fitting a model). Currently unused: \code{RANDOMFOREST} does not
+produce a plot.}
+
+\item{seed}{A specified seed for random number generation (bootstrap sampling of the trees
+and, when \code{nvar} is smaller than the total number of variables, the candidate variables
+drawn at each split).}
+
+\item{...}{Other parameters, forwarded to \code{\link[randomForest]{randomForest}}.}
 }
 \value{
 The classification model.
@@ -34,7 +50,7 @@ The classification model.
 This function builds a classification model using Random Forest
 }
 \examples{
-\dontrun{
+\donttest{
 require (datasets)
 data (iris)
 RANDOMFOREST (iris [, -5], iris [, 5])

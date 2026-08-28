@@ -25,10 +25,10 @@ Evaluation a clustering algorithm according to internal criteria.
 require (datasets)
 data (iris)
 km = KMEANS (iris [, -5], k = 3)
-intern (km$clus, iris [, -5])
-intern (km$clus, iris [, -5], type = "cluster")
-intern (km$clus, iris [, -5], eval = c ("intraclass", "interclass"))
-intern (km$clus, iris [, -5], eval = c ("intraclass", "interclass"), type = "cluster")
+intern (km$cluster, iris [, -5])
+intern (km$cluster, iris [, -5], type = "cluster")
+intern (km$cluster, iris [, -5], eval = c ("intraclass", "interclass"))
+intern (km$cluster, iris [, -5], eval = c ("intraclass", "interclass"), type = "cluster")
 }
 \seealso{
 \code{\link{compare}}, \code{\link{stability}}, \code{\link{intern.dunn}}, \code{\link{intern.interclass}}, \code{\link{intern.intraclass}}

@@ -1,0 +1,107 @@
+---
+title: "Ensemble methods: the ionosphere"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Ensemble methods: the ionosphere}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set (collapse = TRUE, comment = "#>", fig.width = 6, fig.height = 4.2,
+                       fig.align = "center")
+optional = c ("glmnet", "rpart", "rpart.plot", "randomForest", "xgboost", "ROCR")
+available = all (sapply (optional, requireNamespace, quietly = TRUE))
+knitr::opts_chunk$set (eval = available)
+```
+
+```{r, echo = FALSE, eval = !available, results = "asis"}
+cat ("**Note.** This vignette needs the following packages, some of which are missing:",
+     paste (optional, collapse = ", "), "-- the code is shown but not run.\n")
+```
+
+One of the case studies of the *Fouille de données (M2 SID)* course, for which `fdm2id` was
+written. Ensembles of trees against the single tree they are built on, and how two models level
+on accuracy can distribute their errors quite differently.
+
+The other case studies are listed by `vignette (package = "fdm2id")`; they use the same
+handful of functions on other data, and can be read in any order.
+
+```{r, message = FALSE, warning = FALSE}
+library (fdm2id)
+```
+
+# The data
+
+Radar measurements of the ionosphere -- the upper layer of the atmosphere -- under
+high-frequency waves. The goal is to detect free electrons there. 351 observations, 33 numeric
+attributes, and a two-class target: `g` for a "good" return, one that shows structure in the
+ionosphere, `b` for a return that does not.
+
+The methods under study are logistic regression, CART, bagging, random forests, AdaBoost and
+gradient boosting.
+
+```{r}
+data (ionosphere)
+dim (ionosphere)
+table (ionosphere [, 34])
+```
+
+```{r, fig.height = 5}
+plotdata (ionosphere [, -34], ionosphere [, 34], type = "pca")
+```
+
+# Question 1. Which method predicts best?
+
+`BAGGING` and `ADABOOST` need to be told what to ensemble; `performance` passes
+`learningmethod` on to them.
+
+```{r}
+# Variable on both counts: the bootstrap draws the ten resamples, and four of the six methods
+# are randomised in themselves -- bagging and the forest draw their samples and their
+# variables, the two boosting methods their subsamples. Without 'seed' the table moves by a
+# few thousandths at every run, which is more than the gap between the two leaders.
+performance (c (LR, CART, BAGGING, RANDOMFOREST, ADABOOST, GRADIENTBOOSTING),
+             ionosphere [, -34], ionosphere [, 34], type = "evaluation",
+             protocol = "bootstrap", eval = "accuracy", nruns = 10, seed = 0,
+             learningmethod = CART)
+```
+
+**Answer.** *Under a bootstrap evaluation, random forests and AdaBoost give the best
+accuracies. Note the shape of the ranking rather than its exact order: every ensemble of trees
+beats the single tree it is built on, and the single tree beats the linear model.*
+
+# Question 2. How do the two best differ, in false positives and false negatives?
+
+An accuracy hides which of the two errors a model makes. Three views of the same difference --
+the ROC curves first, which judge the *ranking* of the observations rather than the decision:
+
+```{r, fig.height = 5}
+performance (c (RANDOMFOREST, ADABOOST), ionosphere [, -34], ionosphere [, 34],
+             type = "roc", protocol = "bootstrap", nruns = 10, fuzzy = TRUE, seed = 0,
+             learningmethod = CART)
+```
+
+then precision and recall, which are defined for one class against the rest -- `b` here, since
+`performance` takes the first level of the target unless `positive` says otherwise:
+
+```{r}
+performance (c (RANDOMFOREST, ADABOOST), ionosphere [, -34], ionosphere [, 34],
+             type = "evaluation", protocol = "bootstrap",
+             eval = c ("precision", "recall"), nruns = 10, seed = 0, learningmethod = CART)
+```
+
+then the two confusion matrices:
+
+```{r, fig.height = 4.5}
+performance (RANDOMFOREST, ionosphere [, -34], ionosphere [, 34], type = "confusion",
+             protocol = "bootstrap", nruns = 10, seed = 0)
+performance (ADABOOST, ionosphere [, -34], ionosphere [, 34], type = "confusion",
+             protocol = "bootstrap", nruns = 10, seed = 0, learningmethod = CART)
+```
+
+**Answer.** *The two are level on accuracy but do not distribute their errors the same way.
+AdaBoost is the more reluctant of the two to answer `b`: it recovers `g` slightly better and
+`b` slightly worse, so it is the more precise and the less sensitive on the minority class.
+Which of the two that makes preferable is not a question the data answers -- it depends on
+what a missed `b` costs against a false one.*

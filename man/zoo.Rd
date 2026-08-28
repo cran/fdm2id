@@ -8,7 +8,7 @@
 The dataset has 101 instances described by 17 qualitative variables.
 }
 \source{
-\url{https://archive.ics.uci.edu/ml/datasets/zoo}
+\url{https://archive.ics.uci.edu/dataset/111/zoo}
 }
 \usage{
 zoo

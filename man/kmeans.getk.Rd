@@ -7,27 +7,34 @@
 kmeans.getk(
   d,
   max = 9,
-  criterion = "pseudo-F",
-  graph = TRUE,
+  criterion = c("pseudo-F", "silhouette", "gap", "elbow"),
   nstart = 10,
+  B = 100,
+  graph = FALSE,
   seed = NULL
 )
 }
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}
 
-\item{max}{The maximum number of clusters. Values from 2 to \code{max} are evaluated.}
+\item{max}{The largest number of clusters considered. Values from 2 to \code{max} are
+evaluated (from 1, for \code{"gap"} and \code{"elbow"}, which are defined there).}
 
-\item{criterion}{The criterion to be optimized. \code{"pseudo-F"} is the only criterion implemented in the current version.}
-
-\item{graph}{A logical indicating whether or not a graphic should be plotted.}
+\item{criterion}{How the number of clusters is chosen: \code{"none"} (the default, use
+\code{k} as it is), \code{"pseudo-F"}, \code{"silhouette"}, \code{"gap"} or
+\code{"elbow"}. With any but the first, \code{k} is read as the \emph{largest} number of
+clusters to consider. See the Details section.}
 
 \item{nstart}{The number of random sets chosen for \code{\link[stats]{kmeans}} initialization.}
+
+\item{B}{The number of bootstrap samples used by \code{criterion = "gap"}.}
+
+\item{graph}{A logical indicating whether or not a graphic should be plotted.}
 
 \item{seed}{A specified seed for random number generation.}
 }
 \value{
-The optimal number of cluster of the \emph{K}-means clustering method according to the chosen criterion.
+The number of clusters retained by the chosen criterion.
 }
 \description{
 Estimate the optimal number of cluster of the \emph{K}-means clustering method.
@@ -36,7 +43,19 @@ Estimate the optimal number of cluster of the \emph{K}-means clustering method.
 require (datasets)
 data (iris)
 kmeans.getk (iris [, -5])
+kmeans.getk (iris [, -5], criterion = "silhouette")
+kmeans.getk (iris [, -5], criterion = "elbow")
+\donttest{
+# The gap statistic resamples, so it is much slower than the other three.
+kmeans.getk (iris [, -5], criterion = "gap", B = 20, seed = 0)
+}
+}
+\references{
+Tibshirani, R., Walther, G. and Hastie, T. (2001). Estimating the number of
+clusters in a data set via the gap statistic. \emph{Journal of the Royal Statistical
+Society: Series B}, 63(2), 411-423.
 }
 \seealso{
-\code{\link{pseudoF}}, \code{\link[stats]{kmeans}}
+\code{\link{pseudoF}}, \code{\link{KMEANS}}, \code{\link[stats]{kmeans}},
+\code{\link[cluster]{silhouette}}, \code{\link[cluster]{clusGap}}
 }

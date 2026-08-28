@@ -18,7 +18,10 @@ This function remove every redundant rules, keeping only the most general ones.
 \examples{
 require ("arules")
 data ("Adult")
-r = apriori (Adult)
+# The default support (0.1) yields ~6000 rules on Adult, and general.rules() compares every
+# pair of them twice: that single call took more than 8 seconds. A higher support keeps the
+# example instructive (169 rules, of which 8 are general) and instantaneous.
+r = apriori (Adult, parameter = list (supp = .4, conf = .8))
 inspect (general.rules (r))
 }
 \seealso{

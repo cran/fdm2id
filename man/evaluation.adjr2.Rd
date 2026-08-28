@@ -11,9 +11,11 @@ evaluation.adjr2(predictions, gt, nrow = length(predictions), ncol, ...)
 
 \item{gt}{The ground truth (\code{vector}).}
 
-\item{nrow}{Number of observations.}
+\item{nrow}{Number of observations (defaults to the number of predictions).}
 
-\item{ncol}{Number of variables}
+\item{ncol}{Number of predictors used by the model. This one has no default: the adjustment
+cannot be computed without it. The residual degrees of freedom are \code{nrow - ncol - 1},
+the intercept counting as one parameter; the value is \code{NA} when they run out.}
 
 \item{...}{Other parameters.}
 }
@@ -21,7 +23,8 @@ evaluation.adjr2(predictions, gt, nrow = length(predictions), ncol, ...)
 The evaluation of the predictions (numeric value).
 }
 \description{
-Evaluation predictions of a regression model according to R2
+Evaluation predictions of a regression model according to the adjusted R2, i.e. the R2
+penalized by the number of variables used by the model.
 }
 \examples{
 require (datasets)
@@ -29,8 +32,8 @@ data (trees)
 d = splitdata (trees, 3)
 model.linreg = LINREG (d$train.x, d$train.y)
 pred.linreg = predict (model.linreg, d$test.x)
-evaluation.r2 (pred.linreg, d$test.y)
+evaluation.adjr2 (pred.linreg, d$test.y, ncol = ncol (d$test.x))
 }
 \seealso{
-\code{\link{evaluation.msep}}, \code{\link{evaluation}}
+\code{\link{evaluation.r2}}, \code{\link{evaluation.msep}}, \code{\link{evaluation}}
 }

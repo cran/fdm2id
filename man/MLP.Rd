@@ -7,11 +7,14 @@
 MLP(
   train,
   labels,
-  hidden = ifelse(is.vector(train), 2:(1 + nlevels(labels)), 2:(ncol(train) +
-    nlevels(labels))),
+  hidden = if (is.vector(train)) 2:(1 + nlevels(labels)) else 2:(ncol(train) +
+    nlevels(labels)),
   decay = 10^(-3:-1),
-  methodparameters = NULL,
+  nfolds = 10,
   tune = FALSE,
+  methodparameters = NULL,
+  graph = FALSE,
+  seed = NULL,
   ...
 )
 }
@@ -24,9 +27,21 @@ MLP(
 
 \item{decay}{The decay (between 0 and 1) of the backpropagation algorithm (if a vector, cross-over validation is used to chose the best size).}
 
+\item{nfolds}{The number of folds of the cross-validation a method runs to choose its
+hyperparameters. Only used when there is something to choose, i.e. when one of them is given
+as a vector. Lower it to fit faster, at the cost of a noisier choice.}
+
+\item{tune}{If true, the function returns parameters instead of a classification model.}
+
 \item{methodparameters}{Object containing the parameters. If given, it replaces \code{size} and \code{decay}.}
 
-\item{tune}{If true, the function returns paramters instead of a classification model.}
+\item{graph}{Present for interface consistency with \code{\link{performance}} (which always
+passes it when fitting a model). Currently unused: \code{MLP} does not produce a plot.}
+
+\item{seed}{A specified seed for random number generation, so that two runs on the same
+data give the same model. Every learning method accepts it, so that it can be set the same
+way whatever the method; the deterministic ones simply have nothing to draw and give the
+same model with or without it.}
 
 \item{...}{Other parameters.}
 }
@@ -37,7 +52,7 @@ The classification model.
 This function builds a classification model using Multilayer Perceptron.
 }
 \examples{
-\dontrun{
+\donttest{
 require (datasets)
 data (iris)
 MLP (iris [, -5], iris [, 5], hidden = 4, decay = .1)

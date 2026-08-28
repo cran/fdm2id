@@ -2,24 +2,32 @@
 % Please edit documentation in R/classification.R
 \name{confusion}
 \alias{confusion}
-\title{Confuion matrix}
+\title{Confusion matrix}
 \usage{
-confusion(predictions, gt, norm = TRUE, graph = TRUE)
+confusion(predictions, gt, norm = TRUE, graph = TRUE, ...)
 }
 \arguments{
-\item{predictions}{The prediction.}
+\item{predictions}{The prediction. \strong{This is the first argument}, as for every other
+evaluation function of the package (\code{\link{evaluation}}, \code{\link{evaluation.accuracy}},
+\code{\link{evaluation.precision}}, ...): passing the ground truth first returns the transposed
+matrix.}
 
 \item{gt}{The ground truth.}
 
 \item{norm}{Whether or not the confusion matrix is normalized}
 
 \item{graph}{Whether or not a graphic is displayed.}
+
+\item{...}{Other parameters, ignored. \code{\link{performance}} forwards to its evaluation
+function the same \code{...} it forwards to the learning method, so a call such as
+\code{performance (BAGGING, ..., type = "confusion", learningmethod = CART)} would otherwise
+fail on the unused \code{learningmethod}.}
 }
 \value{
 The confusion matrix.
 }
 \description{
-Plot a confusion matrix.
+Plot a confusion matrix. Rows are the true labels and columns the predicted ones.
 }
 \examples{
 require ("datasets")
@@ -27,7 +35,7 @@ data (iris)
 d = splitdata (iris, 5)
 model = NB (d$train.x, d$train.y)
 pred = predict (model, d$test.x)
-confusion (d$test.y, pred)
+confusion (pred, d$test.y)
 }
 \seealso{
 \code{\link{evaluation}}, \code{\link{performance}}, \code{\link{splitdata}}

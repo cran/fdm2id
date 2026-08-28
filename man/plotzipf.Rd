@@ -13,12 +13,10 @@ plotzipf(corpus)
 Plot the frequency of words in a document agains the ranks of those words. It also plot the Zipf law.
 }
 \examples{
-\dontrun{
-text = loadtext ("http://mattmahoney.net/dc/text8.zip")
-plotzipf (text)
-vocab = getvocab (text, mincount = 1, lang = NULL)
+data (capitals)
+plotzipf (capitals)
+vocab = getvocab (capitals, mincount = 1, lang = NULL)
 plotzipf (vocab)
-}
 }
 \seealso{
 \code{\link{plotcloud}}, \code{\link{getvocab}}

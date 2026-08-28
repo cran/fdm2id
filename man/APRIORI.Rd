@@ -11,6 +11,9 @@ APRIORI(
   conf = 0.8,
   prune = FALSE,
   tune = FALSE,
+  methodparameters = NULL,
+  graph = FALSE,
+  seed = NULL,
   ...
 )
 }
@@ -25,7 +28,19 @@ APRIORI(
 
 \item{prune}{A logical indicating whether to prune redundant rules or not (default: \code{FALSE}).}
 
-\item{tune}{If true, the function returns paramters instead of a classification model.}
+\item{tune}{If true, the function returns parameters instead of a classification model.}
+
+\item{methodparameters}{Present for interface consistency with \code{\link{performance}}
+(which always passes it when fitting a model). Currently unused: \code{APRIORI} does not
+support reusing pre-tuned parameters.}
+
+\item{graph}{Present for interface consistency with \code{\link{performance}} (which always
+passes it when fitting a model). Currently unused: \code{APRIORI} does not produce a plot.}
+
+\item{seed}{A specified seed for random number generation, so that two runs on the same
+data give the same model. Every learning method accepts it, so that it can be set the same
+way whatever the method; the deterministic ones simply have nothing to draw and give the
+same model with or without it.}
 
 \item{...}{Other parameters.}
 }

@@ -6,7 +6,7 @@
 \usage{
 CA(
   d,
-  ncp = 5,
+  ncp = ca.ncp(d, row.sup, col.sup, quanti.sup, quali.sup),
   row.sup = NULL,
   col.sup = NULL,
   quanti.sup = NULL,
@@ -15,9 +15,11 @@ CA(
 )
 }
 \arguments{
-\item{d}{A ddata frame or a table with n rows and p columns, i.e. a contingency table.}
+\item{d}{A data frame or a table with n rows and p columns, i.e. a contingency table.}
 
-\item{ncp}{The number of dimensions kept in the results (by default 5).}
+\item{ncp}{The number of dimensions kept in the results. All of them, by default: a table of
+I active rows by J active columns carries \code{min (I, J) - 1} of them, the first dimension
+of a contingency table being its margins, which hold no association.}
 
 \item{row.sup}{A vector indicating the indexes of the supplementary rows.}
 

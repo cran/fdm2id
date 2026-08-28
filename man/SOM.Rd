@@ -11,6 +11,7 @@ SOM(
   rlen = 10000,
   post = c("none", "single", "ward"),
   k = NULL,
+  seed = NULL,
   ...
 )
 }
@@ -24,6 +25,8 @@ SOM(
 \item{post}{The post-treatement method: \code{"none"} (None), \code{"single"} (Single link) or \code{"ward"} (Ward clustering).}
 
 \item{k}{The number of cluster (only used if \code{post} is different from \code{"none"}).}
+
+\item{seed}{A specified seed for random number generation (codebook initialization).}
 
 \item{...}{Other parameters.}
 }

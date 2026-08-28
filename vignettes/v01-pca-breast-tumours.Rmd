@@ -1,0 +1,110 @@
+---
+title: "Principal component analysis: breast tumours"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Principal component analysis: breast tumours}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set (collapse = TRUE, comment = "#>", fig.width = 6, fig.height = 4.2,
+                       fig.align = "center")
+optional = c ("mlbench")
+available = all (sapply (optional, requireNamespace, quietly = TRUE))
+knitr::opts_chunk$set (eval = available)
+```
+
+```{r, echo = FALSE, eval = !available, results = "asis"}
+cat ("**Note.** This vignette needs the following packages, some of which are missing:",
+     paste (optional, collapse = ", "), "-- the code is shown but not run.\n")
+```
+
+One of the case studies of the *Analyse de données (L3 Informatique)* course, for which
+`fdm2id` was written. How many factorial axes a dataset really needs, how to read them, and
+what a supplementary variable is for.
+
+The other case studies are listed by `vignette (package = "fdm2id")`; they use the same
+handful of functions on other data, and can be read in any order.
+
+```{r, message = FALSE, warning = FALSE}
+library (fdm2id)
+```
+
+# The data
+
+A database on breast cancer, built in 1992 by Dr W. H. Wolberg at the University of Wisconsin.
+Of the 699 patients, 458 carried a benign tumour and 241 a malignant one. Each tumour is
+described by nine criteria (size, shape of the cells, and so on), each graded from 1 to 10.
+
+Sixteen records have a missing value, all of them on `Bare.nuclei`. Rather than dropping those
+patients, the value is predicted from the eight other criteria and rounded back to the 1--10
+scale -- a regression used as an imputation, which is the first thing the package's `LINREG`
+is good for here.
+
+```{r}
+library (mlbench)
+data (BreastCancer)
+BreastCancer = BreastCancer [, -1]
+BreastCancer [, -10] = lapply (BreastCancer [, -10], function (x) as.numeric (as.character (x)))
+names (which (colSums (is.na (BreastCancer)) > 0))
+train = BreastCancer [!is.na (BreastCancer$Bare.nuclei), ]
+BreastCancer [is.na (BreastCancer$Bare.nuclei), 6] =
+  round (predict (LINREG (train [, -c (6, 10)], train [, 6]),
+                  BreastCancer [is.na (BreastCancer$Bare.nuclei), -6]))
+summary (BreastCancer)
+```
+
+```{r, fig.height = 6}
+plotdata (BreastCancer)
+```
+
+# Question 1. How many factorial axes are needed?
+
+```{r}
+pca = PCA (BreastCancer, quali.sup = 10, scale.unit = TRUE)
+kaiser (pca)
+```
+
+```{r}
+plot (pca, type = "eig")
+```
+
+**Answer.** *Both Kaiser's rule and the elbow of the scree plot say that a single factorial
+axis is enough.* It carries `r if (available) round (pca$eig [1, 2], 1) else 66`% of the
+variance on its own, the second one `r if (available) round (pca$eig [2, 2], 1) else 9`%.
+
+# Question 2. How should the first two axes be read?
+
+```{r, fig.height = 5.5}
+plot (pca, type = "cor")
+```
+
+**Answer.** *On the correlation circle, every variable is strongly tied to the first axis. The
+second one depends mainly on `Mitoses`* -- the only variable whose coordinate on it is large.
+
+```{r}
+round (pca$var$coord [, 1:2], 2)
+```
+
+# Question 3. What can be said about the two groups of tumours?
+
+The class was declared as a supplementary variable, so it played no part in building the axes.
+Nothing stops us from colouring the individuals by it afterwards -- that is the whole point of
+declaring it supplementary.
+
+```{r, fig.height = 5}
+plotdata (pca$ind$coord [, 1:2], BreastCancer [, 10], type = "scatter")
+```
+
+**Answer.** *The benign tumours form a very homogeneous group, the malignant ones a much more
+scattered one. The position on the first principal axis is related to the type of the tumour:
+the higher the value, the more likely the tumour is malignant.*
+
+```{r}
+round (tapply (pca$ind$coord [, 1], BreastCancer [, 10], mean), 2)
+round (tapply (pca$ind$coord [, 1], BreastCancer [, 10], sd), 2)
+```
+
+The two means are far apart, and the standard deviation of the malignant group is more than
+twice that of the benign one.

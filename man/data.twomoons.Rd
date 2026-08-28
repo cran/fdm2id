@@ -9,7 +9,7 @@ data.twomoons(
   n = 200,
   sigma = 0.1,
   levels = NULL,
-  graph = TRUE,
+  graph = FALSE,
   seed = NULL
 )
 }
@@ -22,7 +22,9 @@ data.twomoons(
 
 \item{levels}{Name of each class.}
 
-\item{graph}{A logical indicating whether or not a graphic should be plotted.}
+\item{graph}{Whether the generated dataset is plotted. \code{FALSE} by default, as
+everywhere else in the package: a generator has to be callable in a loop or a report
+without piling up graphics devices.}
 
 \item{seed}{A specified seed for random number generation.}
 }
@@ -33,7 +35,7 @@ A randomly generated dataset.
 Generate a random dataset shaped like two moons.
 }
 \examples{
-data.twomoons ()
+data.twomoons (graph = TRUE)
 }
 \seealso{
 \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.xor}}

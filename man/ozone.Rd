@@ -5,8 +5,13 @@
 \alias{ozone}
 \title{Ozone dataset}
 \format{
-Each instance is described by the maximum level of ozone measured during the day.
-Temperature, clouds, and wind are also recorded.
+112 days described by 13 variables. \code{maxO3}, the maximum level of ozone
+measured during the day (the target variable); \code{T9}, \code{T12}, \code{T15},
+temperatures; \code{C9}, \code{C12}, \code{C15}, cloud cover; \code{W9}, \code{W12},
+\code{W15}, the projection of the wind on the North-South axis; \code{maxO3v}, the maximum
+level of ozone of the previous day; \code{vent}, the wind direction (a \code{factor}:
+\code{"Est"}, \code{"Nord"}, \code{"Ouest"}, \code{"Sud"}); \code{pluie}, whether it
+rained (a \code{factor}: \code{"Pluie"}, \code{"Sec"}).
 }
 \source{
 \url{https://r-stat-sc-donnees.github.io/ozone.txt}

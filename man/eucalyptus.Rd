@@ -8,7 +8,7 @@
 The dataset has 1429 instances (eucalyptus trees) with 2 measurements: the height and the circumference.
 }
 \source{
-\url{http://www.cmap.polytechnique.fr/~lepennec/fr/teaching/}
+\url{http://www.cmap.polytechnique.fr/~lepennec/en/teaching/}
 }
 \usage{
 eucalyptus

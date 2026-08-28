@@ -4,7 +4,7 @@
 \alias{SPECTRAL}
 \title{Spectral clustering method}
 \usage{
-SPECTRAL(d, k, sigma = 1, graph = TRUE, ...)
+SPECTRAL(d, k, sigma = 1, graph = FALSE, seed = NULL, ...)
 }
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}
@@ -15,13 +15,15 @@ SPECTRAL(d, k, sigma = 1, graph = TRUE, ...)
 
 \item{graph}{A logical indicating whether or not a graphic should be plotted (projection on the spectral space of the affinity matrix).}
 
+\item{seed}{A specified seed for random number generation (final k-means step).}
+
 \item{...}{Other parameters.}
 }
 \description{
 Run a Spectral clustering algorithm.
 }
 \examples{
-\dontrun{
+\donttest{
 require (datasets)
 data (iris)
 SPECTRAL (iris [, -5], k = 3)

@@ -7,42 +7,84 @@
 plotdata(
   d,
   k = NULL,
+  target = NULL,
   type = c("pairs", "scatter", "parallel", "boxplot", "histogram", "barplot", "pie",
-    "heatmap", "heatmapc", "pca", "cda", "svd", "nmf", "tsne", "som", "words"),
+    "heatmap", "heatmapc", "correlation", "pca", "cda", "svd", "nmf", "tsne", "som",
+    "words"),
   legendpos = "topleft",
   alpha = 200,
   asp = 1,
   labels = FALSE,
+  tsne = NULL,
+  nmf = NULL,
   ...
 )
 }
 \arguments{
 \item{d}{A numeric dataset (data.frame or matrix).}
 
-\item{k}{A categorial variable (vector or factor).}
+\item{k}{The variable the observations are told apart by: they are coloured, grouped or,
+for \code{type = "cda"}, discriminated by it. It is categorical, and cluster numbers do just
+as well as a \code{factor}. Left \code{NULL}, it is taken from \code{d} when exactly one of
+its columns is qualitative, or from \code{target} when that one is categorical.}
 
-\item{type}{The type of graphic to be plotted.}
+\item{target}{The variable to be explained, read by \code{type = "correlation"} only. Unlike
+\code{k} it may be continuous. Give one or the other, the way \code{\link[stats]{cutree}}
+takes either \code{k} or \code{h}: a categorical \code{target} also serves as \code{k},
+and \code{k} serves as \code{target} when none is given. A continuous \code{target} leaves
+the observations uncoloured, having no groups to offer.}
+
+\item{type}{The type of graphic to be plotted. See the Details section on the projections.}
 
 \item{legendpos}{Position of the legend}
 
-\item{alpha}{Color opacity (0-255).}
+\item{alpha}{Opacity of the plotted points, from 0 (invisible) to 255 (opaque). Useful on
+dense scatter plots, where points would otherwise hide each other. The legend stays
+opaque.}
 
-\item{asp}{Aspect ratio (default: 1).}
+\item{asp}{Aspect ratio: 1 (the default) makes one unit as long on both axes, \code{NA}
+lets them scale independently.}
 
 \item{labels}{Indicates whether or not labels (row names) should be showned on the (scatter) plot.}
+
+\item{tsne}{A precomputed \code{\link{TSNE}} result. When \code{type = "tsne"}, providing this avoids
+recomputing the (randomized, potentially costly) t-SNE embedding on every call; if \code{NULL} (default),
+it is computed internally as before.}
+
+\item{nmf}{A precomputed \code{\link{NMF}} result. When \code{type = "nmf"}, providing this avoids
+recomputing the (randomized, potentially costly) NMF decomposition on every call; if \code{NULL} (default),
+it is computed internally as before.}
 
 \item{...}{Other parameters.}
 }
 \description{
 Plot a dataset.
 }
+\details{
+\code{type = "correlation"} draws how strongly each variable relates to the target, sorted,
+strongest at the top. \strong{Two different quantities, depending on the target.} Against a
+numeric target it is Pearson's correlation \eqn{r}, sign included, and the axis says so.
+Against a categorical one it is the \strong{correlation ratio} \eqn{\eta}, the square root
+of the between-class share of the variance -- \emph{not} a Pearson coefficient computed on
+class numbers, which would depend on the order the classes happen to be in and would mean
+nothing beyond two classes. \eqn{\eta} lies in [0, 1], is defined for any number of classes
+and does not depend on their coding. On exactly two classes \eqn{\eta} is \eqn{|r|} with the
+classes coded 0/1, so the sign comes back and says which class the variable is larger in.
+
+The projections (\code{type = "pca"}, and the default \code{"scatter"}/\code{"pairs"} on
+more than two variables) are computed on the data as they are, unscaled -- \code{plotdata}
+shows a dataset, whereas \code{\link{PCA}} performs a factorial analysis and centres and
+scales by default. So \code{plotdata (d, type = "pca")} and \code{plot (PCA (d))} differ
+visibly when the variables have very different scales, and \code{\link{PCA}} is the one to
+use for a properly scaled projection.
+}
 \examples{
 require (datasets)
 data (iris)
 # Without classification
-plotdata (iris [, -5]) # Défault (pairs)
+plotdata (iris [, -5]) # Default (pairs)
 # With classification
-plotdata (iris [, -5], iris [, 5]) # Défault (pairs)
+plotdata (iris [, -5], iris [, 5]) # Default (pairs)
 plotdata (iris, 5) # Column number
 plotdata (iris) # Automatic detection of the classification (if only one factor column)
 plotdata (iris, type = "scatter") # Scatter plot (PCA axis)
@@ -56,13 +98,18 @@ plotdata (iris, type = "cda") # Scatter plot (CDA axis)
 plotdata (iris, type = "svd") # Scatter plot (SVD axis)
 plotdata (iris, type = "som") # Kohonen map
 # With only one variable
-plotdata (iris [, 1], iris [, 5]) # Défault (data vs. index)
+plotdata (iris [, 1], iris [, 5]) # Default (data vs. index)
 plotdata (iris [, 1], iris [, 5], type = "scatter") # Scatter plot (data vs. index)
 plotdata (iris [, 1], iris [, 5], type = "boxplot") # Boxplot
 # With two variables
-plotdata (iris [, 3:4], iris [, 5]) # Défault (scatter plot)
+plotdata (iris [, 3:4], iris [, 5]) # Default (scatter plot)
 plotdata (iris [, 3:4], iris [, 5], type = "scatter") # Scatter plot
 data (titanic)
 plotdata (titanic, type = "barplot") # Barplots
 plotdata (titanic, type = "pie") # Pie charts
+\dontrun{
+# Reusing a previously computed t-SNE embedding instead of recomputing it
+res = TSNE (iris [, -5])
+plotdata (iris [, -5], iris [, 5], type = "tsne", tsne = res)
+}
 }

@@ -6,7 +6,7 @@
 \title{Alcohol dataset}
 \format{
 The dataset has 27 instances described by 4 variables.
-The variables are the average amount of alcool of different types per year par inhabitent.
+The variables are the average amount of alcohol of different types consumed per year per inhabitant.
 }
 \source{
 \url{https://www.who.int/}
@@ -15,5 +15,5 @@ The variables are the average amount of alcool of different types per year par i
 alcohol
 }
 \description{
-This dataset has been extracted from the WHO database and depict the alcool habits in the 27 european contries (in 2010).
+This dataset has been extracted from the WHO database and depicts alcohol consumption habits in 27 European countries (in 2010).
 }

@@ -11,7 +11,7 @@ query.docs(docvectors, query, vectorizer, nres = 5)
 
 \item{query}{The query (vectorized or raw text).}
 
-\item{vectorizer}{The vectorizer taht has been used to vectorize the documents.}
+\item{vectorizer}{The vectorizer that has been used to vectorize the documents.}
 
 \item{nres}{The number of results.}
 }
@@ -22,13 +22,14 @@ The indices of the documents the most similar to the query.
 Search for documents similar to the query.
 }
 \examples{
-\dontrun{
+\donttest{
 require (text2vec)
+# A small subset of movie_review is used here so this example runs quickly.
 data (movie_review)
-vectorizer = vectorize.docs (corpus = movie_review$review,
-                             minphrasecount = 50, returndata = FALSE)
-docs = vectorize.docs (corpus = movie_review$review, vectorizer = vectorizer)
-query.docs (docs, movie_review$review [1], vectorizer)
+reviews = movie_review$review [1:300]
+vectorizer = vectorize.docs (corpus = reviews, returndata = FALSE)
+docs = vectorize.docs (corpus = reviews, vectorizer = vectorizer)
+query.docs (docs, reviews [1], vectorizer)
 query.docs (docs, docs [1, ], vectorizer)
 }
 }

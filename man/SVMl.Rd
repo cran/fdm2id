@@ -8,8 +8,11 @@ SVMl(
   train,
   labels,
   cost = 2^(-3:3),
-  methodparameters = NULL,
+  nfolds = 10,
   tune = FALSE,
+  methodparameters = NULL,
+  graph = FALSE,
+  seed = NULL,
   ...
 )
 }
@@ -20,9 +23,22 @@ SVMl(
 
 \item{cost}{The cost parameter (if a vector, cross-over validation is used to chose the best size).}
 
+\item{nfolds}{The number of folds of the cross-validation a method runs to choose its
+hyperparameters. Only used when there is something to choose, i.e. when one of them is given
+as a vector. Lower it to fit faster, at the cost of a noisier choice.}
+
+\item{tune}{If true, the function returns parameters instead of a classification model.}
+
 \item{methodparameters}{Object containing the parameters. If given, it replaces \code{gamma} and \code{cost}.}
 
-\item{tune}{If true, the function returns paramters instead of a classification model.}
+\item{graph}{Whether the method draws the graphic that goes with its tuning (the
+cross-validation curve, typically). Methods that have no such graphic accept the argument
+and ignore it.}
+
+\item{seed}{A specified seed for random number generation, so that two runs on the same
+data give the same model. Every learning method accepts it, so that it can be set the same
+way whatever the method; the deterministic ones simply have nothing to draw and give the
+same model with or without it.}
 
 \item{...}{Other arguments.}
 }

@@ -4,14 +4,39 @@
 \alias{evaluation.recall}
 \title{Recall of classification predictions}
 \usage{
-evaluation.recall(predictions, gt, positive = levels(gt)[1], ...)
+evaluation.recall(predictions, gt, average = NULL, positive = NULL, ...)
 }
 \arguments{
 \item{predictions}{The predictions of a classification model (\code{factor} or \code{vector}).}
 
 \item{gt}{The ground truth (\code{factor} or \code{vector}).}
 
-\item{positive}{The label of the positive class.}
+\item{average}{How the per-class values are combined. These measures are defined for one
+class against all the others, so a single number requires either picking that class or
+averaging.
+\describe{
+  \item{\code{"binary"}}{the value for the class named by \code{positive}. Two-class
+    problems only, and the default there.}
+  \item{\code{"macro"}}{the plain mean of the per-class values. The default beyond two
+    classes. Gives every class the same weight, whatever its size, so a rare class the model
+    never gets right weighs as much as the majority one.}
+  \item{\code{"weighted"}}{the mean of the per-class values, weighted by the number of
+    observations of each class.}
+  \item{\code{"micro"}}{pools the counts of every class before dividing. With single-label
+    predictions each observation contributes one predicted and one actual label, so
+    micro-averaged precision, recall and F-measure all equal the accuracy.}
+  \item{\code{"none"}}{the vector of per-class values, named after the classes. Cannot be
+    used through \code{\link{evaluation}} or \code{\link{performance}}, which expect one
+    number per criterion.}
+}
+Averages run over the classes of the ground truth. A class that no observation is predicted
+to belong to has an undefined precision; it is read as 0, the usual convention.}
+
+\item{positive}{The label of the positive class, used by \code{average = "binary"} only.
+Defaults to \code{levels (gt) [1]}, i.e. the \emph{first} level of the ground truth factor
+-- which, for the usual alphabetical level ordering, is often the \emph{negative} class
+(\code{"N"} before \code{"Y"}, \code{"No"} before \code{"Yes"}, ...). Set this argument
+explicitly whenever the positive class is not the first level.}
 
 \item{...}{Other parameters.}
 }
@@ -19,7 +44,7 @@ evaluation.recall(predictions, gt, positive = levels(gt)[1], ...)
 The evaluation of the predictions (numeric value).
 }
 \description{
-Evaluation predictions of a classification model according to recall. Works only for two classes problems.
+Evaluation predictions of a classification model according to recall.
 }
 \examples{
 require (datasets)

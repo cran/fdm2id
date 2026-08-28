@@ -11,7 +11,15 @@ compare.kappa(clus, gt, comp = c("max", "pairwise", "cluster"))
 
 \item{gt}{The real clusters.}
 
-\item{comp}{Indicates whether a "max" or a "pairwise" evaluation should be used, or the evaluation for each individual "cluster".}
+\item{comp}{How the two partitions are compared. \code{"max"} matches each extracted
+cluster with the class it agrees with most and averages the per-cluster scores, weighted by
+cluster size; \code{"cluster"} returns those scores instead of averaging them;
+\code{"pairwise"} ignores the labels and looks at every pair of observations, asking whether
+the two partitions agree on grouping it or separating it.
+In \code{"pairwise"} mode this function is the \strong{Rand index}: the proportion of pairs
+the two partitions agree on, counting both those they group and those they keep apart. See
+\code{\link{compare.jaccard}} and \code{\link{compare.kappa}} for the two other readings
+of the same pair counts.}
 }
 \value{
 A numeric value indicating how much the two sets of clusters are similar.
@@ -19,11 +27,22 @@ A numeric value indicating how much the two sets of clusters are similar.
 \description{
 Comparison of two sets of clusters, using kappa
 }
+\section{The pairwise index}{
+ \strong{Cohen's kappa} on the fourfold table of pair
+agreements, i.e. the Rand index of \code{\link{compare.accuracy}} corrected for the
+agreement expected by chance. That quantity is also the Hubert-Arabie \emph{adjusted Rand
+index} -- a theorem of Warrens (2008), not a substitution.
+}
+
 \examples{
 require (datasets)
 data (iris)
 km = KMEANS (iris [, -5], k = 3)
 compare.kappa (km$cluster, iris [, 5])
+}
+\references{
+Warrens, M.J. (2008). On the Equivalence of Cohen's Kappa and the Hubert-Arabie
+Adjusted Rand Index. \emph{Journal of Classification}, 25(2), 177-183.
 }
 \seealso{
 \code{\link{compare.accuracy}}, \code{\link{compare.jaccard}}, \code{\link{compare}}

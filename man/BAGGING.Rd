@@ -10,6 +10,9 @@ BAGGING(
   learningmethod,
   nsamples = 100,
   bag.size = nrow(x),
+  tune = FALSE,
+  methodparameters = NULL,
+  graph = FALSE,
   seed = NULL,
   ...
 )
@@ -25,6 +28,15 @@ BAGGING(
 
 \item{bag.size}{The size of the samples.}
 
+\item{tune}{If true, the function returns parameters instead of a classification model.}
+
+\item{methodparameters}{Present for interface consistency with \code{\link{performance}}
+(which always passes it when fitting a model). Currently unused: \code{BAGGING} does not
+support reusing pre-tuned parameters (the base learner is fitted afresh on each sample).}
+
+\item{graph}{Present for interface consistency with \code{\link{performance}} (which always
+passes it when fitting a model). Currently unused: \code{BAGGING} does not produce a plot.}
+
 \item{seed}{A specified seed for random number generation.}
 
 \item{...}{Other specific parameters for the leaning method.}
@@ -36,7 +48,7 @@ The classification model.
 Ensemble learning, through Bagging Algorithm.
 }
 \examples{
-\dontrun{
+\donttest{
 require (datasets)
 data (iris)
 BAGGING (iris [, -5], iris [, 5], NB)

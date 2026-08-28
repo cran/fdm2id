@@ -11,7 +11,7 @@ data.parabol(
   coeff = 0.5,
   sigma = c(0.5, 0.5),
   levels = NULL,
-  graph = TRUE,
+  graph = FALSE,
   seed = NULL
 )
 }
@@ -28,7 +28,9 @@ data.parabol(
 
 \item{levels}{Name of each class.}
 
-\item{graph}{A logical indicating whether or not a graphic should be plotted.}
+\item{graph}{Whether the generated dataset is plotted. \code{FALSE} by default, as
+everywhere else in the package: a generator has to be callable in a loop or a report
+without piling up graphics devices.}
 
 \item{seed}{A specified seed for random number generation.}
 }
@@ -39,7 +41,7 @@ A randomly generated dataset.
 Generate a random dataset shaped like a parabol and a gaussian distribution
 }
 \examples{
-data.parabol ()
+data.parabol (graph = TRUE)
 }
 \seealso{
 \code{\link{data.diag}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}

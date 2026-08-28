@@ -21,6 +21,9 @@ performance(
   seed = NULL,
   methodparameters = NULL,
   names = NULL,
+  fuzzy = FALSE,
+  positive = NULL,
+  stratify = TRUE,
   ...
 )
 }
@@ -31,15 +34,32 @@ performance(
 
 \item{train.y}{The target (class labels or numeric values), a \code{factor} or \code{vector}.}
 
-\item{test.x}{The test dataset (description/predictors), a \code{matrix} or \code{data.frame}.}
+\item{test.x}{The test dataset (description/predictors), a \code{matrix} or \code{data.frame}.
+Giving \code{test.x} and \code{test.y} is the simplest use of this function: each method is
+fitted on \code{(train.x, train.y)}, used to predict \code{test.x}, and its predictions are
+compared with \code{test.y} -- no resampling at all. \code{protocol} then defaults to
+\code{"holdout"}, and any other protocol raises an error, since it would ignore the test set.}
 
 \item{test.y}{The (test) target (class labels or numeric values), a \code{factor} or \code{vector}.}
 
-\item{train.size}{The size of the training set (holdout estimation).}
+\item{train.size}{The size of the training set, for \code{protocol = "holdout"} without an
+explicit test set: either a number of observations, or a proportion between 0 and 1.}
 
 \item{type}{The type of evaluation (confusion matrix, ROC curve, ...)}
 
-\item{protocol}{The evaluation protocol (crossvalidation, bootstrap, ...)}
+\item{protocol}{How the performance is estimated.
+\describe{
+  \item{\code{"bootstrap"}}{(default) \code{nruns} bootstrap samples of the training set,
+    each model evaluated on the observations left out of its sample.}
+  \item{\code{"crossvalidation"}}{\code{nruns} repetitions of a \code{nfolds}-fold
+    cross-validation of the training set.}
+  \item{\code{"loocv"}}{leave-one-out cross-validation.}
+  \item{\code{"holdout"}}{a single train/test split. Uses \code{test.x}/\code{test.y} when
+    they are given -- see \code{test.x} -- and otherwise draws a training set of
+    \code{train.size} observations and evaluates on the rest.}
+  \item{\code{"train"}}{evaluates each model on the very data it was fitted on. Optimistic
+    by construction; useful to show students exactly that.}
+}}
 
 \item{eval}{The evaluation functions.}
 
@@ -47,7 +67,7 @@ performance(
 
 \item{nfolds}{The number of folds (crossvalidation estimation).}
 
-\item{new}{A logical value indicating whether a new plot should be be created or not (cost curves or ROC curves).}
+\item{new}{A logical value indicating whether a new plot should be created or not (cost curves or ROC curves).}
 
 \item{lty}{The line type (and color) specified as an integer (cost curves or ROC curves).}
 
@@ -56,6 +76,23 @@ performance(
 \item{methodparameters}{Method parameters (if null tuning is done by cross-validation).}
 
 \item{names}{Method names.}
+
+\item{fuzzy}{Used by \code{type = "roc"} and \code{type = "cost"} only. \code{FALSE} by
+default: the curves are built from the hard class labels, which reduces them to three
+points. Pass \code{fuzzy = TRUE} to build them from the estimated probabilities of the
+positive class, which is what a ROC curve is meant to show. See \code{\link{roc.curves}}.}
+
+\item{positive}{The label of the positive class. Used by \code{type = "roc"} and
+\code{type = "cost"} to orient the curves, and passed on to \code{\link{evaluation}} for the
+criteria that are defined on one class -- precision, recall, the F-measure and the other
+measures taking an \code{average} argument -- so that a two-class problem can be scored on
+either of its classes. Defaults to the first level of the target, which is worth setting
+explicitly whenever the class of interest is not the first one.}
+
+\item{stratify}{Whether the splits should preserve the proportions of the classes
+(\code{TRUE}, the default), for \code{protocol = "crossvalidation"} and for
+\code{protocol = "holdout"} when it draws its own split. Ignored for a numeric target, and
+for the bootstrap and leave-one-out protocols, which have no split to stratify.}
 
 \item{...}{Other specific parameters for the leaning method.}
 }
@@ -69,14 +106,30 @@ Estimate the performance of classification or regression methods using bootstrap
 \dontrun{
 require ("datasets")
 data (iris)
+# The simplest use: a training set, a test set, and the score of the model fitted on the
+# first and evaluated on the second. Same thing as
+# evaluation.accuracy (predict (NB (d$train.x, d$train.y), d$test.x), d$test.y).
+d = splitdata (iris, 5, seed = 0)
+performance (NB, d$train.x, d$train.y, d$test.x, d$test.y)
+# Several methods and criteria at once
+performance (c (NB, LDA, CART), d$train.x, d$train.y, d$test.x, d$test.y,
+             eval = c ("accuracy", "kappa"))
 # One method, one evaluation criterion, bootstrap estimation
 performance (NB, iris [, -5], iris [, 5], seed = 0)
 # One method, two evaluation criteria, train set estimation
 performance (NB, iris [, -5], iris [, 5], eval = c ("accuracy", "kappa"),
              protocol = "train", seed = 0)
 # Three methods, ROC curves, LOOCV estimation
+data (linsep)
 performance (c (NB, LDA, LR), linsep [, -3], linsep [, 3], type = "roc",
              protocol = "loocv", seed = 0)
+# Same curves, read from the hard predicted labels instead of the class-membership
+# scores: each method collapses to a single operating point.
+performance (c (NB, LDA, LR), linsep [, -3], linsep [, 3], type = "roc",
+             protocol = "loocv", seed = 0, fuzzy = FALSE)
+# Choosing the positive class explicitly
+performance (NB, linsep [, -3], linsep [, 3], type = "roc", protocol = "loocv",
+             seed = 0, positive = levels (linsep [, 3]) [2])
 # List of methods in a variable, confusion matrix, hodout estimation
 classif = c (NB, LDA, LR)
 performance (classif, iris [, -5], iris [, 5], type = "confusion",

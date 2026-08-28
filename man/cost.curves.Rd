@@ -4,17 +4,38 @@
 \alias{cost.curves}
 \title{Plot Cost Curves}
 \usage{
-cost.curves(predictions, gt, methods.names = NULL)
+cost.curves(
+  predictions,
+  gt,
+  methods.names = NULL,
+  positive = levels(factor(gt))[1],
+  type = c("auto", "fuzzy", "hard"),
+  ...
+)
 }
 \arguments{
-\item{predictions}{The predictions of a classification model (\code{factor} or \code{vector}).}
+\item{predictions}{The predictions of one or several classification models. Four shapes are
+accepted: a \code{factor} of hard labels (one model); a numeric \code{vector} of scores for
+the positive class (one model); a \code{matrix} of class probabilities, i.e. one column per
+class named after it, as returned by \code{predict (model, x, fuzzy = TRUE)} (one model);
+or any other \code{matrix}/\code{data.frame}, read as one column per model.}
 
-\item{gt}{Actual labels of the dataset (\code{factor} or \code{vector}).}
+\item{gt}{Actual labels of the dataset (\code{factor} or \code{vector}), two classes only.}
 
 \item{methods.names}{The name of the compared methods (\code{vector}).}
+
+\item{positive}{The label of the positive class. Defaults to the first level of \code{gt},
+as everywhere else in the package -- note that for the usual alphabetical ordering this is
+often the \emph{negative} class, so it is worth setting explicitly.}
+
+\item{type}{\code{"auto"} (default) reads \code{predictions} according to its shape,
+\code{"fuzzy"} requires scores and refuses hard labels, \code{"hard"} reduces everything to
+the predicted class first (this is the coarse three-point curve discussed above).}
+
+\item{...}{Other parameters, passed to the underlying plot.}
 }
 \value{
-The evaluation of the predictions (numeric value).
+Nothing; the curves are drawn on the current graphics device.
 }
 \description{
 This function plots Cost Curves of several classification predictions.
@@ -26,9 +47,11 @@ d = iris
 levels (d [, 5]) = c ("+", "+", "-") # Building a two classes dataset
 model.nb = NB (d [, -5], d [, 5])
 model.lda = LDA (d [, -5], d [, 5])
-pred.nb = predict (model.nb, d [, -5])
-pred.lda = predict (model.lda, d [, -5])
-cost.curves (cbind (pred.nb, pred.lda), d [, 5], c ("NB", "LDA"))
+# From the estimated probabilities (the meaningful version)
+cost.curves (predict (model.nb, d [, -5], fuzzy = TRUE), d [, 5])
+# From hard labels, for comparison
+cost.curves (cbind (predict (model.nb, d [, -5]), predict (model.lda, d [, -5])),
+             d [, 5], c ("NB", "LDA"), type = "hard")
 }
 \seealso{
 \code{\link{roc.curves}}, \code{\link{performance}}

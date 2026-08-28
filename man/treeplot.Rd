@@ -32,7 +32,7 @@ Draws a dendrogram.
 \examples{
 require (datasets)
 data (iris)
-hca = HCA (iris [, -5], method = "ward", k = 3)
+hca = HCA (iris [, -5], k = 3, method = "ward")
 treeplot (hca)
 }
 \seealso{

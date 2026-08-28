@@ -22,18 +22,19 @@ The result of the data mining method.
 Apply data mining function on vectorized text
 }
 \examples{
-\dontrun{
+\donttest{
 require (text2vec)
+# A small subset of movie_review is used here so this example runs quickly.
 data ("movie_review")
-d = movie_review [, 2:3]
+d = movie_review [1:300, 2:3]
 d [, 1] = factor (d [, 1])
 d = splitdata (d, 1)
-model = TEXTMINING (d$train.x, NB, labels = d$train.y, mincount = 50)
+model = TEXTMINING (d$train.x, NB, labels = d$train.y, mincount = 10)
 pred = predict (model, d$test.x)
 evaluation (pred, d$test.y)
-text = loadtext ("http://mattmahoney.net/dc/text8.zip")
-clusters = TEXTMINING (text, HCA, vector = "words", k = 9, maxwords = 100)
-plotclus (clusters$res, text, type = "tree", labels = TRUE)
+data (capitals)
+clusters = TEXTMINING (capitals, HCA, vector = "words", k = 5, mincount = 2, ndim = 10, maxiter = 5)
+plotclus (clusters$res, capitals, type = "tree", labels = TRUE)
 }
 }
 \seealso{

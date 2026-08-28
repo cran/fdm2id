@@ -4,7 +4,7 @@
 \alias{NMF}
 \title{Non-negative Matrix Factorization}
 \usage{
-NMF(x, rank = 2, nstart = 10, ...)
+NMF(x, rank = 2, nstart = 10, seed = NULL, ...)
 }
 \arguments{
 \item{x}{A numeric dataset (data.frame or matrix).}
@@ -12,6 +12,8 @@ NMF(x, rank = 2, nstart = 10, ...)
 \item{rank}{Specification of the factorization rank.}
 
 \item{nstart}{How many random sets should be chosen?}
+
+\item{seed}{A specified seed for random number generation.}
 
 \item{...}{Other parameters.}
 }

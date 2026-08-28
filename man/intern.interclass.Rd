@@ -23,7 +23,7 @@ Evaluation a clustering algorithm according to interclass inertia.
 require (datasets)
 data (iris)
 km = KMEANS (iris [, -5], k = 3)
-intern.interclass (km$clus, iris [, -5])
+intern.interclass (km$cluster, iris [, -5])
 }
 \seealso{
 \code{\link{intern}}, \code{\link{intern.dunn}}, \code{\link{intern.intraclass}}

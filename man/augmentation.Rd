@@ -9,9 +9,9 @@ augmentation(dataset, target, n = 5, sigma = 0.1, seed = NULL)
 \arguments{
 \item{dataset}{The dataset to be split (\code{data.frame} or \code{matrix}).}
 
-\item{target}{The column index of the target variable (class label or response variable).}
+\item{target}{The column index (numeric) or column name (character) of the target variable (class label or response variable).}
 
-\item{n}{The scaling factor (as an integer value).}
+\item{n}{The scaling factor (as an integer value): the output contains \code{n} times the original dataset (the original rows, plus \code{n - 1} noisy copies).}
 
 \item{sigma}{The baseline variance for the noise generation.}
 
@@ -29,4 +29,6 @@ data (iris)
 d = augmentation (iris, 5)
 summary (iris)
 summary (d)
+# 'target' can also be given as a column name
+d = augmentation (iris, "Species")
 }

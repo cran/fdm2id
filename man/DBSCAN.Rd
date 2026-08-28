@@ -4,14 +4,21 @@
 \alias{DBSCAN}
 \title{DBSCAN clustering method}
 \usage{
-DBSCAN(d, minpts, epsilonDist, ...)
+DBSCAN(d, minpts = 5, eps = NULL, graph = FALSE, ...)
 }
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}
 
 \item{minpts}{Reachability minimum no. of points.}
 
-\item{epsilonDist}{Reachability distance.}
+\item{eps}{Reachability distance. If \code{NULL} (the default), it is set to the knee of
+the sorted \code{minpts}-distance curve -- the construction \code{\link{distplot}} invites
+you to do by eye -- and the value used is reported in a message. This is only a starting
+point: \code{eps} is the parameter DBSCAN is most sensitive to, and it is worth looking at
+\code{distplot (minpts, d)} before settling on one.}
+
+\item{graph}{A logical indicating whether or not a graphic should be plotted (the
+\code{minpts}-distance curve used to choose \code{eps}, when \code{eps} is not given).}
 
 \item{...}{Other parameters.}
 }
@@ -24,7 +31,7 @@ Run the DBSCAN algorithm for clustering.
 \examples{
 require (datasets)
 data (iris)
-DBSCAN (iris [, -5], minpts = 5, epsilonDist = 1)
+DBSCAN (iris [, -5], minpts = 5, eps = 1)
 }
 \seealso{
 \code{\link[fpc]{dbscan}}, \code{\link{dbs-class}}, \code{\link{distplot}}, \code{\link{predict.dbs}}

@@ -9,7 +9,7 @@ The dataset has 210 instances described by 8 variables:
 area, perimeter, compactness, length, width, asymmetry coefficient, groove length and variery.
 }
 \source{
-\url{https://archive.ics.uci.edu/ml/datasets/seeds}
+\url{https://archive.ics.uci.edu/dataset/236/seeds}
 }
 \usage{
 wheat

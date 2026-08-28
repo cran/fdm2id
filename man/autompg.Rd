@@ -9,7 +9,7 @@ The dataset has 392 instances described by 8 variables.
 The seven first variables are numeric variables. The last variable is qualitative (car origin).
 }
 \source{
-\url{https://archive.ics.uci.edu/ml/datasets/auto+mpg}
+\url{https://archive.ics.uci.edu/dataset/9/auto+mpg}
 }
 \usage{
 autompg

@@ -10,6 +10,9 @@ GRADIENTBOOSTING(
   ntree = 500,
   learningrate = 0.3,
   tune = FALSE,
+  methodparameters = NULL,
+  graph = FALSE,
+  seed = NULL,
   ...
 )
 }
@@ -22,7 +25,20 @@ GRADIENTBOOSTING(
 
 \item{learningrate}{The learning rate (between 0 and 1).}
 
-\item{tune}{If true, the function returns paramters instead of a classification model.}
+\item{tune}{If true, the function returns parameters instead of a classification model.}
+
+\item{methodparameters}{Present for interface consistency with \code{\link{performance}}
+(which always passes it when fitting a model). Currently unused: \code{GRADIENTBOOSTING}
+does not yet implement hyperparameter tuning.}
+
+\item{graph}{Present for interface consistency with \code{\link{performance}} (which always
+passes it when fitting a model). Currently unused: \code{GRADIENTBOOSTING} does not produce
+a plot.}
+
+\item{seed}{A specified seed for random number generation (row/column subsampling, if used
+via \code{...}; \code{xgboost}'s default parameters are otherwise deterministic, but the seed
+is provided for consistency with the rest of the package's API and to cover subsampling
+parameters passed through \code{...}).}
 
 \item{...}{Other parameters.}
 }
@@ -33,7 +49,7 @@ The classification model.
 This function builds a classification model using Gradient Boosting
 }
 \examples{
-\dontrun{
+\donttest{
 require (datasets)
 data (iris)
 GRADIENTBOOSTING (iris [, -5], iris [, 5])

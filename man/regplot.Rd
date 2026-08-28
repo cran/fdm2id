@@ -18,7 +18,7 @@ regplot(model, x, y, margin = 0.1, ...)
 \item{...}{Other graphical parameters}
 }
 \description{
-Plot a regresion model on a 2-D plot. The predictor \code{x} should be one-dimensional.
+Plot a regression model on a 2-D plot. The predictor \code{x} should be one-dimensional.
 }
 \examples{
 require (datasets)

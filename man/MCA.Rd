@@ -6,7 +6,7 @@
 \usage{
 MCA(
   d,
-  ncp = 5,
+  ncp = mca.ncp(d, ind.sup, quanti.sup, quali.sup),
   ind.sup = NULL,
   quanti.sup = NULL,
   quali.sup = NULL,
@@ -14,9 +14,15 @@ MCA(
 )
 }
 \arguments{
-\item{d}{A ddata frame or a table with n rows and p columns, i.e. a contingency table.}
+\item{d}{A data frame or a table with n rows and p columns, i.e. a contingency table.}
 
-\item{ncp}{The number of dimensions kept in the results (by default 5).}
+\item{ncp}{The number of dimensions kept in the results. All of them, by default: one per
+active variable, and never more than \eqn{n - 1}. A variable
+with \eqn{J_q} modalities contributes \eqn{J_q - 1} of them -- its indicator columns sum to
+one, so one of them is redundant -- which makes \eqn{J - Q} for \eqn{Q} active variables
+holding \eqn{J} modalities between them, and never more than \eqn{n - 1}. The modalities
+are counted as \emph{observed} among the active individuals: a level nobody takes carries
+nothing.}
 
 \item{ind.sup}{A vector indicating the indexes of the supplementary individuals.}
 

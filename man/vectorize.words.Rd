@@ -16,6 +16,8 @@ vectorize.words(
   epsilon = 0.01,
   lang = "en",
   stopwords = lang,
+  excludewords = NULL,
+  removesinglechars = TRUE,
   ...
 )
 }
@@ -30,7 +32,7 @@ vectorize.words(
 
 \item{minphrasecount}{Minimum collocation of words count to be considered as frequent.}
 
-\item{window}{Window for term-co-occurence matrix construction.}
+\item{window}{Window for term-co-occurrence matrix construction.}
 
 \item{maxcooc}{Maximum number of co-occurrences to use in the weighting function.}
 
@@ -40,7 +42,12 @@ vectorize.words(
 
 \item{lang}{The language of the documents (NULL if no stemming).}
 
-\item{stopwords}{Stopwords, or the language of the documents. NULL if stop words should not be removed.}
+\item{stopwords}{The language whose stop words are removed (\code{"en"}, ...), or
+\code{NULL} to keep them. A list of words of your own goes to \code{excludewords}.}
+
+\item{excludewords}{An optional custom vector of additional words to exclude from the vocabulary (e.g. corpus-specific stop words), on top of (or instead of) the language stopwords given through \code{stopwords}.}
+
+\item{removesinglechars}{Whether single-character tokens are removed during cleanup.}
 
 \item{...}{Other parameters.}
 }
@@ -51,12 +58,13 @@ The vectorized words.
 Vectorize words from a corpus of documents.
 }
 \examples{
-\dontrun{
-text = loadtext ("http://mattmahoney.net/dc/text8.zip")
-words = vectorize.words (text, minphrasecount = 50)
+\donttest{
+# 'capitals' is small, so the word vectors are coarse and 'ndim' is reduced
+# accordingly; phrase detection needs a much larger corpus.
+data (capitals)
+words = vectorize.words (capitals, mincount = 2, ndim = 10, maxiter = 5)
 query.words (words, origin = "paris", sub = "france", add = "germany")
 query.words (words, origin = "berlin", sub = "germany", add = "france")
-query.words (words, origin = "new_zealand")
 }
 }
 \seealso{

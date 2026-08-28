@@ -18,7 +18,11 @@ The variables are as follows:
 }
 }
 \source{
-\url{http://forge.info.univ-angers.fr/~gh/Datasets/datasets.htm}
+Originally published by G. Hunault, Departement Informatique, Universite d'Angers,
+as the "RONFLE" file of his statistics dataset collection. That collection has changed
+address twice and its current host was unreachable when this version was prepared, so the
+citation is to an archived copy:
+\url{https://web.archive.org/web/20250319122109/https://gilles-hunault.leria-info.univ-angers.fr/Datasets/datasets.htm}.
 }
 \usage{
 snore

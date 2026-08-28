@@ -5,23 +5,31 @@
 \title{load a text file}
 \usage{
 loadtext(
-  file = file.choose(),
-  dir = "~/",
+  file = NULL,
+  dir = tempdir(),
   collapse = TRUE,
   sep = NULL,
-  categories = NULL
+  categories = NULL,
+  cache = FALSE
 )
 }
 \arguments{
-\item{file}{The path or URL of the text file.}
+\item{file}{The path or URL of the text file. If not specified, defaults to an interactive file chooser (\code{\link[base]{file.choose}}) when running interactively; in a non-interactive session (script, CI, \code{R CMD check}), \code{file} must be given explicitly.}
 
-\item{dir}{The (temporary) directory, where the file is downloaded. The file is deleted at the end of this function.}
+\item{dir}{The directory the file is downloaded (and, for a zip archive, extracted) into.
+Defaults to the session's temporary directory, which is emptied when R exits. Pass an
+explicit path (together with \code{cache = TRUE}) to keep the downloaded corpus between
+sessions.}
 
 \item{collapse}{Indicates whether or not lines of each documents should collapse together or not.}
 
 \item{sep}{Separator between text fields.}
 
-\item{categories}{Columns that should be considered as categorial data.}
+\item{categories}{Columns that should be considered as categorical data.}
+
+\item{cache}{Whether the downloaded (and, for a zip archive, extracted) files are kept in
+\code{dir} and reused on the next call. They are deleted, and downloaded again every time,
+by default.}
 }
 \value{
 The text contained in the dowloaded file.
@@ -30,8 +38,12 @@ The text contained in the dowloaded file.
 (Down)Load a text file (and extract it if it is in a zip file).
 }
 \examples{
+# Not run automatically: this downloads a 31 MB archive from a third-party server, so it
+# depends on both the network and that server staying up.
 \dontrun{
 text = loadtext ("http://mattmahoney.net/dc/text8.zip")
+# Keep the archive between calls, in a directory of your choosing
+text = loadtext ("http://mattmahoney.net/dc/text8.zip", dir = "~/corpora", cache = TRUE)
 }
 }
 \seealso{

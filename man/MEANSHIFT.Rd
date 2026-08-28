@@ -12,6 +12,7 @@ MEANSHIFT(
   iterations = 10,
   epsilon = 1e-08,
   epsilonCluster = 1e-04,
+  seed = NULL,
   ...
 )
 }
@@ -26,9 +27,12 @@ MEANSHIFT(
 
 \item{iterations}{The number of iterations to perform mean shift.}
 
-\item{epsilon}{A scalar used to determine when to terminate the iteration of a individual query point.}
+\item{epsilon}{A scalar used to determine when to terminate the iteration of an individual query point.}
 
 \item{epsilonCluster}{A scalar used to determine the minimum distance between distinct clusters.}
+
+\item{seed}{A specified seed for random number generation. The MeanShift algorithm itself is deterministic
+given its parameters, but the seed is provided for consistency with the rest of the package's API.}
 
 \item{...}{Other parameters.}
 }
@@ -39,7 +43,7 @@ The clustering (\code{meanshift} object).
 Run MeanShift for clustering.
 }
 \examples{
-\dontrun{
+\donttest{
 require (datasets)
 data (iris)
 MEANSHIFT (iris [, -5], bandwidth = .75)

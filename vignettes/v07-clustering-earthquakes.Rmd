@@ -1,0 +1,159 @@
+---
+title: "Clustering: earthquakes in Fiji"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Clustering: earthquakes in Fiji}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set (collapse = TRUE, comment = "#>", fig.width = 6, fig.height = 4.2,
+                       fig.align = "center")
+optional = c ("flexclust", "RSpectra")
+available = all (sapply (optional, requireNamespace, quietly = TRUE))
+knitr::opts_chunk$set (eval = available)
+```
+
+```{r, echo = FALSE, eval = !available, results = "asis"}
+cat ("**Note.** This vignette needs the following packages, some of which are missing:",
+     paste (optional, collapse = ", "), "-- the code is shown but not run.\n")
+```
+
+One of the case studies of the *Fouille de données (M2 SID)* course, for which `fdm2id` was
+written. K-means, EM and spectral clustering on the same cloud, judged by stability -- and why
+the most stable partition is not the most informative one.
+
+The other case studies are listed by `vignette (package = "fdm2id")`; they use the same
+handful of functions on other data, and can be read in any order.
+
+```{r, message = FALSE, warning = FALSE}
+library (fdm2id)
+```
+
+# The data
+
+Measurements from Harvard University's department of geophysics on seismic activity near Fiji.
+Each observation is one recorded earthquake. The first two descriptors are the geographical
+coordinates of the epicentre, the third its depth and the fourth its magnitude. The fifth is
+not used.
+
+The clustering is done on the geographical coordinates only, with $K$-means, EM and spectral
+clustering. A first look at the data suggests three clusters.
+
+```{r}
+data (quakes, package = "datasets")
+summary (quakes [, -5])
+```
+
+```{r, fig.height = 6}
+plotdata (quakes [, -5])
+```
+
+The two coordinates on their own, which is what the clustering will see:
+
+```{r, fig.height = 5}
+plotdata (quakes [, 1:2], type = "scatter")
+```
+
+# Question 1. Which method produces the most stable clusters?
+
+```{r}
+# Variable, all three: K-means starts from random centres, EM from a random initialisation,
+# and spectral clustering ends on a K-means in the eigenvector space. Without 'seed', the
+# cluster numbering alone changes from run to run -- so every "cluster 3" below would have to
+# be re-read against the picture.
+km = KMEANS (quakes [, 1:2], k = 3, seed = 0)
+em = EM (quakes [, 1:2], k = 3, seed = 0)
+sc = SPECTRAL (quakes [, 1:2], k = 3, sigma = .5, seed = 0)
+```
+
+`stability` re-runs each method on bootstrap resamples and measures, cluster by cluster, how
+much of the original cluster survives.
+
+```{r}
+# Variable: the resampling, plus the method re-run on each resample. The same 'seed' is given
+# to the three calls so that they compare the methods on the same resamples.
+stability (KMEANS, quakes [, 1:2], km, k = 3, seed = 0)
+stability (EM, quakes [, 1:2], em, k = 3, seed = 0)
+stability (SPECTRAL, quakes [, 1:2], sc, k = 3, sigma = .5, seed = 0)
+```
+
+**Answer.** *$K$-means produces the most stable clusters. EM's are slightly less stable.
+Spectral clustering gives the least stable result -- and the per-cluster figures say where:
+one of its three clusters barely survives resampling at all.*
+
+# Question 2. How do the clusters read in depth and magnitude?
+
+The clustering used the coordinates only. Depth and magnitude are therefore *external*
+variables here, and describing the clusters by them is what turns a partition into a result.
+
+```{r, fig.height = 4}
+plotdata (quakes [, "depth"], km$cluster, type = "boxplot")
+plotdata (quakes [, "depth"], em$cluster, type = "boxplot")
+plotdata (quakes [, "depth"], sc$cluster, type = "boxplot")
+```
+
+```{r, fig.height = 4}
+plotdata (quakes [, "mag"], km$cluster, type = "boxplot")
+plotdata (quakes [, "mag"], em$cluster, type = "boxplot")
+plotdata (quakes [, "mag"], sc$cluster, type = "boxplot")
+```
+
+**Answer.**
+
+* *For all three methods, the three clusters hold earthquakes of much the same magnitude --
+  the boxes overlap almost completely. Magnitude is not what the geography separates.*
+* *Depth is another matter, and the three methods do not read it equally well. $K$-means
+  orders its clusters by depth, but every one of them spreads over the whole range.*
+* *EM separates it much more sharply: two of its clusters hold shallow earthquakes and the
+  third holds deep ones almost exclusively.*
+* *Spectral clustering also isolates a shallow cluster -- the only one of the nine with no
+  deep earthquake in it at all -- next to a mostly deep one and one of mixed depth.*
+
+# Question 3. Where are the shallowest earthquakes? The deepest?
+
+```{r, fig.height = 5}
+plotclus (km, quakes [, 1:2])
+plotclus (em, quakes [, 1:2])
+plotclus (sc, quakes [, 1:2])
+```
+
+Next to the same map, coloured by depth rather than by cluster:
+
+```{r, fig.height = 5}
+plotdata (quakes [, 2:1], cut (quakes$depth, c (0, 150, 350, 700)), type = "scatter")
+```
+
+**Answer.** *All three methods agree on one thing -- a sparse western arc, and a much denser
+eastern region -- and disagree on how to cut the rest. The depth map says where the answer is:
+in the east, the deep earthquakes lie on an inner band and the shallow ones along the outer
+edge, which is the profile of a subduction zone seen from above. EM is the only one of the
+three that cuts along that line. $K$-means cuts the eastern region by latitude instead, across
+the depth gradient rather than along it, and spectral clustering leaves the east in one piece
+and spends its two other clusters splitting the western arc.*
+
+# Question 4. How many clusters are there really?
+
+The deep earthquakes are not confined to the eastern region:
+
+```{r}
+west = quakes [quakes$long < 176, ]
+table (deep = west$depth > 350)
+round (apply (west [west$depth > 350, 1:2], 2, range), 1)
+```
+
+**Answer.** *Four. Depth splits the eastern region in two -- the deep inner band and the
+shallow outer edge -- and the western arc holds, besides its shallow earthquakes, a small
+patch of very deep ones some 600 km down. Asking any method for three clusters forces it to
+merge two of those four: EM merges the western pair, spectral clustering merges the eastern
+pair.*
+
+# Question 5. Which methods give the most relevant clusters?
+
+**Answer.** *EM and spectral clustering -- which is not the ranking question 1 gave. Each of
+them found a real boundary that $K$-means did not, and their instability is a symptom of that:
+they are fitting a structure that a bootstrap resample does not reproduce exactly, where
+$K$-means cuts a compact, reproducible partition out of a cloud whose real structure is not
+spherical. Stability measures how reliably a method returns the same answer, not whether the
+answer is the right one.*

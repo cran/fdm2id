@@ -8,15 +8,16 @@ FEATURESELECTION(
   train,
   labels,
   algorithm = c("ranking", "forward", "backward", "exhaustive"),
-  unieval = if (algorithm[1] == "ranking") c("fisher", "fstat", "relief", "inertiaratio")
-    else NULL,
+  unieval = if (algorithm[1] == "ranking") fseval.univariate() else NULL,
   uninb = NULL,
   unithreshold = NULL,
-  multieval = if (algorithm[1] == "ranking") NULL else c("cfs", "fstat", "inertiaratio",
-    "wrapper"),
+  multieval = fseval.multivariate(),
   wrapmethod = NULL,
   mainmethod = wrapmethod,
   tune = FALSE,
+  methodparameters = NULL,
+  graph = FALSE,
+  seed = NULL,
   ...
 )
 }
@@ -37,9 +38,23 @@ FEATURESELECTION(
 
 \item{wrapmethod}{The classification method used for the wrapper evaluation.}
 
-\item{mainmethod}{The final method used for data classification. If a wrapper evaluation is used, the same classification method should be used.}
+\item{mainmethod}{The final method used for data classification (required: either \code{mainmethod} or \code{wrapmethod} must be a valid classification/regression function, e.g. \code{LDA}, \code{NB}, ...). If a wrapper evaluation is used, the same classification method should be used.}
 
-\item{tune}{If true, the function returns paramters instead of a classification model.}
+\item{tune}{If true, the function returns parameters instead of a classification model.}
+
+\item{methodparameters}{Pre-tuned parameters, as returned by the same method called with
+\code{tune = TRUE}. \code{\link{performance}} obtains them once and passes them back when
+fitting, so that the tuning is not redone on every split. A method with nothing to tune
+returns an empty object, which leaves its defaults untouched.}
+
+\item{graph}{Whether the method draws the graphic that goes with its tuning (the
+cross-validation curve, typically). Methods that have no such graphic accept the argument
+and ignore it.}
+
+\item{seed}{A specified seed for random number generation, so that two runs on the same
+data give the same model. Every learning method accepts it, so that it can be set the same
+way whatever the method; the deterministic ones simply have nothing to draw and give the
+same model with or without it.}
 
 \item{...}{Other parameters.}
 }

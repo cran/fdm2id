@@ -4,16 +4,28 @@
 \alias{splitdata}
 \title{Splits a dataset into training set and test set}
 \usage{
-splitdata(dataset, target, size = round(0.7 * nrow(dataset)), seed = NULL)
+splitdata(
+  dataset,
+  target,
+  size = round(0.7 * nrow(dataset)),
+  seed = NULL,
+  stratify = TRUE
+)
 }
 \arguments{
 \item{dataset}{The dataset to be split (\code{data.frame} or \code{matrix}).}
 
-\item{target}{The column index of the target variable (class label or response variable).}
+\item{target}{The column index (numeric) or column name (character) of the target variable
+(class label or response variable).}
 
-\item{size}{The size of the training set (as an integer value).}
+\item{size}{The size of the training set: either a number of observations, or a proportion
+between 0 and 1.}
 
 \item{seed}{A specified seed for random number generation.}
+
+\item{stratify}{Whether the split preserves the proportions of the classes. It matters as
+soon as they are imbalanced: a plain random split can leave a rare class out of one side
+altogether. Ignored when the target is numeric.}
 }
 \value{
 An object of class \code{\link{dataset-class}}.

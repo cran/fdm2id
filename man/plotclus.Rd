@@ -36,7 +36,7 @@ Plot a clustering according to various parameters
 \dontrun{
 require (datasets)
 data (iris)
-ward = HCA (iris [, -5], method = "ward", k = 3)
+ward = HCA (iris [, -5], k = 3, method = "ward")
 plotclus (ward, iris [, -5], type = "scatter") # Scatter plot
 plotclus (ward, iris [, -5], type = "boxplot") # Boxplot
 plotclus (ward, iris [, -5], type = "tree") # Dendrogram

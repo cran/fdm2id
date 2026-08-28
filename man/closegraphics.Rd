@@ -4,7 +4,12 @@
 \alias{closegraphics}
 \title{Close a graphics device}
 \usage{
-closegraphics()
+closegraphics(export = fdm2id.globals$export)
+}
+\arguments{
+\item{export}{If given, explicitly overrides the global export toggle set by \code{\link{toggleexport}} for
+this call only (\code{TRUE} closes the device, \code{FALSE} is a no-op). By default, the global toggle is used,
+so existing code is unaffected.}
 }
 \description{
 Close the graphics device driver
@@ -15,6 +20,8 @@ data (iris)
 exportgraphics ("export.pdf")
 plotdata (iris [, -5], iris [, 5])
 closegraphics()
+# Explicit override, ignoring the global toggle:
+closegraphics (export = TRUE)
 }
 }
 \seealso{

@@ -1,0 +1,125 @@
+---
+title: "Visualisation: cars from three continents"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Visualisation: cars from three continents}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set (collapse = TRUE, comment = "#>", fig.width = 6, fig.height = 4.2,
+                       fig.align = "center")
+optional = c ("MASS")
+available = all (sapply (optional, requireNamespace, quietly = TRUE))
+knitr::opts_chunk$set (eval = available)
+```
+
+```{r, echo = FALSE, eval = !available, results = "asis"}
+cat ("**Note.** This vignette needs the following packages, some of which are missing:",
+     paste (optional, collapse = ", "), "-- the code is shown but not run.\n")
+```
+
+One of the case studies of the *Analyse de données (L3 Informatique)* course, for which
+`fdm2id` was written. The same dataset drawn eight ways, and what each view is able to show
+that the others are not.
+
+The other case studies are listed by `vignette (package = "fdm2id")`; they use the same
+handful of functions on other data, and can be read in any order.
+
+```{r, message = FALSE, warning = FALSE}
+library (fdm2id)
+```
+
+# The data
+
+392 car models built on three continents (America, Asia and Europe). Beyond its origin, each
+car is described by six numeric attributes: fuel consumption, number of cylinders,
+displacement, horsepower, weight and acceleration.
+
+```{r}
+data (autompg)
+autompg = autompg [, -7]
+summary (autompg)
+```
+
+# Question 1. Should the data be centred and scaled?
+
+```{r}
+apply (autompg [, -7], 2, sd)
+```
+
+**Answer.** *The scales are very different -- `weight` against `acceleration` -- so yes.*
+
+```{r}
+autompg [, -7] = scale (autompg [, -7])
+```
+
+# Question 2. What does each view of the data show?
+
+The same dataset, drawn eight ways. `plotdata` is the single entry point; `type` picks the
+view, and the origin of the cars colours the points throughout.
+
+```{r, fig.height = 6}
+plotdata (autompg, type = "pairs", labels = FALSE)
+```
+
+**Answer.** *Hard to see much in panels that small. It does look as though Europe and Asia
+overlap, and that America is separated from the other two.*
+
+```{r, fig.height = 5}
+plotdata (autompg, type = "boxplot", labels = FALSE)
+```
+
+**Answer.** *For most variables American cars cover a wider range of values than European and
+Asian ones. Except for the first and the last variable, their values are also higher: `mpg` is
+lower for American cars, and `acceleration` slightly lower.*
+
+```{r, fig.height = 5}
+plotdata (autompg, type = "parallel", labels = FALSE)
+```
+
+**Answer.** *The same observations, read along the lines instead of across the boxes.*
+
+```{r, fig.height = 5}
+plotdata (autompg, type = "histogram", labels = FALSE)
+```
+
+**Answer.** *For every variable but the last (`acceleration`), small values are more frequent
+than large ones.*
+
+```{r, fig.height = 5}
+plotdata (autompg, type = "pca", labels = FALSE)
+```
+
+**Answer.** *The factorial plane shows three homogeneous groups. The leftmost one mixes the
+three origins; so does the middle one, though it is mostly American cars; the rightmost one
+contains American cars only.*
+
+```{r, fig.height = 5}
+plotdata (autompg, type = "cda", labels = FALSE)
+```
+
+**Answer.** *Two groups this time -- one mixing the three origins, one of American cars only.
+Note the difference in what is being asked: PCA looks for the axes of greatest variance and
+ignores the origin of the cars, while discriminant analysis looks for the axes that separate
+the three origins best. Being told the answer does not make the picture show more structure;
+here it shows less.*
+
+```{r, fig.height = 5}
+plotdata (autompg, type = "svd", labels = FALSE)
+```
+
+**Answer.** *The same information as the factorial plane, which is no accident: on centred and
+scaled data, an SVD and a PCA are the same decomposition.*
+
+```{r, fig.height = 5, eval = available && requireNamespace ("Rtsne", quietly = TRUE)}
+# Variable, and visibly so: t-SNE starts from a random embedding and optimises it. Two runs
+# without 'seed' give two different pictures -- same groups, different positions and shapes.
+plotdata (autompg, type = "tsne", labels = FALSE, perplexity = 50, seed = 0)
+```
+
+**Answer.** *The same three groups as the factorial plane, but pulled apart: American cars
+only in two of them, the third holding the European and Asian cars together with the American
+ones that resemble them. This is what a non-linear embedding buys, at the price of distances
+between the groups that can no longer be read quantitatively.*

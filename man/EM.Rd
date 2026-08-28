@@ -4,14 +4,16 @@
 \alias{EM}
 \title{Expectation-Maximization clustering method}
 \usage{
-EM(d, clusters, model = "VVV", ...)
+EM(d, k, model = "VVV", seed = NULL, ...)
 }
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}
 
-\item{clusters}{Either an integer (the number of clusters) or a (\code{vector}) indicating the cluster to which each point is initially allocated.}
+\item{k}{Either an integer (the number of clusters) or a (\code{vector}) indicating the cluster to which each point is initially allocated.}
 
 \item{model}{A character string indicating the model. The help file for \code{\link[mclust]{mclustModelNames}} describes the available models.}
+
+\item{seed}{A specified seed for random number generation (used only for the default k-means initialization).}
 
 \item{...}{Other parameters.}
 }

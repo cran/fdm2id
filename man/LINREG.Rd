@@ -9,12 +9,16 @@ LINREG(
   y,
   quali = c("none", "intercept", "slope", "both"),
   reg = c("linear", "subset", "ridge", "lasso", "elastic", "pcr", "plsr"),
-  regeval = c("r2", "bic", "adjr2", "cp", "msep"),
+  regeval = if (reg[1] == "subset") c("bic", "adjr2", "cp", "r2") else c("r2", "msep"),
   scale = TRUE,
+  validation = c("CV", "LOO"),
   lambda = 10^seq(-5, 5, length.out = 101),
   alpha = 0.5,
-  graph = TRUE,
+  nrep = 1,
   tune = FALSE,
+  methodparameters = NULL,
+  graph = FALSE,
+  seed = NULL,
   ...
 )
 }
@@ -27,17 +31,41 @@ LINREG(
 
 \item{reg}{The algorithm.}
 
-\item{regeval}{The evaluation criterion for subset selection.}
+\item{regeval}{The criterion used to choose between models. For \code{reg = "subset"}:
+\code{"bic"} (the default), \code{"adjr2"} or \code{"cp"}, which all penalize the number of
+variables, and \code{"r2"}, which does not -- the R2 can only grow when a variable is added,
+so it always retains every variable. For \code{reg = "pcr"} and \code{reg = "plsr"}, where
+the choice is a number of components: \code{"r2"} (the default) or \code{"msep"}. Ignored by
+the other algorithms.}
 
 \item{scale}{If true, PCR and PLS use scaled dataset.}
+
+\item{validation}{How the number of components of a PCR or PLS regression is chosen:
+\code{"CV"} (10 random segments, the default) or \code{"LOO"} (leave-one-out, one
+regression per observation -- only practical on a small dataset). Ignored by the other
+algorithms.}
 
 \item{lambda}{The lambda parameter of Ridge, Lasso and Elastic net regression.}
 
 \item{alpha}{The elasticnet mixing parameter.}
 
+\item{nrep}{How many times the cross-validation choosing \code{lambda} is repeated, its
+errors being averaged. One is enough in practice -- \code{\link[glmnet]{cv.glmnet}} already
+averages over its own folds -- and each extra repetition costs another ten fits. Raise it to
+steady the choice of \code{lambda} on a small or noisy dataset.}
+
+\item{tune}{If true, the function returns parameters instead of a classification model.}
+
+\item{methodparameters}{Present for interface consistency with \code{\link{performance}}
+(which always passes it when fitting a model). Currently unused: \code{LINREG} does not
+support reusing pre-tuned parameters.}
+
 \item{graph}{A logical indicating whether or not graphics should be plotted (ridge, LASSO and elastic net).}
 
-\item{tune}{If true, the function returns paramters instead of a classification model.}
+\item{seed}{A specified seed for random number generation, so that two runs on the same
+data give the same model. Every learning method accepts it, so that it can be set the same
+way whatever the method; the deterministic ones simply have nothing to draw and give the
+same model with or without it.}
 
 \item{...}{Other parameters.}
 }
@@ -51,15 +79,15 @@ Standard least square method, variable selection, factorial methods are availabl
 \examples{
 \dontrun{
 require (datasets)
-# With one independant variable
+# With one independent variable
 data (cars)
 LINREG (cars [, -2], cars [, 2])
-# With two independant variables
+# With two independent variables
 data (trees)
 LINREG (trees [, -3], trees [, 3])
 # With non numeric variables
 data (ToothGrowth)
-LINREG (ToothGrowth [, -1], ToothGrowth [, 1], quali = "intercept") # Different intersept
+LINREG (ToothGrowth [, -1], ToothGrowth [, 1], quali = "intercept") # Different intercept
 LINREG (ToothGrowth [, -1], ToothGrowth [, 1], quali = "slope") # Different slope
 LINREG (ToothGrowth [, -1], ToothGrowth [, 1], quali = "both") # Complete model
 # With multiple numeric variables

@@ -8,12 +8,10 @@ selectfeatures(
   train,
   labels,
   algorithm = c("ranking", "forward", "backward", "exhaustive"),
-  unieval = if (algorithm[1] == "ranking") c("fisher", "fstat", "relief", "inertiaratio")
-    else NULL,
+  unieval = if (algorithm[1] == "ranking") fseval.univariate() else NULL,
   uninb = NULL,
   unithreshold = NULL,
-  multieval = if (algorithm[1] == "ranking") NULL else c("mrmr", "cfs", "fstat",
-    "inertiaratio", "wrapper"),
+  multieval = fseval.multivariate(),
   wrapmethod = NULL,
   keep = FALSE,
   ...

@@ -10,7 +10,7 @@ data.diag(
   max = 1,
   f = function(x) x,
   levels = NULL,
-  graph = TRUE,
+  graph = FALSE,
   seed = NULL
 )
 }
@@ -21,11 +21,13 @@ data.diag(
 
 \item{max}{Maximum value on each variables.}
 
-\item{f}{The fucntion that separate the classes.}
+\item{f}{The function that separates the classes.}
 
 \item{levels}{Name of each class.}
 
-\item{graph}{A logical indicating whether or not a graphic should be plotted.}
+\item{graph}{Whether the generated dataset is plotted. \code{FALSE} by default, as
+everywhere else in the package: a generator has to be callable in a loop or a report
+without piling up graphics devices.}
 
 \item{seed}{A specified seed for random number generation.}
 }
@@ -36,7 +38,7 @@ A randomly generated dataset.
 Generate a random dataset shaped like a square divided by a custom function
 }
 \examples{
-data.diag ()
+data.diag (graph = TRUE)
 }
 \seealso{
 \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}

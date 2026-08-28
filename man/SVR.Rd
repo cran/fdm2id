@@ -11,8 +11,11 @@ SVR(
   cost = 2^(-3:3),
   kernel = c("radial", "linear"),
   epsilon = c(0.1, 0.5, 1),
-  params = NULL,
+  nfolds = 10,
   tune = FALSE,
+  methodparameters = NULL,
+  graph = FALSE,
+  seed = NULL,
   ...
 )
 }
@@ -29,9 +32,25 @@ SVR(
 
 \item{epsilon}{The epsilon parameter (if a vector, cross-over validation is used to chose the best size).}
 
-\item{params}{Object containing the parameters. If given, it replaces \code{epsilon}, \code{gamma} and \code{cost}.}
+\item{nfolds}{The number of folds of the cross-validation a method runs to choose its
+hyperparameters. Only used when there is something to choose, i.e. when one of them is given
+as a vector. Lower it to fit faster, at the cost of a noisier choice.}
 
-\item{tune}{If true, the function returns paramters instead of a classification model.}
+\item{tune}{If true, the function returns parameters instead of a classification model.}
+
+\item{methodparameters}{Object containing the parameters. If given, it replaces \code{epsilon},
+\code{gamma} and \code{cost}. Named (and behaves identically to) \code{methodparameters} rather
+than \code{params}, for consistency with \code{\link{SVM}} and with the calling convention used
+by \code{\link{performance}}/the internal \code{protocol.*} functions, which always pass a
+\code{methodparameters} argument.}
+
+\item{graph}{Present for interface consistency with \code{\link{performance}} (which always
+passes it when fitting a model). Currently unused: \code{SVR} does not produce a plot.}
+
+\item{seed}{A specified seed for random number generation, so that two runs on the same
+data give the same model. Every learning method accepts it, so that it can be set the same
+way whatever the method; the deterministic ones simply have nothing to draw and give the
+same model with or without it.}
 
 \item{...}{Other arguments.}
 }

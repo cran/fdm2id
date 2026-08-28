@@ -9,9 +9,10 @@ plotcloud(corpus, k = NULL, stopwords = "en", ...)
 \arguments{
 \item{corpus}{The corpus of documents (a vector of characters) or the vocabulary of the documents (result of function \code{getvocab}).}
 
-\item{k}{A categorial variable (vector or factor).}
+\item{k}{A categorical variable (vector or factor).}
 
-\item{stopwords}{Stopwords, or the language of the documents. NULL if stop words should not be removed.}
+\item{stopwords}{The language whose stop words are removed (\code{"en"}, ...), or
+\code{NULL} to keep them. A list of words of your own goes to \code{excludewords}.}
 
 \item{...}{Other parameters.}
 }
@@ -19,12 +20,10 @@ plotcloud(corpus, k = NULL, stopwords = "en", ...)
 Plot a word cloud based on the word frequencies in the documents.
 }
 \examples{
-\dontrun{
-text = loadtext ("http://mattmahoney.net/dc/text8.zip")
-plotcloud (text)
-vocab = getvocab (text, mincount = 1, lang = NULL, stopwords = "en")
+data (capitals)
+plotcloud (capitals)
+vocab = getvocab (capitals, mincount = 1, lang = NULL, stopwords = "en")
 plotcloud (vocab)
-}
 }
 \seealso{
 \code{\link{plotzipf}}, \code{\link{getvocab}}, \code{\link[wordcloud]{wordcloud}}

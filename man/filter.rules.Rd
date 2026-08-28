@@ -32,8 +32,9 @@ This function facilitate the selection of a subset from a set of rules.
 \examples{
 require ("arules")
 data ("Adult")
-r = apriori (Adult)
-filter.rules (r, right = "marital-status=")
+r = apriori (Adult, parameter = list (supp = .4, conf = .8))
+inspect (filter.rules (r, right = "marital-status="))
+# The equivalent call in arules itself
 subset (r, subset = rhs \%pin\% "marital-status=")
 }
 \seealso{

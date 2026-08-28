@@ -9,11 +9,11 @@ NULL
 
 #' @name alcohol
 #' @title Alcohol dataset
-#' @description This dataset has been extracted from the WHO database and depict the alcool habits in the 27 european contries (in 2010).
+#' @description This dataset has been extracted from the WHO database and depicts alcohol consumption habits in 27 European countries (in 2010).
 #' @docType data
 #' @usage alcohol
 #' @format The dataset has 27 instances described by 4 variables.
-#' The variables are the average amount of alcool of different types per year par inhabitent.
+#' The variables are the average amount of alcohol of different types consumed per year per inhabitant.
 #' @source \url{https://www.who.int/}
 NULL
 
@@ -25,7 +25,7 @@ NULL
 #' @usage autompg
 #' @format The dataset has 392 instances described by 8 variables.
 #' The seven first variables are numeric variables. The last variable is qualitative (car origin).
-#' @source \url{https://archive.ics.uci.edu/ml/datasets/auto+mpg}
+#' @source \url{https://archive.ics.uci.edu/dataset/9/auto+mpg}
 NULL
 
 #' @name beetles
@@ -41,7 +41,7 @@ NULL
 #' \describe{
 #' \item{\code{Width}}{The maximal width of aedeagus in the forpart (in microns).}
 #' \item{\code{Angle}}{The front angle of the aedeagus (1 unit = 7.5 degrees).}
-#' \item{\code{Shot.put}}{Species of flea beetle from the genus \emph{Chaetocnema}.}
+#' \item{\code{Species}}{Species of flea beetle from the genus \emph{Chaetocnema}.}
 #' }
 #' @source Lubischew, A.A. (1962) On the use of discriminant functions in taxonomy. Biometrics, 18, 455-477.
 NULL
@@ -52,6 +52,19 @@ NULL
 #' @docType data
 #' @usage britpop
 #' @format The dataset has 18 instances described by 3 variables.
+NULL
+
+#' @name capitals
+#' @title Capitals dataset
+#' @description A small corpus of English sentences about France, Germany and their capitals.
+#' It is deliberately tiny, so that the examples of the text mining functions run in a moment;
+#' a real corpus is loaded with \code{\link{loadtext}}.
+#' @docType data
+#' @usage capitals
+#' @format A character \code{vector} of 30 sentences, lowercase and free of punctuation.
+#' @seealso \code{\link{getvocab}}, \code{\link{vectorize.docs}}, \code{\link{vectorize.words}},
+#' \code{\link{loadtext}}
+#' @author Alexandre Blansché \email{alexandre.blansche@univ-lorraine.fr}
 NULL
 
 #' @name cookies
@@ -97,16 +110,18 @@ NULL
 #' @param mu The means of the gaussian distributions.
 #' @param cov The covariance of the gaussian distributions.
 #' @param levels Name of each class.
-#' @param graph A logical indicating whether or not a graphic should be plotted.
+#' @param graph Whether the generated dataset is plotted. \code{FALSE} by default, as
+#' everywhere else in the package: a generator has to be callable in a loop or a report
+#' without piling up graphics devices.
 #' @param seed A specified seed for random number generation.
 #' @return A randomly generated dataset.
 #' @export
 #' @seealso \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}
 #' @examples
-#' data.gauss ()
-data.gauss = function (n = 1000, k = 2, prob = rep (1 / k, k), mu = cbind (rep (0, k), seq (from = 0, by = 3, length.out = k)), cov = rep (list (matrix (c (6,0.9,0.9,0.3), ncol = 2, nrow = 2)), k), levels = NULL, graph = TRUE, seed = NULL)
+#' data.gauss (graph = TRUE)
+data.gauss = function (n = 1000, k = 2, prob = rep (1 / k, k), mu = cbind (rep (0, k), seq (from = 0, by = 3, length.out = k)), cov = rep (list (matrix (c (6,0.9,0.9,0.3), ncol = 2, nrow = 2)), k), levels = NULL, graph = FALSE, seed = NULL)
 {
-  set.seed (seed)
+  setseed (seed)
   if (is.null (levels))
     levels = paste ("Class", 1:k)
   card = as.vector (stats::rmultinom (1, n, prob))
@@ -134,17 +149,19 @@ data.gauss = function (n = 1000, k = 2, prob = rep (1 / k, k), mu = cbind (rep (
 #' @param coeff Coefficient of the parabol.
 #' @param sigma Variance in each class.
 #' @param levels Name of each class.
-#' @param graph A logical indicating whether or not a graphic should be plotted.
+#' @param graph Whether the generated dataset is plotted. \code{FALSE} by default, as
+#' everywhere else in the package: a generator has to be callable in a loop or a report
+#' without piling up graphics devices.
 #' @param seed A specified seed for random number generation.
 #' @return A randomly generated dataset.
 #' @export
 #' @seealso \code{\link{data.diag}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}
 #' @examples
-#' data.parabol ()
+#' data.parabol (graph = TRUE)
 data.parabol <-
-  function (n = c (500, 100), xlim = c (-3, 3), center = c (0, 4), coeff = 0.5, sigma = c (0.5, 0.5), levels = NULL, graph = TRUE, seed = NULL)
+  function (n = c (500, 100), xlim = c (-3, 3), center = c (0, 4), coeff = 0.5, sigma = c (0.5, 0.5), levels = NULL, graph = FALSE, seed = NULL)
   {
-    set.seed (seed)
+    setseed (seed)
     if (is.null (levels))
       levels = paste ("Class", 1:2)
     d = stats::runif (n [1], xlim [1], xlim [2])
@@ -165,19 +182,21 @@ data.parabol <-
 #' @param n Number of observations in the dataset.
 #' @param min Minimum value on each variables.
 #' @param max Maximum value on each variables.
-#' @param f The fucntion that separate the classes.
+#' @param f The function that separates the classes.
 #' @param levels Name of each class.
-#' @param graph A logical indicating whether or not a graphic should be plotted.
+#' @param graph Whether the generated dataset is plotted. \code{FALSE} by default, as
+#' everywhere else in the package: a generator has to be callable in a loop or a report
+#' without piling up graphics devices.
 #' @param seed A specified seed for random number generation.
 #' @return A randomly generated dataset.
 #' @export
 #' @seealso \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}
 #' @examples
-#' data.diag ()
-data.diag <- function (n = 200, min = 0, max = 1, f = function (x) x, levels = NULL, graph = TRUE,
-                         seed = NULL)
+#' data.diag (graph = TRUE)
+data.diag <- function (n = 200, min = 0, max = 1, f = function (x) x, levels = NULL, graph = FALSE,
+                       seed = NULL)
 {
-  set.seed(seed)
+  setseed (seed)
   if (is.null(levels))
     levels = paste("Class", 1:2)
   d = matrix(stats::runif(2 * n, min = min, max = max), ncol = 2)
@@ -187,7 +206,9 @@ data.diag <- function (n = 200, min = 0, max = 1, f = function (x) x, levels = N
   if (graph)
   {
     plotdata(d[, -3], d[, 3])
-    x = seq (0, 1, length.out = 1001)
+    # Over the range the observations were drawn from, not over [0, 1]: the curve was drawn
+    # in the wrong place -- or off the plot entirely -- for any other 'min' and 'max'.
+    x = seq (min, max, length.out = 1001)
     graphics::lines (x, f (x), col = "blue")
   }
   return (d)
@@ -201,24 +222,26 @@ data.diag <- function (n = 200, min = 0, max = 1, f = function (x) x, levels = N
 #' @param n Number of observations in each class.
 #' @param sigma Variance in each class.
 #' @param levels Name of each class.
-#' @param graph A logical indicating whether or not a graphic should be plotted.
+#' @param graph Whether the generated dataset is plotted. \code{FALSE} by default, as
+#' everywhere else in the package: a generator has to be callable in a loop or a report
+#' without piling up graphics devices.
 #' @param seed A specified seed for random number generation.
 #' @return A randomly generated dataset.
 #' @export
 #' @seealso \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}
 #' @examples
-#' data.target1 ()
+#' data.target1 (graph = TRUE)
 data.target1 <-
-  function (r = 1:3, n = 200, sigma = .1, levels = NULL, graph = TRUE, seed = NULL)
+  function (r = 1:3, n = 200, sigma = .1, levels = NULL, graph = FALSE, seed = NULL)
   {
-    set.seed (seed)
+    setseed (seed)
     if (length (n) == 1)
       n = rep (n, length (r))
     if (is.null (levels))
       levels = paste ("Class", 1:length (r))
     alpha = stats::runif (sum (n), 0, 2 * pi)
     k = as.vector (sapply (1:length (r), function (index) rep (r [index], n [index])))
-    r = stats::rnorm (sum (n), 0, .1) + k
+    r = stats::rnorm (sum (n), 0, sigma) + k
     x = r * cos (alpha)
     y = r * sin (alpha)
     d = cbind.data.frame (x, y, factor (k, labels = levels))
@@ -237,17 +260,19 @@ data.target1 <-
 #' @param maxr Maximum radius of each class.
 #' @param initn Number of observations at the beginning of the generation process.
 #' @param levels Name of each class.
-#' @param graph A logical indicating whether or not a graphic should be plotted.
+#' @param graph Whether the generated dataset is plotted. \code{FALSE} by default, as
+#' everywhere else in the package: a generator has to be callable in a loop or a report
+#' without piling up graphics devices.
 #' @param seed A specified seed for random number generation.
 #' @return A randomly generated dataset.
 #' @export
 #' @seealso \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}
 #' @examples
-#' data.target2 ()
+#' data.target2 (graph = TRUE)
 data.target2 <-
-  function (minr = c (0, 2), maxr = minr + 1, initn = 1000, levels = NULL, graph = TRUE, seed = NULL)
+  function (minr = c (0, 2), maxr = minr + 1, initn = 1000, levels = NULL, graph = FALSE, seed = NULL)
   {
-    set.seed (seed)
+    setseed (seed)
     limits = max (maxr)
     if (is.null (levels))
       levels = paste ("Class", 1:2)
@@ -270,17 +295,19 @@ data.target2 <-
 #' @param n Number of observations in each class.
 #' @param sigma Variance in each class.
 #' @param levels Name of each class.
-#' @param graph A logical indicating whether or not a graphic should be plotted.
+#' @param graph Whether the generated dataset is plotted. \code{FALSE} by default, as
+#' everywhere else in the package: a generator has to be callable in a loop or a report
+#' without piling up graphics devices.
 #' @param seed A specified seed for random number generation.
 #' @return A randomly generated dataset.
 #' @export
 #' @seealso \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target1}}, \code{\link{data.target2}}, \code{\link{data.xor}}
 #' @examples
-#' data.twomoons ()
+#' data.twomoons (graph = TRUE)
 data.twomoons <-
-  function (r = 1, n = 200, sigma = .1, levels = NULL, graph = TRUE, seed = NULL)
+  function (r = 1, n = 200, sigma = .1, levels = NULL, graph = FALSE, seed = NULL)
   {
-    set.seed (seed)
+    setseed (seed)
     if (length (n) == 1)
       n = rep (n, 2)
     if (is.null (levels))
@@ -309,18 +336,20 @@ data.twomoons <-
 #' @param ndim The number of dimensions (2^ndim clusters are formed, grouped into two classes).
 #' @param sigma The variance.
 #' @param levels Name of each class.
-#' @param graph A logical indicating whether or not a graphic should be plotted.
+#' @param graph Whether the generated dataset is plotted. \code{FALSE} by default, as
+#' everywhere else in the package: a generator has to be callable in a loop or a report
+#' without piling up graphics devices.
 #' @param seed A specified seed for random number generation.
 #' @return A randomly generated dataset.
 #' @export
 #' @seealso \code{\link{data.diag}}, \code{\link{data.gauss}}, \code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}
 #' @examples
-#' data.xor ()
-data.xor = function (n = 100, ndim = 2, sigma = .25, levels = NULL, graph = TRUE, seed = NULL)
+#' data.xor (graph = TRUE)
+data.xor = function (n = 100, ndim = 2, sigma = .25, levels = NULL, graph = FALSE, seed = NULL)
 {
-  set.seed (seed)
+  setseed (seed)
   if (is.null (levels))
-    levels = levels = paste ("Class", 1:2)
+    levels = paste ("Class", 1:2)
   base = c (-1, 1)
   l = rep (list (base), ndim)
   grid = expand.grid (l)
@@ -393,7 +422,7 @@ NULL
 #' @docType data
 #' @usage eucalyptus
 #' @format The dataset has 1429 instances (eucalyptus trees) with 2 measurements: the height and the circumference.
-#' @source \url{http://www.cmap.polytechnique.fr/~lepennec/fr/teaching/}
+#' @source \url{http://www.cmap.polytechnique.fr/~lepennec/en/teaching/}
 NULL
 
 #' @name ionosphere
@@ -404,8 +433,8 @@ NULL
 #' One attribute with constant value has been removed.
 #' @docType data
 #' @usage ionosphere
-#' @format The dataset has 351 instances described by 34. The last variable is the class.
-#' @source \url{https://archive.ics.uci.edu/ml/datasets/ionosphere}
+#' @format The dataset has 351 instances described by 34 variables. The last variable is the class.
+#' @source \url{https://archive.ics.uci.edu/dataset/52/ionosphere}
 NULL
 
 #' @name linsep
@@ -420,11 +449,13 @@ NULL
 
 #' @name movies
 #' @title Movies dataset
-#' @description Extract from the movie lens dataset. Missing values have been imputed.
+#' @description Simulated ratings of 49 real films by 55 imaginary viewers.
 #' @docType data
 #' @usage movies
-#' @format A set of 49 movies, rated by 55 users.
-#' @source \url{https://grouplens.org/datasets/movielens/}
+#' @format A \code{matrix} of 49 films by 55 viewers. Ratings are whole numbers from 1 to 10.
+#' @source The structure was estimated on the MovieLens 100K dataset
+#' (\url{https://grouplens.org/datasets/movielens/100k/}), whose terms do not permit
+#' redistributing the ratings themselves.
 NULL
 
 #' @name ozone
@@ -432,8 +463,13 @@ NULL
 #' @description This dataset constains measurements on ozone level.
 #' @docType data
 #' @usage ozone
-#' @format Each instance is described by the maximum level of ozone measured during the day.
-#' Temperature, clouds, and wind are also recorded.
+#' @format 112 days described by 13 variables. \code{maxO3}, the maximum level of ozone
+#' measured during the day (the target variable); \code{T9}, \code{T12}, \code{T15},
+#' temperatures; \code{C9}, \code{C12}, \code{C15}, cloud cover; \code{W9}, \code{W12},
+#' \code{W15}, the projection of the wind on the North-South axis; \code{maxO3v}, the maximum
+#' level of ozone of the previous day; \code{vent}, the wind direction (a \code{factor}:
+#' \code{"Est"}, \code{"Nord"}, \code{"Ouest"}, \code{"Sud"}); \code{pluie}, whether it
+#' rained (a \code{factor}: \code{"Pluie"}, \code{"Sec"}).
 #' @source \url{https://r-stat-sc-donnees.github.io/ozone.txt}
 NULL
 
@@ -477,7 +513,11 @@ NULL
 #' \item{\code{Snore}}{Snoring diagnosis (Y or N).}
 #' \item{\code{Tobacco}}{Y or N.}
 #' }
-#' @source \url{http://forge.info.univ-angers.fr/~gh/Datasets/datasets.htm}
+#' @source Originally published by G. Hunault, Departement Informatique, Universite d'Angers,
+#' as the "RONFLE" file of his statistics dataset collection. That collection has changed
+#' address twice and its current host was unreachable when this version was prepared, so the
+#' citation is to an archived copy:
+#' \url{https://web.archive.org/web/20250319122109/https://gilles-hunault.leria-info.univ-angers.fr/Datasets/datasets.htm}.
 NULL
 
 #' @name spine
@@ -496,7 +536,7 @@ NULL
 #' The variable Classif2 is the classification into two classes \code{AB} and \code{NO}.
 #' The variable Classif3 is the classification into 3 classes \code{DH}, \code{SL} and \code{NO}.
 #' \code{spine.train} contains 217 instances and \code{spine.test} contains 93.
-#' @source \url{http://archive.ics.uci.edu/ml/datasets/vertebral+column}
+#' @source \url{https://archive.ics.uci.edu/dataset/212/vertebral+column}
 NULL
 
 #' @name temperature
@@ -510,7 +550,7 @@ NULL
 
 #' @name titanic
 #' @title Titanic dataset
-#' @description This dataset from the British Board of Trade depict the fate of the passengers and crew during the RMS Titanic disaster.
+#' @description This dataset from the British Board of Trade depicts the fate of the passengers and crew during the RMS Titanic disaster.
 #' @docType data
 #' @usage titanic
 #' @format The dataset has 2201 instances described by 4 variables.
@@ -555,7 +595,7 @@ NULL
 #' vowels.test
 #' @format The dataset has 4664 instances described by 17 variables. The first variable is the classification into 6 classes (letter A, E, I, O, U and Y).
 #' \code{vowels.train} contains 233 instances and \code{vowels.test} contains 4431.
-#' @source \url{https://archive.ics.uci.edu/ml/datasets/letter+recognition}
+#' @source \url{https://archive.ics.uci.edu/dataset/59/letter+recognition}
 NULL
 
 #' @name wine
@@ -566,7 +606,7 @@ NULL
 #' @usage wine
 #' @format There are 178 observations and 14 variables.
 #' The first variable is the class label (\code{1}, \code{2}, \code{3}).
-#' @source \url{https://archive.ics.uci.edu/ml/datasets/wine}
+#' @source \url{https://archive.ics.uci.edu/dataset/109/wine}
 NULL
 
 #' @name wheat
@@ -578,7 +618,7 @@ NULL
 #' @usage wheat
 #' @format The dataset has 210 instances described by 8 variables:
 #' area, perimeter, compactness, length, width, asymmetry coefficient, groove length and variery.
-#' @source \url{https://archive.ics.uci.edu/ml/datasets/seeds}
+#' @source \url{https://archive.ics.uci.edu/dataset/236/seeds}
 NULL
 
 #' @name zoo
@@ -587,5 +627,5 @@ NULL
 #' @docType data
 #' @usage zoo
 #' @format The dataset has 101 instances described by 17 qualitative variables.
-#' @source \url{https://archive.ics.uci.edu/ml/datasets/zoo}
+#' @source \url{https://archive.ics.uci.edu/dataset/111/zoo}
 NULL

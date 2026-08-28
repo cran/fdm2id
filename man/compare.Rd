@@ -11,9 +11,16 @@ compare(clus, gt, eval = "accuracy", comp = c("max", "pairwise", "cluster"))
 
 \item{gt}{The real clusters.}
 
-\item{eval}{The evluation criterion.}
+\item{eval}{The evaluation criterion.}
 
-\item{comp}{Indicates whether a "max" or a "pairwise" evaluation should be used, or the evaluation for each individual "cluster".}
+\item{comp}{How the two partitions are compared: \code{"max"} (each cluster matched with the
+class it agrees with most, averaged over clusters), \code{"cluster"} (the same scores, not
+averaged) or \code{"pairwise"} (every pair of observations, labels ignored). In
+\code{"pairwise"} mode the three criteria are three classical indices built on the same pair
+counts: \code{"accuracy"} is the Rand index, \code{"jaccard"} the Jaccard index on pairs,
+and \code{"kappa"} Cohen's kappa on the fourfold table of pair agreements (which, by
+Warrens (2008), is also the adjusted Rand index). See \code{\link{compare.accuracy}},
+\code{\link{compare.jaccard}} and \code{\link{compare.kappa}}.}
 }
 \value{
 A numeric value indicating how much the two sets of clusters are similar.

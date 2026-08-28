@@ -26,12 +26,13 @@ The Words the most similar to the query.
 Search for words similar to the query.
 }
 \examples{
-\dontrun{
-text = loadtext ("http://mattmahoney.net/dc/text8.zip")
-words = vectorize.words (text, minphrasecount = 50)
+\donttest{
+# 'capitals' is small, so the word vectors are coarse and 'ndim' is reduced
+# accordingly; phrase detection needs a much larger corpus.
+data (capitals)
+words = vectorize.words (capitals, mincount = 2, ndim = 10, maxiter = 5)
 query.words (words, origin = "paris", sub = "france", add = "germany")
 query.words (words, origin = "berlin", sub = "germany", add = "france")
-query.words (words, origin = "new_zealand")
 }
 }
 \seealso{

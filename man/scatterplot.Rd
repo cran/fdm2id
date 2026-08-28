@@ -17,7 +17,9 @@ scatterplot(
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}
 
-\item{clusters}{Cluster labels of the training set (\code{vector} or \code{factor}).}
+\item{clusters}{Cluster labels of the training set: a numeric \code{vector} (0 marking the
+observations a density method left as noise), or a \code{factor}/character vector, whose
+levels are then used to label the legend.}
 
 \item{centers}{Coordinates of the cluster centers.}
 

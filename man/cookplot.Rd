@@ -9,7 +9,7 @@ cookplot(model, index = NULL, labels = NULL)
 \arguments{
 \item{model}{The model to be plotted.}
 
-\item{index}{The index of the variable used for for the x-axis.}
+\item{index}{The index of the variable used for the x-axis.}
 
 \item{labels}{The labels of the instances.}
 }

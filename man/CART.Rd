@@ -10,7 +10,11 @@ CART(
   minsplit = 1,
   maxdepth = log2(length(labels)),
   cp = NULL,
+  xval = 10,
   tune = FALSE,
+  methodparameters = NULL,
+  graph = FALSE,
+  seed = NULL,
   ...
 )
 }
@@ -25,7 +29,23 @@ CART(
 
 \item{cp}{The complexity parameter of the tree. Cross-validation is used to determine optimal cp if NULL.}
 
-\item{tune}{If true, the function returns paramters instead of a classification model.}
+\item{xval}{The number of cross-validation folds used to choose \code{cp}, when \code{cp} is
+\code{NULL}. \code{xval = nrow (train)} gives a leave-one-out cross-validation, which fits
+one tree per observation and costs about \code{nrow (train) / 10} times as much.}
+
+\item{tune}{If true, the function returns parameters instead of a classification model.}
+
+\item{methodparameters}{Present for interface consistency with \code{\link{performance}}
+(which always passes it when fitting a model). Currently unused: \code{CART} does not
+support reusing pre-tuned parameters.}
+
+\item{graph}{Present for interface consistency with \code{\link{performance}} (which always
+passes it when fitting a model). Currently unused: \code{CART} does not produce a plot.}
+
+\item{seed}{A specified seed for random number generation, so that two runs on the same
+data give the same model. Every learning method accepts it, so that it can be set the same
+way whatever the method; the deterministic ones simply have nothing to draw and give the
+same model with or without it.}
 
 \item{...}{Other parameters.}
 }

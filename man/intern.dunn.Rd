@@ -4,14 +4,16 @@
 \alias{intern.dunn}
 \title{Clustering evaluation through Dunn's index}
 \usage{
-intern.dunn(clus, d, type = c("global"))
+intern.dunn(clus, d, type = c("global", "cluster"))
 }
 \arguments{
 \item{clus}{The extracted clusters.}
 
 \item{d}{The dataset.}
 
-\item{type}{Indicates whether a "global" or a "cluster"-wise evaluation should be used.}
+\item{type}{Indicates whether a "global" or a "cluster"-wise evaluation should be used. The
+per-cluster values are the terms the global index is the minimum of: each cluster's distance
+to the nearest other one, over the largest diameter of the partition.}
 }
 \value{
 The evaluation of the clustering.
@@ -23,7 +25,8 @@ Evaluation a clustering algorithm according to Dunn's index.
 require (datasets)
 data (iris)
 km = KMEANS (iris [, -5], k = 3)
-intern.dunn (km$clus, iris [, -5])
+intern.dunn (km$cluster, iris [, -5])
+intern.dunn (km$cluster, iris [, -5], type = "cluster")
 }
 \seealso{
 \code{\link{intern}}, \code{\link{intern.interclass}}, \code{\link{intern.intraclass}}

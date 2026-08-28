@@ -21,7 +21,7 @@ British Board of Trade (1990), Report on the Loss of the ‘Titanic’ (S.S.). B
 titanic
 }
 \description{
-This dataset from the British Board of Trade depict the fate of the passengers and crew during the RMS Titanic disaster.
+This dataset from the British Board of Trade depicts the fate of the passengers and crew during the RMS Titanic disaster.
 }
 \seealso{
 \code{\link[datasets]{Titanic}}

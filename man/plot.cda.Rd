@@ -4,16 +4,20 @@
 \alias{plot.cda}
 \title{Plot function for cda-class}
 \usage{
-\method{plot}{cda}(x, newdata = NULL, axes = 1:2, ...)
+\method{plot}{cda}(x, newdata = NULL, axes = 1:2, legendpos = "topleft", ...)
 }
 \arguments{
 \item{x}{The classification model (object of class \code{cda-class}).}
 
 \item{newdata}{The test set (\code{matrix} or \code{data.frame}).}
 
-\item{axes}{The canonical axes to be printed (numeric \code{vector}).}
+\item{axes}{The canonical axes to be printed (numeric \code{vector}). Ignored when there is
+only one, which is what two classes give: the axis is then drawn against the observation
+index, and the class means as horizontal lines.}
 
-\item{...}{Other parameters.}
+\item{legendpos}{Position of the legend, as in \code{\link{plotdata}}.}
+
+\item{...}{Other parameters, passed to the underlying plot.}
 }
 \description{
 Plot the learning set (and test set) on the canonical axes obtained by Canonical Discriminant Analysis (function \code{CDA}).

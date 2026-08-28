@@ -11,7 +11,7 @@ data.gauss(
   mu = cbind(rep(0, k), seq(from = 0, by = 3, length.out = k)),
   cov = rep(list(matrix(c(6, 0.9, 0.9, 0.3), ncol = 2, nrow = 2)), k),
   levels = NULL,
-  graph = TRUE,
+  graph = FALSE,
   seed = NULL
 )
 }
@@ -28,7 +28,9 @@ data.gauss(
 
 \item{levels}{Name of each class.}
 
-\item{graph}{A logical indicating whether or not a graphic should be plotted.}
+\item{graph}{Whether the generated dataset is plotted. \code{FALSE} by default, as
+everywhere else in the package: a generator has to be callable in a loop or a report
+without piling up graphics devices.}
 
 \item{seed}{A specified seed for random number generation.}
 }
@@ -39,7 +41,7 @@ A randomly generated dataset.
 Generate a random multidimentional gaussian mixture.
 }
 \examples{
-data.gauss ()
+data.gauss (graph = TRUE)
 }
 \seealso{
 \code{\link{data.diag}}, \code{\link{data.parabol}}, \code{\link{data.target2}}, \code{\link{data.twomoons}}, \code{\link{data.xor}}

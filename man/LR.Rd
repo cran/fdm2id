@@ -4,14 +4,57 @@
 \alias{LR}
 \title{Classification using Logistic Regression}
 \usage{
-LR(train, labels, tune = FALSE, ...)
+LR(
+  train,
+  labels,
+  reg = c("none", "ridge", "lasso", "elastic"),
+  lambda = NULL,
+  alpha = 0.5,
+  nfolds = 10,
+  tune = FALSE,
+  methodparameters = NULL,
+  graph = FALSE,
+  seed = NULL,
+  ...
+)
 }
 \arguments{
 \item{train}{The training set (description), as a \code{data.frame}.}
 
 \item{labels}{Class labels of the training set (\code{vector} or \code{factor}).}
 
-\item{tune}{If true, the function returns paramters instead of a classification model.}
+\item{reg}{The penalty applied to the coefficients, as in \code{\link{LINREG}}:
+\code{"none"} (the default) fits the plain multinomial logistic regression of
+\code{\link[nnet]{multinom}}, while \code{"ridge"} (L2), \code{"lasso"} (L1) and
+\code{"elastic"} (a mix of the two, weighted by \code{alpha}) fit a penalized one with
+\code{\link[glmnet]{glmnet}}. Penalizing is what makes logistic regression usable when the
+predictors are numerous or strongly correlated, where the unpenalized fit either fails to
+converge or separates the classes perfectly with unbounded coefficients.}
+
+\item{lambda}{The grid of penalty strengths searched by cross-validation; the retained value
+is the one minimising the cross-validated deviance. \code{NULL} (the default) lets
+\code{\link[glmnet]{glmnet}} derive the grid from the data, which is the recommended
+choice: a fixed grid reaching very small penalties makes the fit fail to converge on
+separable data.}
+
+\item{alpha}{The elastic net mixing parameter, between 0 (ridge) and 1 (lasso). Used by
+\code{reg = "elastic"} only.}
+
+\item{nfolds}{The number of folds of the cross-validation used to choose \code{lambda}.}
+
+\item{tune}{If true, the function returns parameters instead of a classification model.}
+
+\item{methodparameters}{Present for interface consistency with \code{\link{performance}}
+(which always passes it when fitting a model). Currently unused: \code{LR} does not
+support reusing pre-tuned parameters.}
+
+\item{graph}{Whether the cross-validation curve used to choose \code{lambda} is plotted.
+Ignored by \code{reg = "none"}, which has nothing to choose.}
+
+\item{seed}{A specified seed for random number generation, so that two runs on the same
+data give the same model. Every learning method accepts it, so that it can be set the same
+way whatever the method; the deterministic ones simply have nothing to draw and give the
+same model with or without it.}
 
 \item{...}{Other parameters.}
 }
@@ -25,7 +68,13 @@ This function builds a classification model using Logistic Regression.
 require (datasets)
 data (iris)
 LR (iris [, -5], iris [, 5])
+\donttest{
+# Penalized variants: same three penalties as LINREG()
+d = splitdata (iris, 5, seed = 0)
+model = LR (d$train.x, d$train.y, reg = "lasso")
+evaluation (predict (model, d$test.x), d$test.y)
+}
 }
 \seealso{
-\code{\link[nnet]{multinom}}
+\code{\link[nnet]{multinom}}, \code{\link[glmnet]{glmnet}}, \code{\link{LINREG}}
 }

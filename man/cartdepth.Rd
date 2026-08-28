@@ -13,7 +13,7 @@ cartdepth(model)
 The depth.
 }
 \description{
-Return the dept of a decision tree.
+Return the depth of a decision tree.
 }
 \examples{
 require (datasets)

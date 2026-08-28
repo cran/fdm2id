@@ -11,7 +11,7 @@ The dataset has 4664 instances described by 17 variables. The first variable is 
 \code{vowels.train} contains 233 instances and \code{vowels.test} contains 4431.
 }
 \source{
-\url{https://archive.ics.uci.edu/ml/datasets/letter+recognition}
+\url{https://archive.ics.uci.edu/dataset/59/letter+recognition}
 }
 \usage{
 vowels

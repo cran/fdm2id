@@ -11,7 +11,15 @@ compare.accuracy(clus, gt, comp = c("max", "pairwise", "cluster"))
 
 \item{gt}{The real clusters.}
 
-\item{comp}{Indicates whether a "max" or a "pairwise" evaluation should be used, or the evaluation for each individual "cluster".}
+\item{comp}{How the two partitions are compared. \code{"max"} matches each extracted
+cluster with the class it agrees with most and averages the per-cluster scores, weighted by
+cluster size; \code{"cluster"} returns those scores instead of averaging them;
+\code{"pairwise"} ignores the labels and looks at every pair of observations, asking whether
+the two partitions agree on grouping it or separating it.
+In \code{"pairwise"} mode this function is the \strong{Rand index}: the proportion of pairs
+the two partitions agree on, counting both those they group and those they keep apart. See
+\code{\link{compare.jaccard}} and \code{\link{compare.kappa}} for the two other readings
+of the same pair counts.}
 }
 \value{
 A numeric value indicating how much the two sets of clusters are similar.

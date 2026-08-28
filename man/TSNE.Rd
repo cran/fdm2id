@@ -4,16 +4,26 @@
 \alias{TSNE}
 \title{t-distributed Stochastic Neighbor Embedding}
 \usage{
-TSNE(x, perplexity = 30, nstart = 10, ...)
+TSNE(x, perplexity = 30, nstart = 10, seed = NULL, ...)
 }
 \arguments{
 \item{x}{A numeric dataset (data.frame or matrix).}
 
 \item{perplexity}{Specification of the perplexity.}
 
-\item{nstart}{How many random sets should be chosen?}
+\item{nstart}{How many random sets should be chosen? The embedding with the lowest final
+cost is kept.}
+
+\item{seed}{A specified seed for random number generation.}
 
 \item{...}{Other parameters.}
+}
+\value{
+The \code{\link[Rtsne]{Rtsne}} result. \code{Rtsne} requires distinct observations,
+so duplicated rows of \code{x} are removed before fitting; the returned \code{Y} (and
+\code{costs}) are then expanded back to \code{nrow (x)} rows, in the order of \code{x}, so
+that they can be used directly alongside the original dataset -- duplicated observations
+simply share the same coordinates.
 }
 \description{
 Return the t-SNE dimensionality reduction.

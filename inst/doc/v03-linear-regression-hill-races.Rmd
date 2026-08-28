@@ -1,0 +1,109 @@
+---
+title: "Linear regression: Scottish hill races"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Linear regression: Scottish hill races}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set (collapse = TRUE, comment = "#>", fig.width = 6, fig.height = 4.2,
+                       fig.align = "center")
+optional = c ("MASS")
+available = all (sapply (optional, requireNamespace, quietly = TRUE))
+knitr::opts_chunk$set (eval = available)
+```
+
+```{r, echo = FALSE, eval = !available, results = "asis"}
+cat ("**Note.** This vignette needs the following packages, some of which are missing:",
+     paste (optional, collapse = ", "), "-- the code is shown but not run.\n")
+```
+
+One of the case studies of the *Analyse de données (L3 Informatique)* course, for which
+`fdm2id` was written. Choosing predictors by cross-validation, reading residuals, and what
+"linear" actually constrains in a linear model.
+
+The other case studies are listed by `vignette (package = "fdm2id")`; they use the same
+handful of functions on other data, and can be read in any order.
+
+```{r, message = FALSE, warning = FALSE}
+library (fdm2id)
+```
+
+# The data
+
+Records of hill races in Scotland. Each race is described by three variables: its distance (in
+miles), its total climb (in feet), and the record time set in 1984 (in minutes). The question
+is whether the time can be predicted from the distance and the climb.
+
+```{r}
+data (hills, package = "MASS")
+summary (hills)
+```
+
+```{r, fig.height = 5}
+plotdata (hills)
+```
+
+# Question 1. Which single variable predicts best? Was it foreseeable?
+
+```{r}
+# Reproducible without a seed: leave-one-out builds n folds of one observation each, so there
+# is nothing to draw. It is the one protocol of the package that needs no 'seed'.
+performance (LINREG, hills [, 1], hills [, 3], protocol = "loocv", eval = c ("adjr2", "msep"))
+performance (LINREG, hills [, 2], hills [, 3], protocol = "loocv", eval = c ("adjr2", "msep"))
+```
+
+**Answer.** *Under leave-one-out cross-validation, `dist` predicts more precisely than
+`climb`. It was foreseeable: its linear correlation with `time` is the higher of the two.*
+
+```{r}
+round (cor (hills), 3)
+```
+
+# Question 2. One variable or two?
+
+```{r}
+performance (LINREG, hills [, -3], hills [, 3], protocol = "loocv", eval = c ("adjr2", "msep"))
+```
+
+**Answer.** *Two. The mean squared error of prediction drops by nearly half.*
+
+# Question 3. What do the residuals say?
+
+```{r, fig.height = 4.5}
+model = LINREG (hills [, -3], hills [, 3])
+resplot (model)
+resplot (model, index = 0)
+resplot (model, index = 1)
+resplot (model, index = 2)
+```
+
+**Answer.** *Two races stand out: one of the flattest, and the steepest of them all.*
+
+```{r}
+head (sort (abs (residuals (model$model)), decreasing = TRUE), 3)
+hills [c ("Knock Hill", "Bens of Jura"), ]
+```
+
+*Knock Hill is three miles with 350 feet of climb and a record of 78 minutes, which is not a
+record but a recording error -- the accepted reading is 18 minutes. Bens of Jura is the
+longest and steepest race in the table, and the model has nothing else like it to learn
+from.*
+
+# Question 4. Can the predictions be improved?
+
+The residuals plotted against `climb` are vaguely parabolic, which suggests adding a `climb²`
+variable:
+
+```{r}
+hills2 = cbind (hills, hills$climb^2)
+colnames (hills2) = c (colnames (hills), "climb2")
+performance (LINREG, hills2 [, -3], hills2 [, 3], protocol = "loocv",
+             eval = c ("adjr2", "msep"))
+```
+
+**Answer.** *Under leave-one-out cross-validation this improves the predictions markedly --
+the error falls again by more than a third. A linear model is linear in its coefficients, not
+in the variables it is given.*

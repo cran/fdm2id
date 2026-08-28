@@ -14,7 +14,7 @@ The variable Classif3 is the classification into 3 classes \code{DH}, \code{SL} 
 \code{spine.train} contains 217 instances and \code{spine.test} contains 93.
 }
 \source{
-\url{http://archive.ics.uci.edu/ml/datasets/vertebral+column}
+\url{https://archive.ics.uci.edu/dataset/212/vertebral+column}
 }
 \usage{
 spine

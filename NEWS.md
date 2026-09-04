@@ -1,3 +1,11 @@
+# fdm2id 1.0.1
+
+* The vignettes are pre-computed: their code is run when the sources are prepared, by
+  `make-vignettes.R`, rather than every time the package is built. Rebuilding them took
+  between six and eleven minutes on the CRAN check machines -- most of the check time, and
+  more than its budget. It now costs a pandoc pass. The results they print are unchanged.
+* Shorter introductions in the vignettes.
+
 # fdm2id 1.0.0
 
 The package was reviewed with Claude Code. Some forty bugs were fixed as a result, and a test

@@ -7,28 +7,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set (collapse = TRUE, comment = "#>", fig.width = 6, fig.height = 4.2,
-                       fig.align = "center")
-optional = c ("MASS", "e1071", "glmnet", "rpart", "rpart.plot")
-available = all (sapply (optional, requireNamespace, quietly = TRUE))
-knitr::opts_chunk$set (eval = available)
-```
 
-```{r, echo = FALSE, eval = !available, results = "asis"}
-cat ("**Note.** This vignette needs the following packages, some of which are missing:",
-     paste (optional, collapse = ", "), "-- the code is shown but not run.\n")
-```
 
-One of the case studies of the *Analyse de données (L3 Informatique) and Études de cas en
-statistique (M2 PSA)* course, for which `fdm2id` was written. Comparing classifiers under a
-resampling protocol, reading the errors rather than the accuracy, and asking whether a
-non-linear model earns its complexity.
 
-The other case studies are listed by `vignette (package = "fdm2id")`; they use the same
+
+Comparing classifiers under a resampling protocol, reading the errors rather than the
+accuracy, and asking whether a non-linear model earns its complexity.
+
+The other vignettes are listed by `vignette (package = "fdm2id")`; they use the same
 handful of functions on other data, and can be read in any order.
 
-```{r, message = FALSE, warning = FALSE}
+
+``` r
 library (fdm2id)
 ```
 
@@ -39,26 +29,59 @@ patients, 60 with a disc hernia and 150 with a spondylolisthesis. The last two g
 merged into a single "abnormal" group, which gives a second, two-class target. Each patient is
 described by six biomechanical attributes of the shape and orientation of the vertebrae.
 
-```{r}
+
+``` r
 data (spine)
 summary (spine)
+#>        V1               V2              V3               V4        
+#>  Min.   : 26.15   Min.   :-6.55   Min.   : 14.00   Min.   : 13.37  
+#>  1st Qu.: 46.43   1st Qu.:10.67   1st Qu.: 37.00   1st Qu.: 33.35  
+#>  Median : 58.69   Median :16.36   Median : 49.56   Median : 42.41  
+#>  Mean   : 60.50   Mean   :17.54   Mean   : 51.93   Mean   : 42.95  
+#>  3rd Qu.: 72.88   3rd Qu.:22.12   3rd Qu.: 63.00   3rd Qu.: 52.69  
+#>  Max.   :129.83   Max.   :49.43   Max.   :125.74   Max.   :121.43  
+#>        V5               V6         Classif2 Classif3
+#>  Min.   : 70.08   Min.   :-11.06   AB:210   DH: 60  
+#>  1st Qu.:110.71   1st Qu.:  1.60   NO:100   NO:100  
+#>  Median :118.27   Median : 11.77            SL:150  
+#>  Mean   :117.92   Mean   : 26.30                    
+#>  3rd Qu.:125.47   3rd Qu.: 41.28                    
+#>  Max.   :163.07   Max.   :418.54
 ```
 
-```{r, fig.height = 6}
+
+``` r
 plotdata (spine, k = spine [, 7])
 ```
 
-```{r, fig.height = 6}
+<div class="figure" style="text-align: center">
+<img src="fig/v02-discriminant-analysis-spine-unnamed-chunk-4-1.png" alt="plot of chunk unnamed-chunk-4"  />
+<p class="caption">plot of chunk unnamed-chunk-4</p>
+</div>
+
+
+``` r
 plotdata (spine, k = spine [, 8])
 ```
 
+<div class="figure" style="text-align: center">
+<img src="fig/v02-discriminant-analysis-spine-unnamed-chunk-5-1.png" alt="plot of chunk unnamed-chunk-5"  />
+<p class="caption">plot of chunk unnamed-chunk-5</p>
+</div>
+
 # Question 1. Which method predicts the two-class problem best?
 
-```{r}
+
+``` r
 # Variable: the bootstrap draws its 100 resamples at random, so without 'seed' this table
 # changes at every run -- by a few thousandths here, enough to swap two close methods.
 performance (c (NB, LDA, CDA, LR), spine [, 1:6], spine [, 7], type = "evaluation",
              protocol = "bootstrap", eval = "accuracy", nruns = 100, seed = 0)
+#>      accuracy
+#> NB  0.7763503
+#> LDA 0.8224087
+#> CDA 0.7898095
+#> LR  0.8445202
 ```
 
 **Answer.** *Under a bootstrap evaluation, logistic regression is the method with the best
@@ -66,9 +89,15 @@ accuracy.*
 
 # Question 2. And the three-class problem?
 
-```{r}
+
+``` r
 performance (c (NB, LDA, CDA, LR), spine [, 1:6], spine [, 8], type = "evaluation",
              protocol = "bootstrap", eval = "accuracy", nruns = 100, seed = 0)
+#>      accuracy
+#> NB  0.8114840
+#> LDA 0.8078133
+#> CDA 0.7982870
+#> LR  0.8489775
 ```
 
 **Answer.** *Logistic regression again.*
@@ -77,11 +106,16 @@ performance (c (NB, LDA, CDA, LR), spine [, 1:6], spine [, 8], type = "evaluatio
 
 The two tables above already hold the answer, for the method that won both of them:
 
-```{r}
+
+``` r
 performance (LR, spine [, 1:6], spine [, 7], type = "evaluation",
              protocol = "bootstrap", eval = "accuracy", nruns = 100, seed = 0)
+#>  accuracy 
+#> 0.8445202
 performance (LR, spine [, 1:6], spine [, 8], type = "evaluation",
              protocol = "bootstrap", eval = "accuracy", nruns = 100, seed = 0)
+#>  accuracy 
+#> 0.8489775
 ```
 
 **Answer.** *The two accuracies are very close, so no. Which is worth a pause: splitting the
@@ -93,9 +127,23 @@ well.*
 An accuracy says how often the model is right, not what it gets wrong. The confusion matrix
 does, and its rows are the truth.
 
-```{r, fig.height = 4.5}
+
+``` r
 performance (LR, spine [, 1:6], spine [, 8], type = "confusion",
              protocol = "bootstrap", nruns = 100, seed = 0)
+```
+
+<div class="figure" style="text-align: center">
+<img src="fig/v02-discriminant-analysis-spine-unnamed-chunk-9-1.png" alt="plot of chunk unnamed-chunk-9"  />
+<p class="caption">plot of chunk unnamed-chunk-9</p>
+</div>
+
+```
+#>            Predicted labels
+#> True labels         DH         NO         SL
+#>          DH 0.65764547 0.31799729 0.02435724
+#>          NO 0.15584764 0.80445279 0.03969957
+#>          SL 0.01291614 0.03074404 0.95633982
 ```
 
 **Answer.** *`SL` (spondylolisthesis) is rarely confused with the other two -- it is recovered
@@ -104,23 +152,34 @@ the hernias are predicted healthy.*
 
 # Going further: are non-linear methods worth it?
 
-This continuation is taken from the *Études de cas en statistique* course (M2 PSA), which
-picks the same dataset up where the section above leaves it. The four methods above all come
-from linear discriminant analysis and its neighbourhood. Adding one more of that family, a
-linear-kernel SVM:
+The four methods above all come from linear discriminant analysis and its neighbourhood.
+Adding one more of that family, a linear-kernel SVM:
 
-```{r}
+
+``` r
 performance (c (NB, LDA, CDA, LR, SVMl), spine [, 1:6], spine [, 8], type = "evaluation",
              protocol = "bootstrap", eval = "accuracy", nruns = 100, seed = 0)
+#>       accuracy
+#> NB   0.8114840
+#> LDA  0.8078133
+#> CDA  0.7982870
+#> LR   0.8489775
+#> SVMl 0.8546583
 ```
 
 and then four methods that do not:
 
-```{r}
+
+``` r
 # Variable, twice over: on top of the bootstrap, KNN, MLP and the SVMs search their
 # hyperparameter grid by cross-validation, so the model itself is drawn at random too.
 performance (c (KNN, CART, MLP, SVMr), spine [, 1:6], spine [, 8], type = "evaluation",
              protocol = "bootstrap", eval = "accuracy", nruns = 100, seed = 0)
+#>       accuracy
+#> KNN  0.8120084
+#> CART 0.8065898
+#> MLP  0.7923440
+#> SVMr 0.8328089
 ```
 
 **Answer.** *Not one of the four beats the linear SVM, and the best of them stays two points
@@ -130,9 +189,15 @@ to find is not, in fact, curved.*
 
 A decision tree is more explicit still about what it uses:
 
-```{r, fig.height = 5}
+
+``` r
 cartplot (CART (spine [, 1:6], spine [, 8]))
 ```
+
+<div class="figure" style="text-align: center">
+<img src="fig/v02-discriminant-analysis-spine-unnamed-chunk-12-1.png" alt="plot of chunk unnamed-chunk-12"  />
+<p class="caption">plot of chunk unnamed-chunk-12</p>
+</div>
 
 **Answer.** *The tree keeps only three of the six attributes, and `V6` on its own separates
 `SL` from the other two classes.*

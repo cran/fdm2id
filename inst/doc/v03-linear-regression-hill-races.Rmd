@@ -7,27 +7,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set (collapse = TRUE, comment = "#>", fig.width = 6, fig.height = 4.2,
-                       fig.align = "center")
-optional = c ("MASS")
-available = all (sapply (optional, requireNamespace, quietly = TRUE))
-knitr::opts_chunk$set (eval = available)
-```
 
-```{r, echo = FALSE, eval = !available, results = "asis"}
-cat ("**Note.** This vignette needs the following packages, some of which are missing:",
-     paste (optional, collapse = ", "), "-- the code is shown but not run.\n")
-```
 
-One of the case studies of the *Analyse de données (L3 Informatique)* course, for which
-`fdm2id` was written. Choosing predictors by cross-validation, reading residuals, and what
-"linear" actually constrains in a linear model.
 
-The other case studies are listed by `vignette (package = "fdm2id")`; they use the same
+
+Choosing predictors by cross-validation, reading residuals, and what "linear" actually
+constrains in a linear model.
+
+The other vignettes are listed by `vignette (package = "fdm2id")`; they use the same
 handful of functions on other data, and can be read in any order.
 
-```{r, message = FALSE, warning = FALSE}
+
+``` r
 library (fdm2id)
 ```
 
@@ -37,54 +28,117 @@ Records of hill races in Scotland. Each race is described by three variables: it
 miles), its total climb (in feet), and the record time set in 1984 (in minutes). The question
 is whether the time can be predicted from the distance and the climb.
 
-```{r}
+
+``` r
 data (hills, package = "MASS")
 summary (hills)
+#>       dist            climb           time       
+#>  Min.   : 2.000   Min.   : 300   Min.   : 15.95  
+#>  1st Qu.: 4.500   1st Qu.: 725   1st Qu.: 28.00  
+#>  Median : 6.000   Median :1000   Median : 39.75  
+#>  Mean   : 7.529   Mean   :1815   Mean   : 57.88  
+#>  3rd Qu.: 8.000   3rd Qu.:2200   3rd Qu.: 68.62  
+#>  Max.   :28.000   Max.   :7500   Max.   :204.62
 ```
 
-```{r, fig.height = 5}
+
+``` r
 plotdata (hills)
 ```
 
+<div class="figure" style="text-align: center">
+<img src="fig/v03-linear-regression-hill-races-unnamed-chunk-4-1.png" alt="plot of chunk unnamed-chunk-4"  />
+<p class="caption">plot of chunk unnamed-chunk-4</p>
+</div>
+
 # Question 1. Which single variable predicts best? Was it foreseeable?
 
-```{r}
+
+``` r
 # Reproducible without a seed: leave-one-out builds n folds of one observation each, so there
 # is nothing to draw. It is the one protocol of the package that needs no 'seed'.
 performance (LINREG, hills [, 1], hills [, 3], protocol = "loocv", eval = c ("adjr2", "msep"))
+#>       adjr2        msep 
+#>   0.7835907 510.9387160
 performance (LINREG, hills [, 2], hills [, 3], protocol = "loocv", eval = c ("adjr2", "msep"))
+#>       adjr2        msep 
+#>   0.6035177 936.0880207
 ```
 
 **Answer.** *Under leave-one-out cross-validation, `dist` predicts more precisely than
 `climb`. It was foreseeable: its linear correlation with `time` is the higher of the two.*
 
-```{r}
+
+``` r
 round (cor (hills), 3)
+#>        dist climb  time
+#> dist  1.000 0.652 0.920
+#> climb 0.652 1.000 0.805
+#> time  0.920 0.805 1.000
 ```
 
 # Question 2. One variable or two?
 
-```{r}
+
+``` r
 performance (LINREG, hills [, -3], hills [, 3], protocol = "loocv", eval = c ("adjr2", "msep"))
+#>       adjr2        msep 
+#>   0.8774988 280.4588630
 ```
 
 **Answer.** *Two. The mean squared error of prediction drops by nearly half.*
 
 # Question 3. What do the residuals say?
 
-```{r, fig.height = 4.5}
+
+``` r
 model = LINREG (hills [, -3], hills [, 3])
 resplot (model)
+```
+
+<div class="figure" style="text-align: center">
+<img src="fig/v03-linear-regression-hill-races-unnamed-chunk-8-1.png" alt="plot of chunk unnamed-chunk-8"  />
+<p class="caption">plot of chunk unnamed-chunk-8</p>
+</div>
+
+``` r
 resplot (model, index = 0)
+```
+
+<div class="figure" style="text-align: center">
+<img src="fig/v03-linear-regression-hill-races-unnamed-chunk-8-2.png" alt="plot of chunk unnamed-chunk-8"  />
+<p class="caption">plot of chunk unnamed-chunk-8</p>
+</div>
+
+``` r
 resplot (model, index = 1)
+```
+
+<div class="figure" style="text-align: center">
+<img src="fig/v03-linear-regression-hill-races-unnamed-chunk-8-3.png" alt="plot of chunk unnamed-chunk-8"  />
+<p class="caption">plot of chunk unnamed-chunk-8</p>
+</div>
+
+``` r
 resplot (model, index = 2)
 ```
 
+<div class="figure" style="text-align: center">
+<img src="fig/v03-linear-regression-hill-races-unnamed-chunk-8-4.png" alt="plot of chunk unnamed-chunk-8"  />
+<p class="caption">plot of chunk unnamed-chunk-8</p>
+</div>
+
 **Answer.** *Two races stand out: one of the flattest, and the steepest of them all.*
 
-```{r}
+
+``` r
 head (sort (abs (residuals (model$model)), decreasing = TRUE), 3)
+#>   Knock Hill Bens of Jura    Ben Nevis 
+#>     65.12140     31.26242     16.21532
 hills [c ("Knock Hill", "Bens of Jura"), ]
+#>              dist climb    time
+#> Knock Hill      3   350  78.650
+#> Bens of Jura   16  7500 204.617
 ```
 
 *Knock Hill is three miles with 350 feet of climb and a record of 78 minutes, which is not a
@@ -97,11 +151,14 @@ from.*
 The residuals plotted against `climb` are vaguely parabolic, which suggests adding a `climb²`
 variable:
 
-```{r}
+
+``` r
 hills2 = cbind (hills, hills$climb^2)
 colnames (hills2) = c (colnames (hills), "climb2")
 performance (LINREG, hills2 [, -3], hills2 [, 3], protocol = "loocv",
              eval = c ("adjr2", "msep"))
+#>       adjr2        msep 
+#>   0.9263591 163.3276285
 ```
 
 **Answer.** *Under leave-one-out cross-validation this improves the predictions markedly --

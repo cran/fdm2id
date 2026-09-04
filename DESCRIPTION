@@ -1,6 +1,6 @@
 Package: fdm2id
 Title: Data Mining and R Programming for Beginners
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: person("Alexandre", "Blansché", email = "alexandre.blansche@univ-lorraine.fr", role = c("aut", "cre"))
 Description: Contains functions to simplify the use of data mining methods (classification, regression, clustering, etc.), for students and beginners in R programming. Various R packages are used and wrappers are built around the main functions, to standardize the use of data mining methods (input/output): it brings a certain loss of flexibility, but also a gain of simplicity. The package name came from the French "Fouille de Données en Master 2 Informatique Décisionnelle".
 Depends: R (>= 3.5.0), arules, arulesViz, FactoMineR, nnet
@@ -19,8 +19,8 @@ Config/roxygen2/version: 8.1.0
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2026-08-27 13:42:34 UTC; blansche
+Packaged: 2026-09-04 15:02:05 UTC; blansche
 Author: Alexandre Blansché [aut, cre]
 Maintainer: Alexandre Blansché <alexandre.blansche@univ-lorraine.fr>
 Repository: CRAN
-Date/Publication: 2026-08-28 07:01:00 UTC
+Date/Publication: 2026-09-04 15:50:02 UTC

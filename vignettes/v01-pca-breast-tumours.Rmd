@@ -7,27 +7,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set (collapse = TRUE, comment = "#>", fig.width = 6, fig.height = 4.2,
-                       fig.align = "center")
-optional = c ("mlbench")
-available = all (sapply (optional, requireNamespace, quietly = TRUE))
-knitr::opts_chunk$set (eval = available)
-```
 
-```{r, echo = FALSE, eval = !available, results = "asis"}
-cat ("**Note.** This vignette needs the following packages, some of which are missing:",
-     paste (optional, collapse = ", "), "-- the code is shown but not run.\n")
-```
 
-One of the case studies of the *Analyse de données (L3 Informatique)* course, for which
-`fdm2id` was written. How many factorial axes a dataset really needs, how to read them, and
+
+
+How many factorial axes a dataset really needs, how to read them, and
 what a supplementary variable is for.
 
-The other case studies are listed by `vignette (package = "fdm2id")`; they use the same
+The other vignettes are listed by `vignette (package = "fdm2id")`; they use the same
 handful of functions on other data, and can be read in any order.
 
-```{r, message = FALSE, warning = FALSE}
+
+``` r
 library (fdm2id)
 ```
 
@@ -42,49 +33,103 @@ patients, the value is predicted from the eight other criteria and rounded back 
 scale -- a regression used as an imputation, which is the first thing the package's `LINREG`
 is good for here.
 
-```{r}
+
+``` r
 library (mlbench)
 data (BreastCancer)
 BreastCancer = BreastCancer [, -1]
 BreastCancer [, -10] = lapply (BreastCancer [, -10], function (x) as.numeric (as.character (x)))
 names (which (colSums (is.na (BreastCancer)) > 0))
+#> [1] "Bare.nuclei"
 train = BreastCancer [!is.na (BreastCancer$Bare.nuclei), ]
 BreastCancer [is.na (BreastCancer$Bare.nuclei), 6] =
   round (predict (LINREG (train [, -c (6, 10)], train [, 6]),
                   BreastCancer [is.na (BreastCancer$Bare.nuclei), -6]))
 summary (BreastCancer)
+#>   Cl.thickness      Cell.size        Cell.shape     Marg.adhesion   
+#>  Min.   : 1.000   Min.   : 1.000   Min.   : 1.000   Min.   : 1.000  
+#>  1st Qu.: 2.000   1st Qu.: 1.000   1st Qu.: 1.000   1st Qu.: 1.000  
+#>  Median : 4.000   Median : 1.000   Median : 1.000   Median : 1.000  
+#>  Mean   : 4.418   Mean   : 3.134   Mean   : 3.207   Mean   : 2.807  
+#>  3rd Qu.: 6.000   3rd Qu.: 5.000   3rd Qu.: 5.000   3rd Qu.: 4.000  
+#>  Max.   :10.000   Max.   :10.000   Max.   :10.000   Max.   :10.000  
+#>   Epith.c.size     Bare.nuclei      Bl.cromatin     Normal.nucleoli 
+#>  Min.   : 1.000   Min.   : 1.000   Min.   : 1.000   Min.   : 1.000  
+#>  1st Qu.: 2.000   1st Qu.: 1.000   1st Qu.: 2.000   1st Qu.: 1.000  
+#>  Median : 2.000   Median : 1.000   Median : 3.000   Median : 1.000  
+#>  Mean   : 3.216   Mean   : 3.528   Mean   : 3.438   Mean   : 2.867  
+#>  3rd Qu.: 4.000   3rd Qu.: 6.000   3rd Qu.: 5.000   3rd Qu.: 4.000  
+#>  Max.   :10.000   Max.   :10.000   Max.   :10.000   Max.   :10.000  
+#>     Mitoses             Class    
+#>  Min.   : 1.000   benign   :458  
+#>  1st Qu.: 1.000   malignant:241  
+#>  Median : 1.000                  
+#>  Mean   : 1.589                  
+#>  3rd Qu.: 1.000                  
+#>  Max.   :10.000
 ```
 
-```{r, fig.height = 6}
+
+``` r
 plotdata (BreastCancer)
 ```
 
+<div class="figure" style="text-align: center">
+<img src="fig/v01-pca-breast-tumours-unnamed-chunk-4-1.png" alt="plot of chunk unnamed-chunk-4"  />
+<p class="caption">plot of chunk unnamed-chunk-4</p>
+</div>
+
 # Question 1. How many factorial axes are needed?
 
-```{r}
+
+``` r
 pca = PCA (BreastCancer, quali.sup = 10, scale.unit = TRUE)
 kaiser (pca)
+#> [1] 1
 ```
 
-```{r}
+
+``` r
 plot (pca, type = "eig")
 ```
 
+<div class="figure" style="text-align: center">
+<img src="fig/v01-pca-breast-tumours-unnamed-chunk-6-1.png" alt="plot of chunk unnamed-chunk-6"  />
+<p class="caption">plot of chunk unnamed-chunk-6</p>
+</div>
+
 **Answer.** *Both Kaiser's rule and the elbow of the scree plot say that a single factorial
-axis is enough.* It carries `r if (available) round (pca$eig [1, 2], 1) else 66`% of the
-variance on its own, the second one `r if (available) round (pca$eig [2, 2], 1) else 9`%.
+axis is enough.* It carries 65.6% of the
+variance on its own, the second one 8.6%.
 
 # Question 2. How should the first two axes be read?
 
-```{r, fig.height = 5.5}
+
+``` r
 plot (pca, type = "cor")
 ```
+
+<div class="figure" style="text-align: center">
+<img src="fig/v01-pca-breast-tumours-unnamed-chunk-7-1.png" alt="plot of chunk unnamed-chunk-7"  />
+<p class="caption">plot of chunk unnamed-chunk-7</p>
+</div>
 
 **Answer.** *On the correlation circle, every variable is strongly tied to the first axis. The
 second one depends mainly on `Mitoses`* -- the only variable whose coordinate on it is large.
 
-```{r}
+
+``` r
 round (pca$var$coord [, 1:2], 2)
+#>                 Dim.1 Dim.2
+#> Cl.thickness     0.73 -0.13
+#> Cell.size        0.93 -0.04
+#> Cell.shape       0.92 -0.07
+#> Marg.adhesion    0.81 -0.04
+#> Epith.c.size     0.82  0.15
+#> Bare.nuclei      0.82 -0.22
+#> Bl.cromatin      0.84 -0.20
+#> Normal.nucleoli  0.82  0.02
+#> Mitoses          0.56  0.80
 ```
 
 # Question 3. What can be said about the two groups of tumours?
@@ -93,17 +138,28 @@ The class was declared as a supplementary variable, so it played no part in buil
 Nothing stops us from colouring the individuals by it afterwards -- that is the whole point of
 declaring it supplementary.
 
-```{r, fig.height = 5}
+
+``` r
 plotdata (pca$ind$coord [, 1:2], BreastCancer [, 10], type = "scatter")
 ```
+
+<div class="figure" style="text-align: center">
+<img src="fig/v01-pca-breast-tumours-unnamed-chunk-9-1.png" alt="plot of chunk unnamed-chunk-9"  />
+<p class="caption">plot of chunk unnamed-chunk-9</p>
+</div>
 
 **Answer.** *The benign tumours form a very homogeneous group, the malignant ones a much more
 scattered one. The position on the first principal axis is related to the type of the tumour:
 the higher the value, the more likely the tumour is malignant.*
 
-```{r}
+
+``` r
 round (tapply (pca$ind$coord [, 1], BreastCancer [, 10], mean), 2)
+#>    benign malignant 
+#>     -1.57      2.99
 round (tapply (pca$ind$coord [, 1], BreastCancer [, 10], sd), 2)
+#>    benign malignant 
+#>      0.69      1.60
 ```
 
 The two means are far apart, and the standard deviation of the malignant group is more than

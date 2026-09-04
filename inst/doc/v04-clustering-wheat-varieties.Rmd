@@ -7,28 +7,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set (collapse = TRUE, comment = "#>", fig.width = 6, fig.height = 4.2,
-                       fig.align = "center")
-optional = c ("cluster")
-available = all (sapply (optional, requireNamespace, quietly = TRUE))
-knitr::opts_chunk$set (eval = available)
-```
 
-```{r, echo = FALSE, eval = !available, results = "asis"}
-cat ("**Note.** This vignette needs the following packages, some of which are missing:",
-     paste (optional, collapse = ", "), "-- the code is shown but not run.\n")
-```
 
-One of the case studies of the *Analyse de données (L3 Informatique)* course, for which
-`fdm2id` was written. Choosing the number of clusters when the criteria disagree, and judging a
-partition by compactness, by stability, and against a known truth -- three rankings that need
-not agree.
 
-The other case studies are listed by `vignette (package = "fdm2id")`; they use the same
+
+Choosing the number of clusters when the criteria disagree, and judging a partition by
+compactness, by stability, and against a known truth -- three rankings that need not agree.
+
+The other vignettes are listed by `vignette (package = "fdm2id")`; they use the same
 handful of functions on other data, and can be read in any order.
 
-```{r, message = FALSE, warning = FALSE}
+
+``` r
 library (fdm2id)
 ```
 
@@ -39,46 +29,95 @@ studied by X-ray. Seven geometric descriptors were extracted: area, perimeter, c
 length, width, asymmetry coefficient and length of the groove. The eighth column is the
 variety, which is *not* used to build the clusters -- only to judge them at the very end.
 
-```{r}
+
+``` r
 data (wheat)
 summary (wheat [, -8])
+#>       Area         Perimeter      Compactness         Length     
+#>  Min.   :10.59   Min.   :12.41   Min.   :0.8081   Min.   :4.899  
+#>  1st Qu.:12.27   1st Qu.:13.45   1st Qu.:0.8569   1st Qu.:5.262  
+#>  Median :14.36   Median :14.32   Median :0.8734   Median :5.524  
+#>  Mean   :14.85   Mean   :14.56   Mean   :0.8710   Mean   :5.629  
+#>  3rd Qu.:17.30   3rd Qu.:15.71   3rd Qu.:0.8878   3rd Qu.:5.980  
+#>  Max.   :21.18   Max.   :17.25   Max.   :0.9183   Max.   :6.675  
+#>      Width         Asymmetry          Groove     
+#>  Min.   :2.630   Min.   :0.7651   Min.   :4.519  
+#>  1st Qu.:2.944   1st Qu.:2.5615   1st Qu.:5.045  
+#>  Median :3.237   Median :3.5990   Median :5.223  
+#>  Mean   :3.259   Mean   :3.7002   Mean   :5.408  
+#>  3rd Qu.:3.562   3rd Qu.:4.7687   3rd Qu.:5.877  
+#>  Max.   :4.033   Max.   :8.4560   Max.   :6.550
 ```
 
-```{r, fig.height = 6}
+
+``` r
 plotdata (wheat [, -8])
 ```
 
+<div class="figure" style="text-align: center">
+<img src="fig/v04-clustering-wheat-varieties-unnamed-chunk-4-1.png" alt="plot of chunk unnamed-chunk-4"  />
+<p class="caption">plot of chunk unnamed-chunk-4</p>
+</div>
+
 # Question 1. Raw data, or centred and scaled?
 
-```{r}
+
+``` r
 apply (wheat [, -8], 2, sd)
+#>        Area   Perimeter Compactness      Length       Width   Asymmetry 
+#>  2.90969943  1.30595873  0.02362942  0.44306348  0.37771444  1.50355713 
+#>      Groove 
+#>  0.49148050
 ```
 
 **Answer.** *The variables are expressed in different units, and their standard deviations are
 nowhere near homogeneous -- `Area` weighs a hundred times more than `Compactness` in a
 Euclidean distance. Better to work on the centred and scaled data.*
 
-```{r}
+
+``` r
 wheat [, -8] = scale (wheat [, -8])
 ```
 
 # Question 2. How many clusters do the methods see?
 
-```{r}
+
+``` r
 # Variable: K-means starts from centres drawn at random. 'nstart = 100' keeps the best of a
 # hundred starts, which makes the answer stable in practice, but only 'seed' makes it exact.
 kmeans.getk (wheat [, -8], nstart = 100, graph = TRUE, seed = 0)
 ```
 
-```{r, fig.height = 5}
+<div class="figure" style="text-align: center">
+<img src="fig/v04-clustering-wheat-varieties-unnamed-chunk-7-1.png" alt="plot of chunk unnamed-chunk-7"  />
+<p class="caption">plot of chunk unnamed-chunk-7</p>
+</div>
+
+```
+#> [1] 2
+```
+
+
+``` r
 single = HCA (wheat [, -8], method = "single")
 plotclus (single, wheat, "tree")
 ```
 
-```{r, fig.height = 5}
+<div class="figure" style="text-align: center">
+<img src="fig/v04-clustering-wheat-varieties-unnamed-chunk-8-1.png" alt="plot of chunk unnamed-chunk-8"  />
+<p class="caption">plot of chunk unnamed-chunk-8</p>
+</div>
+
+
+``` r
 ward = HCA (wheat [, -8], method = "ward")
 plotclus (ward, wheat, "tree")
 ```
+
+<div class="figure" style="text-align: center">
+<img src="fig/v04-clustering-wheat-varieties-unnamed-chunk-9-1.png" alt="plot of chunk unnamed-chunk-9"  />
+<p class="caption">plot of chunk unnamed-chunk-9</p>
+</div>
 
 **Answer.**
 
@@ -91,26 +130,39 @@ plotclus (ward, wheat, "tree")
 
 Criteria disagree, and that disagreement is itself informative:
 
-```{r}
+
+``` r
 sapply (c ("pseudo-F", "silhouette", "elbow"),
         function (criterion) kmeans.getk (wheat [, -8], criterion = criterion,
                                           nstart = 100, seed = 0))
+#>   pseudo-F silhouette      elbow 
+#>          2          2          3
 ```
 
 # Question 3. With three clusters, which method is the most compact? The most stable?
 
-```{r}
+
+``` r
 km = KMEANS (wheat [, -8], k = 3, nstart = 100, seed = 0)
 ward = HCA (wheat [, -8], k = 3, method = "ward")
 intern (km, wheat [, -8], eval = c ("intraclass", "interclass"))
+#> intraclass interclass 
+#>   428.6082  1034.3918
 intern (ward, wheat [, -8], eval = c ("intraclass", "interclass"))
+#> intraclass interclass 
+#>   442.9298  1020.0702
 ```
 
-```{r}
+
+``` r
 # Variable: stability resamples the dataset. Note that HCA itself is deterministic -- here the
 # randomness is entirely in the resampling, not in the method being judged.
 stability (KMEANS, wheat [, -8], type = "global", k = 3, nstart = 100, seed = 0)
+#>   jaccard 
+#> 0.9335771
 stability (HCA, wheat [, -8], type = "global", method = "ward", k = 3, seed = 0)
+#>   jaccard 
+#> 0.8400962
 ```
 
 **Answer.** *$K$-means produces the more compact clusters -- lower within-cluster inertia,
@@ -123,9 +175,14 @@ Comparing a clustering with a known truth is not the same problem as evaluating 
 the cluster numbers mean nothing, only the grouping does. `comp = "pairwise"` therefore counts
 pairs of observations rather than labels.
 
-```{r}
+
+``` r
 compare (km, wheat [, 8], comp = "pairwise")
+#>  accuracy 
+#> 0.8997038
 compare (ward, wheat [, 8], comp = "pairwise")
+#>  accuracy 
+#> 0.9101846
 ```
 
 **Answer.** *Ward's clusters are very slightly closer to the three varieties than $K$-means'.*
@@ -136,9 +193,20 @@ the partition on its own, and can be computed without ever knowing the varieties
 measures the partition against something outside the data it was built from. Nothing
 guarantees that the two rankings agree, and here they do not.
 
-```{r}
+
+``` r
 table (km$cluster, wheat [, 8])
+#>    
+#>     Kama Rosa Canadian
+#>   1    2   65        0
+#>   2   62    5        4
+#>   3    6    0       66
 table (ward$cluster, wheat [, 8])
+#>    
+#>     Kama Rosa Canadian
+#>   1   64    4        5
+#>   2    4   66        0
+#>   3    2    0       65
 ```
 
 Both partitions line up with the three varieties, and both make their mistakes in the same

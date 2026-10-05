@@ -305,3 +305,29 @@ test_that ("PCR and PLS ask for no more components than the validation can fit",
   data (trees)
   expect_warning (LINREG (trees [, -3], trees [, 3], reg = "plsr"), NA)
 })
+
+# --- resplot(): residuals against the fitted values, not against the response ----------------
+# The residuals of a least-squares fit are correlated with the response (sqrt (1 - R^2)), not
+# with the fitted values, so a plot against the response shows a trend for any model. No value
+# of 'index' gave the fitted values; index = 0, the response, was the one the examples showed.
+test_that ("resplot() plots against the fitted values, and warns against the response", {
+  data (trees)
+  model = LINREG (trees [, -3], trees [, 3])
+  expect_warning (resplot (model, index = "fitted"), NA)
+  expect_warning (resplot (model), NA)
+  expect_warning (resplot (model, index = 1), NA)
+  expect_warning (resplot (model, index = 0), "fitted")
+  expect_warning (resplot (model, index = predict (model, trees [, -3]), xlab = "Predictions"), NA)
+  # The two correlations the warning is about.
+  r2 = summary (model$model)$r.squared
+  expect_equal (abs (stats::cor (residuals (model), fitted (model))), 0, tolerance = 1e-10)
+  expect_equal (stats::cor (residuals (model), trees [, 3]), sqrt (1 - r2))
+})
+
+test_that ("residuals(), fitted() and rstudent() apply to a model object", {
+  data (trees)
+  model = LINREG (trees [, -3], trees [, 3])
+  expect_identical (residuals (model), residuals (model$model))
+  expect_identical (fitted (model), fitted (model$model))
+  expect_identical (rstudent (model), rstudent (model$model))
+})

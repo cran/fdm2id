@@ -4,7 +4,7 @@
 \alias{boxclus}
 \title{Clustering Box Plots}
 \usage{
-boxclus(d, clusters, legendpos = "topleft", ...)
+boxclus(d, clusters, legendpos = "auto", ...)
 }
 \arguments{
 \item{d}{The dataset (\code{matrix} or \code{data.frame}).}
@@ -13,7 +13,10 @@ boxclus(d, clusters, legendpos = "topleft", ...)
 observations a density method left as noise), or a \code{factor}/character vector, whose
 levels are then used to label the legend.}
 
-\item{legendpos}{Position of the legend}
+\item{legendpos}{Position of the legend: \code{"auto"} (the default) places it, among the positions
+\code{\link[graphics]{legend}} offers along the edges of the plot, where it hides the least of
+what is drawn; a keyword of \code{\link[graphics]{legend}} (\code{"topleft"},
+\code{"bottom"}, ...) puts it there.}
 
 \item{...}{Other parameters.}
 }

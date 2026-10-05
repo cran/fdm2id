@@ -306,3 +306,37 @@ test_that ("the datasets declare the encoding their bytes are in", {
   expect_false (any (Encoding (rownames (universite)) == "latin1"))
   expect_true (any (grepl ("économiques", rownames (universite), fixed = TRUE)))
 })
+
+# --- Arguments renamed in 1.0.0: an error, not a silent default ------------------------------
+# Their functions end on '...', which swallowed the old name: DBSCAN (iris, epsilonDist = 1)
+# ran with an automatic 'eps' and gave another clustering without a word.
+test_that ("the arguments renamed in 1.0.0 are refused with their new name", {
+  data (iris)
+  data (trees)
+  expect_error (DBSCAN (iris [, -5], minpts = 5, epsilonDist = 1), "'eps'")
+  expect_error (EM (iris [, -5], clusters = 3), "'k'")
+  for (f in list (SVR, SVRl, SVRr, MLPREG))
+    expect_error (f (trees [, -3], trees [, 3], params = NULL), "'methodparameters'")
+  # The new names go through untouched.
+  expect_error (suppressMessages (DBSCAN (iris [, -5], minpts = 5, eps = 1)), NA)
+})
+
+# --- legend.auto(): the legend goes where it hides the least -----------------------------------
+test_that ("legend.auto() avoids the points and honours an explicit position", {
+  # Points everywhere but in the bottom right quarter.
+  set.seed (0)
+  x = runif (400)
+  y = runif (400)
+  keep = !((x > .5) & (y < .5))
+  graphics::plot (x [keep], y [keep], xlim = c (0, 1), ylim = c (0, 1))
+  r = fdm2id:::legend.auto ("auto", x [keep], y [keep], legend = c ("a", "b"), pch = 1)$rect
+  usr = graphics::par ("usr")
+  expect_gt (r$left, mean (usr [1:2]))
+  expect_lt (r$top, mean (usr [3:4]))
+  # An explicit keyword is used as it is.
+  r = fdm2id:::legend.auto ("topleft", x [keep], y [keep], legend = c ("a", "b"), pch = 1)$rect
+  expect_equal (r$left, usr [1])
+  # On log axes too.
+  graphics::plot (1:100, 1:100, log = "xy")
+  expect_error (fdm2id:::legend.auto ("auto", 1:100, 1:100, legend = "a", lty = 1), NA)
+})

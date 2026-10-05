@@ -230,7 +230,11 @@ leverageplot <-
 #' @name LINREG
 #' @param x Predictor \code{matrix}.
 #' @param y Response \code{vector}.
-#' @param quali Indicates how to use the qualitative variables.
+#' @param quali How the qualitative variables (factors) of \code{x} enter the model:
+#' \code{"none"} (the default) leaves them out, \code{"intercept"} gives each of their levels its
+#' own intercept, the slopes being shared, \code{"slope"} its own slopes, the intercept being
+#' shared, and \code{"both"} its own intercept and slopes. Ignored without a qualitative
+#' variable, and by every \code{reg} but \code{"linear"}.
 #' @param reg The algorithm.
 #' @param regeval The criterion used to choose between models. For \code{reg = "subset"}:
 #' \code{"bic"} (the default), \code{"adjr2"} or \code{"cp"}, which all penalize the number of
@@ -470,6 +474,7 @@ MLPREG <-
             tune = FALSE, methodparameters = NULL, graph = FALSE, seed = NULL,
             ...)
   {
+    renamed.args (names (match.call (expand.dots = FALSE)$...), c (params = "methodparameters"), "MLPREG")
     # No early 'return (emptyparams ())' here: tune = TRUE must return the size and decay this
     # method actually retained, exactly as MLP() does, so that performance() can obtain them
     # once and hand them back on every split instead of re-tuning the network each time. The
@@ -564,12 +569,12 @@ nbcomp <-
     {
       xlab = paste ("Number of components (", substr (toupper (reg), 1, 3), ")", sep = "");
       graphics::plot (res, main = "", ylab = eval, xlab = xlab)
-      pos = "topright"
-      if (optim > 0)
-        pos = "bottomright"
-      graphics::legend (pos, c ("Learning set",
-                                if (validation [1] == "LOO") "LOOCV" else "Cross-validation"),
-                        lty = 1:2, col = 1:2)
+      comps = 0:(dim (res$val) [3] - 1)
+      legend.auto ("auto", join.points (curve.points (comps, res$val ["train", 1, ]),
+                                        curve.points (comps, res$val ["CV", 1, ])),
+                   legend = c ("Learning set",
+                              if (validation [1] == "LOO") "LOOCV" else "Cross-validation"),
+                   lty = 1:2, col = 1:2)
       graphics::abline (v = ncomp, lty = 2)
       bottom = min (res$val ["CV",,])
       top = max (res$val ["CV",,])
@@ -617,7 +622,9 @@ plotcoeff <-
                        cex.lab = 1.5, cex.axis = 1.5, col = 1:9, lty = 1:9)
     bestx = x [which.min (cv)]
     graphics::abline (v = bestx, lwd = 2, lty = 2, col = "darkgrey")
-    graphics::legend ("topright", colnames (y), col = 1:9, lty = 1:9, lwd = 2)
+    curves = lapply (seq_len (ncol (y)), function (j) curve.points (x, y [, j]))
+    legend.auto ("auto", do.call (join.points, curves), legend = colnames (y), col = 1:9,
+                 lty = 1:9, lwd = 2)
   }
 
 #' @keywords internal
@@ -710,38 +717,64 @@ regplot <-
 #'
 #' Plot the studentized residuals of a linear regression model.
 #'
+#' The residuals of a least-squares fit are uncorrelated with the fitted values and with each
+#' explanatory variable, but not with the response: their correlation with it is
+#' \eqn{\sqrt{1 - R^2}}, whatever the model. Plotted against the response, they always show an
+#' upward trend, all the steeper as the fit is poor, and that trend says nothing about the
+#' model. They are therefore plotted against the fitted values (\code{index = "fitted"}) or an
+#' explanatory variable, never against the response; \code{index = 0} still does it, with a
+#' warning.
 #' @name resplot
 #' @param model The model to be plotted.
-#' @param index The index of the variable used for the x-axis.
+#' @param index What the residuals are plotted against: \code{NULL} (the default) for the order
+#' of the observations, \code{"fitted"} for the fitted values, the number of an explanatory
+#' variable (1 for the first one), or a numeric vector as long as the residuals. \code{0}
+#' plots them against the response (see Details).
 #' @param labels The labels of the instances.
+#' @param xlab The label of the x-axis. Left \code{NULL}, it is \code{"Index"},
+#' \code{"Fitted values"}, the name of the variable, or the expression given as \code{index}.
 #' @export
+#' @seealso \code{\link{model-methods}}
 #' @examples
 #' require (datasets)
 #' data (trees)
 #' model = LINREG (trees [, -3], trees [, 3])
 #' resplot (model) # Ordered by index
-#' resplot (model, index = 0) # Ordered by variable "Volume" (dependent variable)
-#' resplot (model, index = 1) # Ordered by variable "Girth" (independent variable)
-#' resplot (model, index = 2) # Ordered by variable "Height" (independent variable)
+#' resplot (model, index = "fitted") # Against the fitted values
+#' resplot (model, index = 1) # Against variable "Girth" (independent variable)
+#' resplot (model, index = 2) # Against variable "Height" (independent variable)
 resplot <-
-  function (model, index = NULL, labels = NULL)
+  function (model, index = NULL, labels = NULL, xlab = NULL)
   {
+    # Taken before 'index' is evaluated and replaced, to name the axis after a vector.
+    vecname = deparse1 (substitute (index))
     mod = model
-    xlab = "Index"
     if (methods::is (mod, "model"))
       mod = mod$model
     y = stats::rstudent (mod)
     if (is.null (labels))
-      labels = 1:length (mod$residuals)
+      labels = seq_along (y)
+    lab = "Index"
     if (is.null (index))
-      index = 1:length (mod$residuals)
+      index = seq_along (y)
+    else if (identical (index, "fitted"))
+    {
+      lab = "Fitted values"
+      index = stats::fitted (mod)
+    }
     else if (length (index) == 1)
     {
-      xlab = colnames (mod$model) [index + 1]
+      if (index == 0)
+        warning ("resplot: index = 0 plots the residuals against the response, with which ",
+                 "they are correlated whatever the model (sqrt (1 - R^2)). Plot them against ",
+                 "the fitted values instead: index = \"fitted\".", call. = FALSE)
+      lab = colnames (mod$model) [index + 1]
       index = unlist (mod$model [index + 1])
     }
     else
-      xlab = ""
+      lab = vecname
+    if (is.null (xlab))
+      xlab = lab
     ylim = c (min (y, -2) * 1.11, max (y, 2) * 1.11)
     graphics::plot (index, y, ylim = ylim, ylab = "Residuals", xlab = xlab, cex = 2, lwd = 2, col = ifelse (abs (y) <= 2, "darkgray", 2), cex.axis = 1.5, cex.lab = 1.5)
     mod = stats::loess (y ~ index)
@@ -752,6 +785,45 @@ resplot <-
     if (length (select) > 0)
       graphics::text (index [select], y [select], labels = labels [select], pos = 3, cex = 1)
   }
+
+#' Residuals and fitted values of a model
+#'
+#' Extract the residuals, the fitted values or the studentized residuals of a model built by one
+#' of the learning methods of the package (\code{\link{LINREG}}, for instance), as they would be
+#' from the underlying model, kept in \code{model$model}.
+#' @name model-methods
+#' @aliases residuals.model fitted.model rstudent.model
+#' @param object,model The model (of class \code{model}).
+#' @param ... Other parameters, passed to the method of the underlying model.
+#' @return A numeric vector.
+#' @seealso \code{\link[stats]{residuals}}, \code{\link[stats]{fitted}},
+#' \code{\link[stats]{rstudent}}, \code{\link{resplot}}
+#' @examples
+#' require (datasets)
+#' data (trees)
+#' model = LINREG (trees [, -3], trees [, 3])
+#' head (residuals (model))
+#' head (fitted (model))
+#' head (rstudent (model))
+NULL
+
+#' @rdname model-methods
+#' @export
+residuals.model <-
+  function (object, ...)
+    stats::residuals (object$model, ...)
+
+#' @rdname model-methods
+#' @export
+fitted.model <-
+  function (object, ...)
+    stats::fitted (object$model, ...)
+
+#' @rdname model-methods
+#' @export
+rstudent.model <-
+  function (model, ...)
+    stats::rstudent (model$model, ...)
 
 #' Regression using Support Vector Machine
 #'
@@ -793,6 +865,7 @@ SVR <-
             tune = FALSE, methodparameters = NULL, graph = FALSE, seed = NULL,
             ...)
   {
+    renamed.args (names (match.call (expand.dots = FALSE)$...), c (params = "methodparameters"), "SVR")
     setseed (seed)
     check.numeric.predictors (x, "SVR")
     model = NULL
@@ -869,6 +942,7 @@ SVRl <-
             tune = FALSE, methodparameters = NULL, graph = FALSE, seed = NULL,
             ...)
   {
+    renamed.args (names (match.call (expand.dots = FALSE)$...), c (params = "methodparameters"), "SVRl")
     setseed (seed)
     return (SVR (
       x = x,
@@ -916,6 +990,7 @@ SVRr <-
             tune = FALSE, methodparameters = NULL, graph = FALSE, seed = NULL,
             ...)
   {
+    renamed.args (names (match.call (expand.dots = FALSE)$...), c (params = "methodparameters"), "SVRr")
     setseed (seed)
     return (SVR (
       x = x,

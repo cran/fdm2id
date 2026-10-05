@@ -27,7 +27,11 @@ LINREG(
 
 \item{y}{Response \code{vector}.}
 
-\item{quali}{Indicates how to use the qualitative variables.}
+\item{quali}{How the qualitative variables (factors) of \code{x} enter the model:
+\code{"none"} (the default) leaves them out, \code{"intercept"} gives each of their levels its
+own intercept, the slopes being shared, \code{"slope"} its own slopes, the intercept being
+shared, and \code{"both"} its own intercept and slopes. Ignored without a qualitative
+variable, and by every \code{reg} but \code{"linear"}.}
 
 \item{reg}{The algorithm.}
 

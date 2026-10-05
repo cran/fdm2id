@@ -210,7 +210,7 @@ PCA <-
 
 #' @keywords internal
 plotfactorial.ind <-
-  function (x, axes = c (1, 2), col = NULL, pch = NULL, labels = FALSE, legendpos = "topleft", ...)
+  function (x, axes = c (1, 2), col = NULL, pch = NULL, labels = FALSE, legendpos = "auto", ...)
   {
     coord = x$ind$coord [, axes]
     xlab = paste (colnames (coord) [1], " (", round (x$eig [axes [1], 2], 2), " %)", sep = "")
@@ -242,7 +242,8 @@ plotfactorial.ind <-
         graphics::points (coord.sup, col = "blue", pch = 3)
     }
     if (!is.null (k))
-      graphics::legend (x = legendpos, legend = levels (k), pch = sort (unique (pch)), col = sort (unique (col)), bty = "n")
+      legend.auto (legendpos, rbind (coord, x$ind.sup$coord [, axes]), legend = levels (k),
+                   pch = sort (unique (pch)), col = sort (unique (col)), bty = "n")
   }
 
 #' Plot function for factorial-class
@@ -258,7 +259,11 @@ plotfactorial.ind <-
 #' that an external clustering can be used.
 #' @param pch Point style(s) of the individuals on the scatter plot (\code{type = "ind"}, PCA only -- \code{\link[FactoMineR]{plot.CA}} and \code{\link[FactoMineR]{plot.MCA}}, which draw the CA and MCA plots, have no equivalent argument). Same default/auto-detection logic as \code{col}. Accepts the same values as the base \code{pch} graphical parameter.
 #' @param labels Whether the row names are shown instead of points (\code{type = "ind"}).
-#' @param legendpos Position of the legend (\code{type = "ind"}, PCA only, when individuals are colored by a qualitative variable).
+#' @param legendpos Position of the legend: \code{"auto"} (the default) places it, among the positions
+#' \code{\link[graphics]{legend}} offers along the edges of the plot, where it hides the least of
+#' what is drawn; a keyword of \code{\link[graphics]{legend}} (\code{"topleft"},
+#' \code{"bottom"}, ...) puts it there. Used by \code{type = "eig"}, and by \code{type = "ind"} on a PCA
+#' whose individuals are coloured by a qualitative variable.
 #' @param ... Other parameters.
 #' @method plot factorial
 #' @export
@@ -274,7 +279,7 @@ plotfactorial.ind <-
 #' km = KMEANS (iris [, -5], k = 3)
 #' plot (pca, col = km$cluster + 1, pch = km$cluster + 1)
 plot.factorial <-
-  function (x, type = c ("ind", "cor", "eig"), axes = c (1, 2), col = NULL, pch = NULL, labels = FALSE, legendpos = "topleft", ...)
+  function (x, type = c ("ind", "cor", "eig"), axes = c (1, 2), col = NULL, pch = NULL, labels = FALSE, legendpos = "auto", ...)
   {
     if ("pca" %in% class (x))
       class (x) = c ("PCA", class (x) [-1])
@@ -326,8 +331,10 @@ plot.factorial <-
       graphics::grid ()
       graphics::lines (x = 1:nrow (x$eig), y = x$eig [, 3], type = "b", col = "red", lwd = 2)
       graphics::lines (x = 1:nrow (x$eig), y = x$eig [, 2], type = "b", col = "blue", lwd = 2)
-      graphics::legend ("right", lty = 1, lwd = 2, col = c ("blue", "red"), bty = "n",
-                        legend = c ("Percentage of variance", "Cumulative percentage of variance"))
+      legend.auto (legendpos, join.points (curve.points (1:nrow (x$eig), x$eig [, 2]),
+                                           curve.points (1:nrow (x$eig), x$eig [, 3])),
+                   lty = 1, lwd = 2, col = c ("blue", "red"), bty = "n",
+                   legend = c ("Percentage of variance", "Cumulative percentage of variance"))
       graphics::axis (side = 1, at = 1:nrow (x$eig), lwd = 0, lwd.ticks = 1)
       graphics::axis (side = 2, at = seq (0, to = 100, by = 20), lwd = 0, lwd.ticks = 1)
     }

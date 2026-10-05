@@ -373,7 +373,9 @@ plotzipf <-
     on.exit (options (old))
     graphics::plot (x = rank, y = freq, log = "xy", xlab = "Rank", ylab = "Frequency", t = "l")
     graphics::lines (rank, 2^model$coefficients [1] / rank^(-model$coefficients [2]), col = "red", lty = 2)
-    graphics::legend ("topright", col = 1:2, legend = c ("Observations", "Zipf's law"), lty = 1:2, bty = "n")
+    legend.auto ("auto", join.points (curve.points (rank, freq),
+                                      curve.points (rank, 2^model$coefficients [1] / rank^(-model$coefficients [2]))),
+                 col = 1:2, legend = c ("Observations", "Zipf's law"), lty = 1:2, bty = "n")
   }
 
 #' Model predictions

@@ -4,7 +4,7 @@
 \alias{plot.selection}
 \title{Plot a feature selection}
 \usage{
-\method{plot}{selection}(x, horiz = TRUE, legendpos = "bottomright", ...)
+\method{plot}{selection}(x, horiz = TRUE, legendpos = "auto", ...)
 }
 \arguments{
 \item{x}{The selection (object of class \code{\link{selection-class}}, created by
@@ -13,7 +13,10 @@
 \item{horiz}{Whether the bars are drawn horizontally, which leaves room for long variable
 names.}
 
-\item{legendpos}{Position of the legend.}
+\item{legendpos}{Position of the legend: \code{"auto"} (the default) places it, among the positions
+\code{\link[graphics]{legend}} offers along the edges of the plot, where it hides the least of
+what is drawn; a keyword of \code{\link[graphics]{legend}} (\code{"topleft"},
+\code{"bottom"}, ...) puts it there.}
 
 \item{...}{Other parameters, passed to \code{\link[graphics]{barplot}}.}
 }

@@ -198,6 +198,8 @@ test_that ("treeplot() copes with k = 1, missing labels and a raw agnes object",
   expect_error (treeplot (HCA (as.matrix (unname (iris [, -5])), k = 3), labels = TRUE), NA)
   # The documentation says agnes results are accepted; rect.hclust() needs an hclust.
   expect_error (treeplot (cluster::agnes (iris [, -5], method = "ward"), k = 3), NA)
+  expect_error (treeplot (hca, highlight = "branches", axes = FALSE, ylab = ""), NA)
+  expect_error (treeplot (cluster::agnes (iris [, -5], method = "ward"), k = 3, highlight = "branches"), NA)
 })
 
 # ========================================================================================
@@ -797,4 +799,45 @@ test_that ("compare.* give the same value for a factor and a character ground tr
       expect_equal (fun (clus, as.character (iris [, 5]), comp = comp), ref)
       expect_lt (unname (ref), 1)
     }
+})
+
+test_that ("treeplot (highlight = \"branches\") colours each branch with the colour of its cluster", {
+  data (iris)
+  hca = HCA (iris [, -5], k = 3, method = "ward")
+  tree = colourbranches (stats::as.dendrogram (hca), stats::as.hclust (hca), 3)
+  # The two children of the root lie above the cut: dashed and black.
+  expect_equal (attr (tree [[1]], "edgePar")$lty, 2)
+  # Every leaf lies below the cut, coloured as plotclus() colours its observation.
+  leaves = list ()
+  stats::dendrapply (tree, function (node)
+  {
+    if (stats::is.leaf (node))
+      leaves [[length (leaves) + 1]] <<- c (node, attr (node, "edgePar")$col)
+    node
+  })
+  leaves = do.call (rbind, leaves)
+  expect_equal (leaves [, 2], hca$cluster [leaves [, 1]] + 1)
+})
+
+test_that ("plot() on an HCA draws its dendrogram", {
+  data (iris)
+  grDevices::pdf (file = tempfile (fileext = ".pdf"))
+  on.exit (grDevices::dev.off ())
+  hca = HCA (iris [, -5], k = 3, method = "ward")
+  expect_error (plot (hca), NA)
+  expect_error (plot (hca, k = 2, axes = FALSE, ylab = ""), NA)
+  expect_error (plot (hca, highlight = "rectangles"), NA)
+})
+
+# --- kmeans.getk(): re-seeded before each k ---------------------------------------------------
+# The number of clusters it retains is the one the pseudo-F of KMEANS (..., seed) gives, with
+# the same 'nstart'.
+test_that ("kmeans.getk() agrees with the pseudo-F of KMEANS() under the same seed", {
+  data (iris)
+  for (n in c (1, 10))
+  {
+    f = sapply (2:9, function (k) pseudoF (KMEANS (iris [, -5], k, nstart = n, seed = 0)))
+    expect_equal (kmeans.getk (iris [, -5], nstart = n, seed = 0), which.max (f) + 1,
+                  info = n)
+  }
 })

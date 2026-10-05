@@ -4,7 +4,7 @@
 \alias{plot.cda}
 \title{Plot function for cda-class}
 \usage{
-\method{plot}{cda}(x, newdata = NULL, axes = 1:2, legendpos = "topleft", ...)
+\method{plot}{cda}(x, newdata = NULL, axes = 1:2, legendpos = "auto", ...)
 }
 \arguments{
 \item{x}{The classification model (object of class \code{cda-class}).}

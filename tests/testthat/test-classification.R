@@ -1175,3 +1175,20 @@ test_that ("roc.curves() gives the same curve whichever level is the positive cl
   expect_gt (auc ("+"), 0.5)
   expect_gt (auc ("-"), 0.5)
 })
+
+test_that ("LR() predicts from a one-column data frame", {
+  data (iris)
+  d = iris [51:150, ]
+  model = LR (d [, 1, drop = FALSE], factor (d [, 5]))
+  expect_equal (length (predict (model, d [, 1, drop = FALSE])), nrow (d))
+})
+
+# --- evaluation.kappa(): n * n overflowed as an integer beyond 46 340 predictions ------------
+test_that ("evaluation.kappa() works on more than 46 340 predictions", {
+  gt = factor (rep (c ("a", "b"), 25000))
+  pred = gt
+  pred [1:1000] = "a"
+  expect_warning (k <- evaluation.kappa (pred, gt), NA)
+  # 500 of the 25 000 b are predicted a: po = 0.99, pe = 0.5 * 0.51 + 0.5 * 0.49.
+  expect_equal (k, (0.99 - 0.5) / 0.5)
+})

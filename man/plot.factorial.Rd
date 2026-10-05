@@ -11,7 +11,7 @@
   col = NULL,
   pch = NULL,
   labels = FALSE,
-  legendpos = "topleft",
+  legendpos = "auto",
   ...
 )
 }
@@ -31,7 +31,11 @@ that an external clustering can be used.}
 
 \item{labels}{Whether the row names are shown instead of points (\code{type = "ind"}).}
 
-\item{legendpos}{Position of the legend (\code{type = "ind"}, PCA only, when individuals are colored by a qualitative variable).}
+\item{legendpos}{Position of the legend: \code{"auto"} (the default) places it, among the positions
+\code{\link[graphics]{legend}} offers along the edges of the plot, where it hides the least of
+what is drawn; a keyword of \code{\link[graphics]{legend}} (\code{"topleft"},
+\code{"bottom"}, ...) puts it there. Used by \code{type = "eig"}, and by \code{type = "ind"} on a PCA
+whose individuals are coloured by a qualitative variable.}
 
 \item{...}{Other parameters.}
 }

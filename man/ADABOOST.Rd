@@ -22,7 +22,10 @@ ADABOOST(
 
 \item{y}{The target (class labels or numeric values), a \code{factor} or \code{vector}.}
 
-\item{learningmethod}{The boosted method.}
+\item{learningmethod}{The base learner: a learning method of the package, such as
+\code{\link{CART}} or \code{\link{NB}}. Through \code{\link{performance}}, it is given
+by name among the other arguments, \code{performance (BAGGING, x, y, learningmethod =
+CART)}; the other methods of the list ignore it.}
 
 \item{nsamples}{The number of samplings.}
 
@@ -53,6 +56,9 @@ Ensemble learning, through AdaBoost Algorithm.
 require (datasets)
 data (iris)
 ADABOOST (iris [, -5], iris [, 5], NB)
+# Evaluated, with its base learner given by name
+performance (c (CART, ADABOOST), iris [, -5], iris [, 5], learningmethod = CART,
+             nruns = 5, seed = 0)
 }
 }
 \seealso{

@@ -302,3 +302,13 @@ test_that ("a categorical target also colours the plot, a numeric one does not",
   expect_error (plotdata (iris [, -5], target = iris [, 5], type = "pairs"), NA)
   expect_error (plotdata (iris [, 1:3], target = iris [, 4], type = "pairs"), NA)
 })
+
+# --- plotdata (scale = TRUE): scaled projections -----------------------------------------------
+test_that ("plotdata() projects scaled variables on request", {
+  data (iris)
+  for (type in c ("pca", "scatter"))
+  {
+    expect_error (plotdata (iris, type = type, scale = TRUE), NA, info = type)
+    expect_error (plotdata (iris, type = type), NA, info = type)
+  }
+})

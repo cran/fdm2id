@@ -4,24 +4,42 @@
 \alias{resplot}
 \title{Plot the studentized residuals of a linear regression model}
 \usage{
-resplot(model, index = NULL, labels = NULL)
+resplot(model, index = NULL, labels = NULL, xlab = NULL)
 }
 \arguments{
 \item{model}{The model to be plotted.}
 
-\item{index}{The index of the variable used for the x-axis.}
+\item{index}{What the residuals are plotted against: \code{NULL} (the default) for the order
+of the observations, \code{"fitted"} for the fitted values, the number of an explanatory
+variable (1 for the first one), or a numeric vector as long as the residuals. \code{0}
+plots them against the response (see Details).}
 
 \item{labels}{The labels of the instances.}
+
+\item{xlab}{The label of the x-axis. Left \code{NULL}, it is \code{"Index"},
+\code{"Fitted values"}, the name of the variable, or the expression given as \code{index}.}
 }
 \description{
 Plot the studentized residuals of a linear regression model.
+}
+\details{
+The residuals of a least-squares fit are uncorrelated with the fitted values and with each
+explanatory variable, but not with the response: their correlation with it is
+\eqn{\sqrt{1 - R^2}}, whatever the model. Plotted against the response, they always show an
+upward trend, all the steeper as the fit is poor, and that trend says nothing about the
+model. They are therefore plotted against the fitted values (\code{index = "fitted"}) or an
+explanatory variable, never against the response; \code{index = 0} still does it, with a
+warning.
 }
 \examples{
 require (datasets)
 data (trees)
 model = LINREG (trees [, -3], trees [, 3])
 resplot (model) # Ordered by index
-resplot (model, index = 0) # Ordered by variable "Volume" (dependent variable)
-resplot (model, index = 1) # Ordered by variable "Girth" (independent variable)
-resplot (model, index = 2) # Ordered by variable "Height" (independent variable)
+resplot (model, index = "fitted") # Against the fitted values
+resplot (model, index = 1) # Against variable "Girth" (independent variable)
+resplot (model, index = 2) # Against variable "Height" (independent variable)
+}
+\seealso{
+\code{\link{model-methods}}
 }

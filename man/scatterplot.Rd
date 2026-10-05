@@ -10,7 +10,7 @@ scatterplot(
   centers = NULL,
   labels = FALSE,
   ellipses = FALSE,
-  legend = c("auto1", "auto2"),
+  legend = "auto",
   ...
 )
 }
@@ -27,7 +27,11 @@ levels are then used to label the legend.}
 
 \item{ellipses}{Indicates whether or not ellipses should be drawned around clusters.}
 
-\item{legend}{Indicates where the legend is placed on the graphics.}
+\item{legend}{Position of the legend: \code{"auto"} (the default) places it, among the positions
+\code{\link[graphics]{legend}} offers along the edges of the plot, where it hides the least of
+what is drawn; a keyword of \code{\link[graphics]{legend}} (\code{"topleft"},
+\code{"bottom"}, ...) puts it there. \code{"auto1"} and \code{"auto2"}, the two
+heuristics of earlier versions, now mean \code{"auto"}.}
 
 \item{...}{Other parameters.}
 }

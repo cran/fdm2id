@@ -10,6 +10,8 @@ treeplot(
   k = NULL,
   split = TRUE,
   horiz = FALSE,
+  highlight = c("rectangles", "branches"),
+  ylab = "Height",
   ...
 )
 }
@@ -24,7 +26,15 @@ treeplot(
 
 \item{horiz}{Indicates if the dendrogram should be drawn horizontally or not.}
 
-\item{...}{Other parameters.}
+\item{highlight}{How the clusters are highlighted when \code{split} is \code{TRUE}:
+\code{"rectangles"} draws a rectangle around each cluster, \code{"branches"} colours the
+branches below the cut with the colour of their cluster (the colours of
+\code{\link{plotclus}}) and dashes the ones above it.}
+
+\item{ylab}{The label of the vertical axis.}
+
+\item{...}{Other parameters, passed to \code{\link[stats]{plot.dendrogram}} (for
+instance \code{axes = FALSE}).}
 }
 \description{
 Draws a dendrogram.
@@ -34,6 +44,7 @@ require (datasets)
 data (iris)
 hca = HCA (iris [, -5], k = 3, method = "ward")
 treeplot (hca)
+treeplot (hca, highlight = "branches")
 }
 \seealso{
 \code{\link[stats]{dendrogram}}, \code{\link{HCA}}, \code{\link[stats]{hclust}}, \code{\link[cluster]{agnes}}

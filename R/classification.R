@@ -237,7 +237,10 @@ adaboost.m2 <-
 #' @name ADABOOST
 #' @param x The dataset (description/predictors), a \code{matrix} or \code{data.frame}.
 #' @param y The target (class labels or numeric values), a \code{factor} or \code{vector}.
-#' @param learningmethod The boosted method.
+#' @param learningmethod The base learner: a learning method of the package, such as
+#' \code{\link{CART}} or \code{\link{NB}}. Through \code{\link{performance}}, it is given
+#' by name among the other arguments, \code{performance (BAGGING, x, y, learningmethod =
+#' CART)}; the other methods of the list ignore it.
 #' @param nsamples The number of samplings.
 #' @param fuzzy Indicates whether or not fuzzy classification should be used or not.
 #' @inheritParams tune.doc
@@ -257,6 +260,9 @@ adaboost.m2 <-
 #' require (datasets)
 #' data (iris)
 #' ADABOOST (iris [, -5], iris [, 5], NB)
+#' # Evaluated, with its base learner given by name
+#' performance (c (CART, ADABOOST), iris [, -5], iris [, 5], learningmethod = CART,
+#'              nruns = 5, seed = 0)
 #' }
 ADABOOST <-
   function (x, y, learningmethod, nsamples = 100, fuzzy = FALSE,
@@ -285,7 +291,10 @@ ADABOOST <-
 #' @name BAGGING
 #' @param x The dataset (description/predictors), a \code{matrix} or \code{data.frame}.
 #' @param y The target (class labels or numeric values), a \code{factor} or \code{vector}.
-#' @param learningmethod The boosted method.
+#' @param learningmethod The base learner: a learning method of the package, such as
+#' \code{\link{CART}} or \code{\link{NB}}. Through \code{\link{performance}}, it is given
+#' by name among the other arguments, \code{performance (BAGGING, x, y, learningmethod =
+#' CART)}; the other methods of the list ignore it.
 #' @param nsamples The number of samplings.
 #' @param bag.size The size of the samples.
 #' @param seed A specified seed for random number generation.
@@ -304,6 +313,9 @@ ADABOOST <-
 #' require (datasets)
 #' data (iris)
 #' BAGGING (iris [, -5], iris [, 5], NB)
+#' # Evaluated, with its base learner given by name
+#' performance (c (CART, BAGGING), iris [, -5], iris [, 5], learningmethod = CART,
+#'              nruns = 5, seed = 0)
 #' }
 BAGGING <-
   function (x, y, learningmethod, nsamples = 100, bag.size = nrow (x),
@@ -819,6 +831,7 @@ curve.plot <-
             "labels (", paste (levels (gt), collapse = ", "), ").")
     scores = curve.scores (predictions, gt, positive, type)
     labels = as.numeric (gt == positive)
+    curves = list ()
     for (i in seq_along (scores))
     {
       pred = ROCR::prediction (scores [[i]], labels)
@@ -828,11 +841,12 @@ curve.plot <-
         ROCR::plot (perf, ...)
       else
         ROCR::plot (perf, add = TRUE, lty = i, col = i)
+      for (j in seq_along (perf@x.values))
+        curves = c (curves, list (curve.points (perf@x.values [[j]], perf@y.values [[j]])))
     }
     if ((length (scores) > 1) && (!is.null (methods.names)))
-      graphics::legend (if (measure [1] == "tpr") "bottomright" else "topleft",
-                        methods.names, lty = seq_along (scores), col = seq_along (scores),
-                        bty = "n")
+      legend.auto ("auto", do.call (join.points, curves), legend = methods.names,
+                   lty = seq_along (scores), col = seq_along (scores), bty = "n")
     invisible (NULL)
   }
 
@@ -1096,7 +1110,8 @@ eval.kappa <-
   {
     a = align.labels (predictions, gt)
     t = table (a$gt, a$predictions)
-    n = sum (t)
+    # As a double: the integer count would overflow in n * n beyond 46 340 predictions.
+    n = as.numeric (sum (t))
     if (n == 0)
       return (NA_real_)
     po = sum (diag (t)) / n
@@ -1604,10 +1619,11 @@ LR <-
       # returned NULL silently.
       labels = check.classes (labels, "LR")
       if (is.vector (train))
-      {
         train = matrix (train, ncol = 1)
+      # A single variable is named "X", as predictmodel.lr() names it: a one-column data frame
+      # kept its own name here, which predict() then could not find in the renamed test set.
+      if (ncol (train) == 1)
         colnames (train) = "X"
-      }
       reg = match.arg (reg [1], c ("none", "ridge", "lasso", "elastic"))
       if (reg == "none")
       {
@@ -1812,7 +1828,12 @@ panel.compare <-
 #' @param nfolds The number of folds (crossvalidation estimation).
 #' @param new A logical value indicating whether a new plot should be created or not (cost curves or ROC curves).
 #' @param lty The line type (and color) specified as an integer (cost curves or ROC curves).
-#' @param methodparameters Method parameters (if null tuning is done by cross-validation).
+#' @param methodparameters Pre-tuned parameters. Left \code{NULL}, each method is tuned once,
+#' on the whole training set, before the evaluation begins: a method whose hyperparameters are
+#' given as vectors (\code{\link{SVM}}, \code{\link{MLP}}, \code{\link{KNN}}, ...) searches
+#' them by cross-validation, which can take much longer than the evaluation itself -- 49 pairs
+#' of values and 10 folds for \code{\link{SVMr}}. To tune only once, pass the result of the
+#' method called with \code{tune = TRUE}, or a list of them, one per method.
 #' @param names Method names.
 #' @param fuzzy Used by \code{type = "roc"} and \code{type = "cost"} only. \code{FALSE} by
 #' default: the curves are built from the hard class labels, which reduces them to three
@@ -1872,6 +1893,13 @@ panel.compare <-
 #' # Actual vs. predicted
 #' data (trees)
 #' performance (LINREG, trees [, -3], trees [, 3], type = "avsp")
+#' # Ensemble methods: the base learner of BAGGING and ADABOOST is given by name, and the
+#' # other methods of the list ignore it
+#' performance (c (CART, BAGGING, ADABOOST), iris [, -5], iris [, 5], learningmethod = CART,
+#'              seed = 0)
+#' # Tuning once, then evaluating with the parameters retained
+#' param = SVMr (iris [, -5], iris [, 5], tune = TRUE, seed = 0)
+#' performance (SVMr, iris [, -5], iris [, 5], methodparameters = param, seed = 0)
 #' }
 performance <-
   function (methods, train.x, train.y, test.x = NULL, test.y = NULL, train.size = round (0.7 * nrow (train.x)), type = c ("evaluation", "confusion", "roc", "cost", "scatter", "avsp"),
@@ -2148,7 +2176,7 @@ cda.axislabel <-
 #' model = CDA (iris [, -5], iris [, 5])
 #' plot (model)
 plot.cda <-
-  function (x, newdata = NULL, axes = 1:2, legendpos = "topleft", ...)
+  function (x, newdata = NULL, axes = 1:2, legendpos = "auto", ...)
   {
     proj = as.matrix (x$proj)
     classes = factor (x$labels)
@@ -2192,8 +2220,15 @@ plot.cda <-
     graphics::points (coord, col = cols [as.numeric (classes)], pch = 1)
     if (!is.null (test))
       graphics::points (test, col = cols [as.numeric (testclass)], pch = 3)
+    drawn = rbind (coord, test)
     if (flat)
-      graphics::abline (h = tapply (proj [, 1], classes, mean), col = cols, lty = 2, lwd = 2)
+    {
+      means = tapply (proj [, 1], classes, mean)
+      graphics::abline (h = means, col = cols, lty = 2, lwd = 2)
+      usr = graphics::par ("usr")
+      drawn = rbind (drawn, do.call (rbind, lapply (means, function (m)
+        do.call (cbind, curve.points (usr [1:2], c (m, m))))))
+    }
     else
       graphics::points (t (sapply (levs, function (l)
                                    colMeans (coord [classes == l, , drop = FALSE]))),
@@ -2210,8 +2245,8 @@ plot.cda <-
       lpch = c (lpch, 3)
       llty = c (llty, 0)
     }
-    graphics::legend (legendpos, legend = labels, col = lcol, pch = lpch, lty = llty,
-                      bty = "n")
+    legend.auto (legendpos, drawn, legend = labels, col = lcol, pch = lpch, lty = llty,
+                 bty = "n")
   }
 
 #' Model predictions

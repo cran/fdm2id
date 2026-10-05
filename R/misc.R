@@ -82,6 +82,142 @@ cluster.legend <-
   }
 
 #' @keywords internal
+# Draws a legend where it hides the least of the plot. An explicit 'pos' -- a keyword of
+# legend(), or coordinates -- is honoured. "auto" tries the eight keywords legend() places
+# along the edges of the plotting region, counts the points of 'x'/'y' each box would cover,
+# and keeps the smallest count; ties go to the box lying furthest from the nearest point, then
+# to the order of the keywords below. 'x'/'y' stand for what the plot shows: its points, its
+# curves sampled along their length (curve.points()), its bars and boxes filled with points
+# (rect.points()). Everything else goes to legend(), whose text follows par ("cex.lab") here
+# as everywhere in the package.
+legend.auto <-
+  function (pos = "auto", x = NULL, y = NULL, ...)
+  {
+    if (!(is.character (pos) && (length (pos) == 1) && (pos == "auto")))
+      return (invisible (graphics::legend (x = pos, cex = graphics::par ("cex.lab"), ...)))
+    candidates = c ("topleft", "topright", "bottomleft", "bottomright", "top", "bottom",
+                    "left", "right")
+    usr = graphics::par ("usr")
+    px = numeric (0)
+    py = numeric (0)
+    if (!is.null (x))
+    {
+      xy = grDevices::xy.coords (x, y)
+      px = xy$x
+      py = xy$y
+      # par ("usr") and the box legend() returns are in the plotted space, logarithmic on a
+      # log axis.
+      if (graphics::par ("xlog"))
+        px = log10 (px)
+      if (graphics::par ("ylog"))
+        py = log10 (py)
+      ok = is.finite (px) & is.finite (py)
+      px = px [ok]
+      py = py [ok]
+    }
+    # In fractions of the plotting region, so that both axes weigh alike in the distances.
+    sx = (px - usr [1]) / (usr [2] - usr [1])
+    sy = (py - usr [3]) / (usr [4] - usr [3])
+    score = sapply (candidates, function (p)
+    {
+      # Already in the plotted space, like par ("usr").
+      r = graphics::legend (x = p, cex = graphics::par ("cex.lab"), plot = FALSE, ...)$rect
+      left = (r$left - usr [1]) / (usr [2] - usr [1])
+      right = left + r$w / (usr [2] - usr [1])
+      top = (r$top - usr [3]) / (usr [4] - usr [3])
+      bottom = top - r$h / (usr [4] - usr [3])
+      covered = sum ((sx >= left) & (sx <= right) & (sy >= bottom) & (sy <= top))
+      dx = pmax (left - sx, 0, sx - right)
+      dy = pmax (bottom - sy, 0, sy - top)
+      c (covered, if (length (sx) > 0) min (sqrt (dx^2 + dy^2)) else 0)
+    })
+    best = order (score [1, ], -score [2, ], seq_along (candidates)) [1]
+    invisible (graphics::legend (x = candidates [best], cex = graphics::par ("cex.lab"), ...))
+  }
+
+#' @keywords internal
+# Points spread along a curve, so that legend.auto() sees the line and not only its vertices:
+# a ROC curve or a scree plot has few of them, far apart. Evenly spaced in the plotted space
+# (log axes included), 'n' per curve; an NA breaks the curve, as it does for lines().
+curve.points <-
+  function (x, y, n = 500)
+  {
+    usr = graphics::par ("usr")
+    tx = if (graphics::par ("xlog")) log10 (x) else x
+    ty = if (graphics::par ("ylog")) log10 (y) else y
+    ok = is.finite (tx) & is.finite (ty)
+    if (sum (ok) < 2)
+      return (list (x = x [ok], y = y [ok]))
+    tx = tx [ok]
+    ty = ty [ok]
+    sx = (tx - usr [1]) / (usr [2] - usr [1])
+    sy = (ty - usr [3]) / (usr [4] - usr [3])
+    along = c (0, cumsum (sqrt (diff (sx)^2 + diff (sy)^2)))
+    if (along [length (along)] == 0)
+      return (list (x = x [ok], y = y [ok]))
+    at = seq (0, along [length (along)], length.out = n)
+    keep = !duplicated (along)
+    rx = stats::approx (along [keep], tx [keep], at)$y
+    ry = stats::approx (along [keep], ty [keep], at)$y
+    if (graphics::par ("xlog"))
+      rx = 10^rx
+    if (graphics::par ("ylog"))
+      ry = 10^ry
+    return (list (x = rx, y = ry))
+  }
+
+#' @keywords internal
+# Points filling rectangles -- the bars of a bar plot, the boxes and whiskers of a box plot --
+# for legend.auto(): an n x n grid in each.
+rect.points <-
+  function (xleft, ybottom, xright, ytop, n = 10)
+  {
+    s = seq (0, 1, length.out = n)
+    ok = is.finite (xleft) & is.finite (ybottom) & is.finite (xright) & is.finite (ytop)
+    res = lapply (which (ok), function (i)
+      expand.grid (x = xleft [i] + s * (xright [i] - xleft [i]),
+                   y = ybottom [i] + s * (ytop [i] - ybottom [i])))
+    if (length (res) == 0)
+      return (list (x = numeric (0), y = numeric (0)))
+    res = do.call (rbind, res)
+    return (list (x = res$x, y = res$y))
+  }
+
+#' @keywords internal
+# What a box plot occupies, from the statistics boxplot() returns: each box with its
+# whiskers (0.8 wide, centred on its position), and the outliers.
+box.points <-
+  function (b, at = seq_len (ncol (b$stats)))
+  {
+    r = rect.points (at - .4, b$stats [1, ], at + .4, b$stats [5, ])
+    list (x = c (r$x, at [b$group]), y = c (r$y, b$out))
+  }
+
+#' @keywords internal
+# Several sets of points (lists with x and y) put together.
+join.points <-
+  function (...)
+  {
+    sets = Filter (Negate (is.null), list (...))
+    list (x = unlist (lapply (sets, function (s) s$x)), y = unlist (lapply (sets, function (s) s$y)))
+  }
+
+#' @keywords internal
+# Arguments renamed in fdm2id 1.0.0. A function whose formals end on '...' swallowed the old
+# name without a word and computed with the default of the new one, so an old script gave
+# another result instead of failing. Called first thing by the functions concerned, with the
+# names of their '...' (match.call() rather than ...names(), which needs R 4.1).
+renamed.args <-
+  function (dots, renamed, fun)
+  {
+    old = intersect (dots, names (renamed))
+    if (length (old) > 0)
+      stop (fun, ": '", old [1], "' was renamed '", renamed [[old [1]]], "' in fdm2id 1.0.0.",
+            call. = FALSE)
+    invisible (NULL)
+  }
+
+#' @keywords internal
 # Seeds the random number generator, but *only* when a seed was actually given.
 #
 # set.seed (NULL) is not a no-op: it re-initialises the generator from the current time and the

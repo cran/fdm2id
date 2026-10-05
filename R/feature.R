@@ -736,7 +736,10 @@ predict.selection <-
 #' \code{\link{selectfeatures}}).
 #' @param horiz Whether the bars are drawn horizontally, which leaves room for long variable
 #' names.
-#' @param legendpos Position of the legend.
+#' @param legendpos Position of the legend: \code{"auto"} (the default) places it, among the positions
+#' \code{\link[graphics]{legend}} offers along the edges of the plot, where it hides the least of
+#' what is drawn; a keyword of \code{\link[graphics]{legend}} (\code{"topleft"},
+#' \code{"bottom"}, ...) puts it there.
 #' @param ... Other parameters, passed to \code{\link[graphics]{barplot}}.
 #' @export
 #' @method plot selection
@@ -752,7 +755,7 @@ predict.selection <-
 #' plot (selection)
 #' }
 plot.selection <-
-  function (x, horiz = TRUE, legendpos = "bottomright", ...)
+  function (x, horiz = TRUE, legendpos = "auto", ...)
   {
     scores = x$unieval
     if (is.null (scores) || (length (scores) == 0))
@@ -774,10 +777,13 @@ plot.selection <-
       opar = graphics::par (mar = graphics::par ("mar") + c (0, extra, 0, 0))
       on.exit (graphics::par (opar))
     }
-    graphics::barplot (scores, horiz = horiz, col = colours, border = NA, las = 1,
+    mid = graphics::barplot (scores, horiz = horiz, col = colours, border = NA, las = 1,
                        xlab = if (horiz) x$univariate else "",
                        ylab = if (horiz) "" else x$univariate, ...)
-    graphics::legend (legendpos, c ("kept", "dropped"), fill = c (2, "grey75"), bty = "n")
+    bars = if (horiz) rect.points (pmin (scores, 0), mid - .5, pmax (scores, 0), mid + .5)
+           else rect.points (mid - .5, pmin (scores, 0), mid + .5, pmax (scores, 0))
+    legend.auto (legendpos, bars, legend = c ("kept", "dropped"), fill = c (2, "grey75"),
+                 bty = "n")
   }
 
 #' @keywords internal
@@ -804,7 +810,7 @@ fseval.univariate <-
 
 #' @keywords internal
 fseval.multivariate <-
-  function () c ("mrmr", "cfs", "fstat", "inertiaratio", "wrapper")
+  function () c ("cfs", "mrmr", "fstat", "inertiaratio", "wrapper")
 
 #' @keywords internal
 # Lookup table for the fseval.* dispatch used by selectfeatures(). Built lazily (as a

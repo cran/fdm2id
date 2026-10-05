@@ -492,3 +492,12 @@ test_that ("a selection reports only the criteria it actually used", {
   sized = selectfeatures (iris [, -5], iris [, 5], unieval = "fisher", multieval = "fstat")
   expect_equal (sized$multivariate, "fstat")
 })
+
+# --- selectfeatures(): the default criterion kept a single feature -----------------------------
+# Ranking scores the nested subsets of the best features with the multivariate criterion. mRMR,
+# fstat and inertiaratio are averages, which only decrease as less relevant features join, so
+# they always stopped at one feature. CFS, the default now, has a genuine optimum.
+test_that ("selectfeatures() keeps more than one feature by default", {
+  data (iris)
+  expect_gt (length (selectfeatures (iris [, -5], iris [, 5])$selection), 1)
+})

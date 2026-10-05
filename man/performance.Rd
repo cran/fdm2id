@@ -73,7 +73,12 @@ explicit test set: either a number of observations, or a proportion between 0 an
 
 \item{seed}{A specified seed for random number generation (useful for testing different method with the same bootstap samplings).}
 
-\item{methodparameters}{Method parameters (if null tuning is done by cross-validation).}
+\item{methodparameters}{Pre-tuned parameters. Left \code{NULL}, each method is tuned once,
+on the whole training set, before the evaluation begins: a method whose hyperparameters are
+given as vectors (\code{\link{SVM}}, \code{\link{MLP}}, \code{\link{KNN}}, ...) searches
+them by cross-validation, which can take much longer than the evaluation itself -- 49 pairs
+of values and 10 folds for \code{\link{SVMr}}. To tune only once, pass the result of the
+method called with \code{tune = TRUE}, or a list of them, one per method.}
 
 \item{names}{Method names.}
 
@@ -141,6 +146,13 @@ performance (classif, iris [, -5], iris [, 5], type = "scatter",
 # Actual vs. predicted
 data (trees)
 performance (LINREG, trees [, -3], trees [, 3], type = "avsp")
+# Ensemble methods: the base learner of BAGGING and ADABOOST is given by name, and the
+# other methods of the list ignore it
+performance (c (CART, BAGGING, ADABOOST), iris [, -5], iris [, 5], learningmethod = CART,
+             seed = 0)
+# Tuning once, then evaluating with the parameters retained
+param = SVMr (iris [, -5], iris [, 5], tune = TRUE, seed = 0)
+performance (SVMr, iris [, -5], iris [, 5], methodparameters = param, seed = 0)
 }
 }
 \seealso{

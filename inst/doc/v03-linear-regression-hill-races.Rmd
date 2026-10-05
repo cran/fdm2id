@@ -102,7 +102,7 @@ resplot (model)
 </div>
 
 ``` r
-resplot (model, index = 0)
+resplot (model, index = "fitted")
 ```
 
 <div class="figure" style="text-align: center">
@@ -132,7 +132,7 @@ resplot (model, index = 2)
 
 
 ``` r
-head (sort (abs (residuals (model$model)), decreasing = TRUE), 3)
+head (sort (abs (residuals (model)), decreasing = TRUE), 3)
 #>   Knock Hill Bens of Jura    Ben Nevis 
 #>     65.12140     31.26242     16.21532
 hills [c ("Knock Hill", "Bens of Jura"), ]

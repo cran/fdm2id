@@ -11,12 +11,13 @@ plotdata(
   type = c("pairs", "scatter", "parallel", "boxplot", "histogram", "barplot", "pie",
     "heatmap", "heatmapc", "correlation", "pca", "cda", "svd", "nmf", "tsne", "som",
     "words"),
-  legendpos = "topleft",
+  legendpos = "auto",
   alpha = 200,
   asp = 1,
   labels = FALSE,
   tsne = NULL,
   nmf = NULL,
+  scale = FALSE,
   ...
 )
 }
@@ -36,7 +37,10 @@ the observations uncoloured, having no groups to offer.}
 
 \item{type}{The type of graphic to be plotted. See the Details section on the projections.}
 
-\item{legendpos}{Position of the legend}
+\item{legendpos}{Position of the legend: \code{"auto"} (the default) places it, among the positions
+\code{\link[graphics]{legend}} offers along the edges of the plot, where it hides the least of
+what is drawn; a keyword of \code{\link[graphics]{legend}} (\code{"topleft"},
+\code{"bottom"}, ...) puts it there.}
 
 \item{alpha}{Opacity of the plotted points, from 0 (invisible) to 255 (opaque). Useful on
 dense scatter plots, where points would otherwise hide each other. The legend stays
@@ -55,6 +59,10 @@ it is computed internally as before.}
 recomputing the (randomized, potentially costly) NMF decomposition on every call; if \code{NULL} (default),
 it is computed internally as before.}
 
+\item{scale}{Indicates whether the variables are scaled to unit variance before the
+projections (\code{type = "pca"}, and \code{"scatter"}/\code{"pairs"} on more than two
+variables). See Details.}
+
 \item{...}{Other parameters.}
 }
 \description{
@@ -72,11 +80,11 @@ and does not depend on their coding. On exactly two classes \eqn{\eta} is \eqn{|
 classes coded 0/1, so the sign comes back and says which class the variable is larger in.
 
 The projections (\code{type = "pca"}, and the default \code{"scatter"}/\code{"pairs"} on
-more than two variables) are computed on the data as they are, unscaled -- \code{plotdata}
-shows a dataset, whereas \code{\link{PCA}} performs a factorial analysis and centres and
+more than two variables) are computed on the centred data, unscaled by default --
+\code{plotdata} shows a dataset, whereas \code{\link{PCA}} performs a factorial analysis and
 scales by default. So \code{plotdata (d, type = "pca")} and \code{plot (PCA (d))} differ
-visibly when the variables have very different scales, and \code{\link{PCA}} is the one to
-use for a properly scaled projection.
+visibly when the variables have very different scales; \code{scale = TRUE} gives the scaled
+projection, the one \code{\link{PCA}} computes.
 }
 \examples{
 require (datasets)
@@ -94,6 +102,7 @@ plotdata (iris, type = "histogram") # Histograms
 plotdata (iris, type = "heatmap") # Heatmap
 plotdata (iris, type = "heatmapc") # Heatmap (and hierarchalcal clustering)
 plotdata (iris, type = "pca") # Scatter plot (PCA axis)
+plotdata (iris, type = "pca", scale = TRUE) # Same, on scaled variables
 plotdata (iris, type = "cda") # Scatter plot (CDA axis)
 plotdata (iris, type = "svd") # Scatter plot (SVD axis)
 plotdata (iris, type = "som") # Kohonen map

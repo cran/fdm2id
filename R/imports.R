@@ -1,8 +1,8 @@
 #' @import arules
 #' @import arulesViz
-#' @import datasets
 #' @import FactoMineR
 #' @import mclust
 #' @import nnet
 #' @import pls
+#' @importFrom stats fitted residuals rstudent
 NULL

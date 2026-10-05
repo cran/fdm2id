@@ -146,7 +146,10 @@ accuracy1 <-
 #' Produce a box-and-whisker plot for clustering results.
 #' @name boxclus
 #' @inheritParams scatterplot
-#' @param legendpos Position of the legend
+#' @param legendpos Position of the legend: \code{"auto"} (the default) places it, among the positions
+#' \code{\link[graphics]{legend}} offers along the edges of the plot, where it hides the least of
+#' what is drawn; a keyword of \code{\link[graphics]{legend}} (\code{"topleft"},
+#' \code{"bottom"}, ...) puts it there.
 #' @param ... Other parameters.
 #' @export
 #' @seealso \code{\link[graphics]{boxplot}}
@@ -156,7 +159,7 @@ accuracy1 <-
 #' km = KMEANS (iris [, -5], k = 3)
 #' boxclus (iris [, -5], km$cluster)
 boxclus <-
-  function (d, clusters, legendpos = "topleft", ...)
+  function (d, clusters, legendpos = "auto", ...)
   {
     # 'clusters' is documented as a vector *or a factor*, but the body treated it as numeric
     # throughout -- min(), 1 + clusters -- so a factor (a ground truth, the classes of a
@@ -175,11 +178,11 @@ boxclus <-
     # The boxes are coloured 1 + code, as everywhere else in the package, so that the legend
     # below matches them and noise (cluster 0) comes out black.
     legend = cluster.legend (clusters, coded$names)
-    graphics::boxplot (values~cluster+ind, d, ylim = c (mini, maxi), ylab = "",
-                       col = legend$col, xaxt = 'n', xlab = "")
+    b = graphics::boxplot (values~cluster+ind, d, ylim = c (mini, maxi), ylab = "",
+                           col = legend$col, xaxt = 'n', xlab = "")
     graphics::axis (side = 1, at = at, labels = names, lwd.ticks = FALSE, lwd = 0)
     graphics::abline (v = v, lty = 2, col = "grey")
-    graphics::legend (x = legendpos, legend = legend$labels, fill = legend$col, bty = "n")
+    legend.auto (legendpos, box.points (b), legend = legend$labels, fill = legend$col, bty = "n")
   }
 
 #' @keywords internal
@@ -547,6 +550,7 @@ knee.index <-
 DBSCAN <-
   function (d, minpts = 5, eps = NULL, graph = FALSE, ...)
   {
+    renamed.args (names (match.call (expand.dots = FALSE)$...), c (epsilonDist = "eps"), "DBSCAN")
     if (is.null (eps))
     {
       eps = dbscan.eps (d, minpts)
@@ -610,6 +614,7 @@ distplot <-
 EM <-
   function (d, k, model = "VVV", seed = NULL, ...)
   {
+    renamed.args (names (match.call (expand.dots = FALSE)$...), c (clusters = "k"), "EM")
     clusters = k
     if (length (clusters) == 1)
     {
@@ -1036,7 +1041,13 @@ kmeans.getk <-
     if (max < 2)
       stop ("kmeans.getk: 'max' must be at least 2 to compare partitions, but is ", max, ".")
     criterion = match.arg (criterion [1], c ("pseudo-F", "silhouette", "gap", "elbow"))
-    fit = function (k) stats::kmeans (d, k, nstart = nstart)
+    # Re-seeded before each k, so that the partition behind each value is the one
+    # KMEANS (d, k, nstart = nstart, seed = seed) returns.
+    fit = function (k)
+    {
+      setseed (seed)
+      stats::kmeans (d, k, nstart = nstart)
+    }
     k = NA
     sizes = 2:max
     measure = NULL
@@ -1118,12 +1129,18 @@ kmeans.getk <-
                             measure [length (measure)], lty = 2, col = "grey40")
       if (!is.null (measure2))
       {
+        usr1 = graphics::par ("usr")
         opar2 = graphics::par (new = TRUE)
         on.exit (graphics::par (opar2), add = TRUE)
         graphics::plot (2:max, measure2, xaxt="n", yaxt="n", xlab="", ylab="", t= "b", lty = 2, pch = 2)
         graphics::axis (4)
         graphics::mtext (criterion2, side = 4, line = 3)
-        graphics::legend ("bottomright", c (criterion, criterion2), lty = 1:2)
+        # Drawn on the scale of the second curve: the first one is brought onto it.
+        usr2 = graphics::par ("usr")
+        first = usr2 [3] + (measure - usr1 [3]) / (usr1 [4] - usr1 [3]) * (usr2 [4] - usr2 [3])
+        legend.auto ("auto", join.points (curve.points (sizes, first),
+                                          curve.points (2:max, measure2)),
+                     legend = c (criterion, criterion2), lty = 1:2)
       }
       graphics::abline (v = k, lty = 3)
     }
@@ -1245,7 +1262,7 @@ plot.som <-
         bgcol = apply (tmp, 2, which.max) + 1
         empty = apply (tmp, 2, max) == 0
         bgcol [empty] = col [apply (flexclust::dist2 (d, x$som$codes [[1]] [empty, , drop = FALSE]), 2, which.min)]
-        bgcol = grDevices::rgb (t ((grDevices::col2rgb (bgcol) * 2 + 255) / 3), maxColorValue = 255)
+        bgcol = grDevices::rgb (t ((grDevices::col2rgb (bgcol) + 3 * 255) / 4), maxColorValue = 255)
       }
       else
       {
@@ -1253,7 +1270,7 @@ plot.som <-
         bgcol = 0
         if (length (unique (x$nodes)) != length (x$nodes))
         {
-          bgcol = grDevices::rgb (t ((grDevices::col2rgb (x$nodes + 1) * 2 + 255) / 3), maxColorValue = 255)
+          bgcol = grDevices::rgb (t ((grDevices::col2rgb (x$nodes + 1) + 3 * 255) / 4), maxColorValue = 255)
           pcol = x$cluster + 1
         }
       }
@@ -1534,7 +1551,11 @@ pseudoF <-
 #' @param centers Coordinates of the cluster centers.
 #' @param labels Indicates whether or not labels (row names) should be showned on the plot.
 #' @param ellipses Indicates whether or not ellipses should be drawned around clusters.
-#' @param legend Indicates where the legend is placed on the graphics.
+#' @param legend Position of the legend: \code{"auto"} (the default) places it, among the positions
+#' \code{\link[graphics]{legend}} offers along the edges of the plot, where it hides the least of
+#' what is drawn; a keyword of \code{\link[graphics]{legend}} (\code{"topleft"},
+#' \code{"bottom"}, ...) puts it there. \code{"auto1"} and \code{"auto2"}, the two
+#' heuristics of earlier versions, now mean \code{"auto"}.
 #' @param ... Other parameters.
 #' @export
 #' @examples
@@ -1543,7 +1564,7 @@ pseudoF <-
 #' km = KMEANS (iris [, -5], k = 3)
 #' scatterplot (iris [, -5], km$cluster)
 scatterplot <-
-  function (d, clusters, centers = NULL, labels = FALSE, ellipses = FALSE, legend = c ("auto1", "auto2"), ...)
+  function (d, clusters, centers = NULL, labels = FALSE, ellipses = FALSE, legend = "auto", ...)
   {
     # 'clusters' is documented as a vector *or a factor*, but the whole body treats it as
     # numeric -- min(), max() and 1 + clusters. Categorical input (the ground truth of a
@@ -1595,6 +1616,7 @@ scatterplot <-
     }
     if (!is.null (centers))
       graphics::points (centers [, 1], centers [, 2], pch = 19, col = kmin:kmax)
+    drawn = NULL
     if (ellipses)
     {
       # mclust::unmap() numbers the mixture components 1..k in the order of the sorted
@@ -1618,6 +1640,7 @@ scatterplot <-
                           radius = sqrt (stats::qchisq (0.95, 2)),
                           draw = FALSE, segments = 1000)
         graphics::polygon (e, border = ecol, lty = 2)
+        drawn = join.points (drawn, list (x = e [, 1], y = e [, 2]))
         eig = eigen (p$parameters$variance$sigma [,, j])
         seg = sweep (eig$vectors, 1, sqrt (eig$values), FUN = "*")
         seg = seg * sqrt (stats::qchisq (0.95, 2))
@@ -1629,27 +1652,14 @@ scatterplot <-
                             col = ecol, lty = 3)
       }
     }
-    if (legend [1] == "auto1")
-    {
-      coord = graphics::par ("usr")
-      pos = rbind (coord [c (1, 4)], coord [c (2, 4)], coord [c (1, 3)], coord [c (2, 3)])
-      legend = c ("topleft", "topright", "bottomleft", "bottomright") [which.max (apply (flexclust::dist2 (pos, d [, 1:2]), 1, min))]
-    }
-    else if (legend [1] == "auto2")
-    {
-      coord = graphics::par ("usr")
-      cx = mean (coord [1:2])
-      cy = mean (coord [3:4])
-      left = d [, 1] < cx
-      right = d [, 1] > cx
-      bottom = d [, 2] < cy
-      top = d [, 2] > cy
-
-      count = c (sum (top & left), sum (top & right), sum (bottom & left), sum (bottom & right))
-      legend = c ("topleft", "topright", "bottomleft", "bottomright") [which.min (count)]
-    }
+    # "auto1" and "auto2", the two corner heuristics this replaces, still mean "auto".
+    if (legend [1] %in% c ("auto1", "auto2"))
+      legend = "auto"
     entries = cluster.legend (clusters, clusternames)
-    graphics::legend (x = legend, legend = entries$labels, col = entries$col, pch = 1)
+    legend.auto (legend [1], join.points (list (x = dd [, 1], y = dd [, 2]),
+                                          if (!is.null (centers)) list (x = centers [, 1], y = centers [, 2]),
+                                          drawn),
+                 legend = entries$labels, col = entries$col, pch = 1)
   }
 
 #' Self-Organizing Maps clustering method
@@ -1935,7 +1945,13 @@ stability <-
 #' @param k Number of clusters. If not specified an "optimal" value is determined.
 #' @param split Indicates wheather or not the clusters should be highlighted in the graphics.
 #' @param horiz Indicates if the dendrogram should be drawn horizontally or not.
-#' @param ... Other parameters.
+#' @param highlight How the clusters are highlighted when \code{split} is \code{TRUE}:
+#' \code{"rectangles"} draws a rectangle around each cluster, \code{"branches"} colours the
+#' branches below the cut with the colour of their cluster (the colours of
+#' \code{\link{plotclus}}) and dashes the ones above it.
+#' @param ylab The label of the vertical axis.
+#' @param ... Other parameters, passed to \code{\link[stats]{plot.dendrogram}} (for
+#' instance \code{axes = FALSE}).
 #' @export
 #' @seealso \code{\link[stats]{dendrogram}}, \code{\link{HCA}}, \code{\link[stats]{hclust}}, \code{\link[cluster]{agnes}}
 #' @examples
@@ -1943,14 +1959,18 @@ stability <-
 #' data (iris)
 #' hca = HCA (iris [, -5], k = 3, method = "ward")
 #' treeplot (hca)
+#' treeplot (hca, highlight = "branches")
 treeplot <-
   function (clustering,
             labels = FALSE,
             k = NULL,
             split = TRUE,
             horiz = FALSE,
+            highlight = c ("rectangles", "branches"),
+            ylab = "Height",
             ...)
   {
+    highlight = match.arg (highlight)
     # strwidth (NULL) is numeric (0), so max() returned -Inf (with a warning) on a clustering
     # without labels, and par (mar = ... + -Inf) then failed. Nothing to widen in that case.
     if (labels && (length (clustering$labels) > 0))
@@ -1963,8 +1983,6 @@ treeplot <-
       on.exit (graphics::par (opar))
     }
     tree = stats::as.dendrogram (clustering)
-    graphics::plot (tree, ylab = "Height",
-                    leaflab = ifelse (labels, "perpendicular", "none"), horiz = horiz)
     if (is.null (k))
     {
       if (is.null (clustering$cluster))
@@ -1977,10 +1995,78 @@ treeplot <-
     # opposite of the intent.
     if (k == 1)
       split = FALSE
-    if (split)
-      # as.hclust() so that an agnes object (which the documentation accepts) works too:
-      # as.dendrogram() above handles it, but rect.hclust() needs a proper hclust.
-      stats::rect.hclust (stats::as.hclust (clustering), k = k, border = 2:(k + 1))
+    # as.hclust() so that an agnes object (which the documentation accepts) works too:
+    # as.dendrogram() above handles it, but rect.hclust() and cutree() need a proper hclust.
+    if (split && (highlight == "branches"))
+      tree = colourbranches (tree, stats::as.hclust (clustering), k)
+    graphics::plot (tree, ylab = ylab,
+                    leaflab = ifelse (labels, "perpendicular", "none"), horiz = horiz, ...)
+    if (split && (highlight == "rectangles"))
+    {
+      # rect.hclust() gives the i-th border to the i-th cluster from the left of the tree:
+      # reorder the colours so that each rectangle takes the colour of its cluster in
+      # plotclus() (its cutree() number + 1), as the branches do.
+      hc = stats::as.hclust (clustering)
+      stats::rect.hclust (hc, k = k, border = unique (stats::cutree (hc, k) [hc$order]) + 1)
+    }
+  }
+
+#' Plot function for hca-class
+#'
+#' Draws the dendrogram of a hierarchical clustering, the branches of each cluster in the
+#' colour \code{\link{plotclus}} gives it, so that the dendrogram and the scatter plot of the
+#' same clustering match. The branches above the cut are dashed.
+#' @name plot.hca
+#' @param x The hierarchical clustering (created by \code{\link{HCA}}).
+#' @param k The number of clusters the dendrogram is cut into. Defaults to the cut
+#' \code{\link{HCA}} already made.
+#' @param highlight How the clusters are highlighted: \code{"branches"} or
+#' \code{"rectangles"} (see \code{\link{treeplot}}).
+#' @param ... Other parameters, passed to \code{\link{treeplot}} (\code{labels},
+#' \code{split}, \code{horiz}, \code{ylab}) or to \code{\link[stats]{plot.dendrogram}}
+#' (for instance \code{axes = FALSE}).
+#' @export
+#' @method plot hca
+#' @seealso \code{\link{HCA}}, \code{\link{treeplot}}, \code{\link{plotclus}}
+#' @examples
+#' require (datasets)
+#' data (iris)
+#' hca = HCA (iris [, -5], k = 3, method = "ward")
+#' plot (hca)
+#' plotclus (hca, iris [, -5])
+plot.hca <-
+  function (x, k = x$k, highlight = c ("branches", "rectangles"), ...)
+    treeplot (x, k = k, highlight = highlight [1], ...)
+
+#' @keywords internal
+# Colours the branches of a dendrogram below the cut in k clusters, with the colour of their
+# cluster as cutree() numbers it -- the colours of plotclus(), so that a dendrogram and the
+# scatter plot of the same clustering match. The branches above the cut are dashed.
+colourbranches <-
+  function (tree, hc, k)
+  {
+    cluster = stats::cutree (hc, k)
+    height = sort (hc$height)
+    n = length (height) + 1
+    # The cut lies halfway between the (k - 1)-th and the k-th highest merges.
+    cut = mean (height [n - k + 0:1])
+    # The edge leading to a node takes the edgePar of that node: it is coloured when its
+    # parent lies below the cut, and then the whole subtree belongs to a single cluster. The
+    # line width is the current one, par ("lwd"), as for the other edges of a dendrogram.
+    lwd = graphics::par ("lwd")
+    paint = function (node, below)
+    {
+      if (below)
+        attr (node, "edgePar") = list (col = cluster [stats::order.dendrogram (node) [1]] + 1,
+                                       lty = 1, lwd = lwd)
+      else
+        attr (node, "edgePar") = list (col = 1, lty = 2, lwd = lwd)
+      if (!stats::is.leaf (node))
+        for (i in seq_along (node))
+          node [[i]] = paint (node [[i]], attr (node, "height") < cut)
+      node
+    }
+    paint (tree, FALSE)
   }
 
 #' @keywords internal

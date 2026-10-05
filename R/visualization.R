@@ -96,7 +96,7 @@ panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
 # used by every plotdata() branch that reduces the dataset to a 2-D projection
 # (pairs/scatter, pca, cda, svd, nmf, tsne).
 plotdata.scatter2d <-
-  function (dd, d, k, col, pch, lcol, lpch, labels = FALSE, legendpos = "topleft", asp = 1, ...)
+  function (dd, d, k, col, pch, lcol, lpch, labels = FALSE, legendpos = "auto", asp = 1, ...)
   {
     if (labels)
     {
@@ -106,7 +106,7 @@ plotdata.scatter2d <-
     else
       graphics::plot (dd, col = col, pch = pch, asp = asp, ...)
     if (!is.null (k))
-      graphics::legend (x = legendpos, legend = levels (k), pch = lpch, col = lcol, bty = "n")
+      legend.auto (legendpos, dd, legend = levels (k), pch = lpch, col = lcol, bty = "n")
   }
 
 #' @keywords internal
@@ -161,7 +161,7 @@ plotdata.correlations <-
 
 #' @keywords internal
 plotdata.correlationplot <-
-  function (d, target, legendpos = "bottomright", ...)
+  function (d, target, legendpos = "auto", ...)
   {
     res = plotdata.correlations (d, target)
     if (is.null (res) || (length (res) == 0))
@@ -178,14 +178,15 @@ plotdata.correlationplot <-
     extra = max (graphics::strwidth (names (res), units = "figure") * 30)
     opar = graphics::par (mar = graphics::par ("mar") + c (0, extra, 0, 0))
     on.exit (graphics::par (opar))
-    graphics::barplot (res, horiz = TRUE, las = 1, border = NA,
+    mid = graphics::barplot (res, horiz = TRUE, las = 1, border = NA,
                        col = ifelse (res < 0, 2, 4),
                        xlim = c (if (signed) -1 else 0, 1),
                        xlab = if (is.numeric (target)) "Pearson correlation with the target"
                               else "correlation ratio (eta) with the target", ...)
     graphics::abline (v = 0, col = "grey40")
     if (signed)
-      graphics::legend (legendpos, c ("positive", "negative"), fill = c (4, 2), bty = "n")
+      legend.auto (legendpos, rect.points (pmin (res, 0), mid - .5, pmax (res, 0), mid + .5),
+                   legend = c ("positive", "negative"), fill = c (4, 2), bty = "n")
     return (invisible (res))
   }
 
@@ -221,18 +222,18 @@ plotdata.boxplot.multi <-
       v = (1:(ncol (d) - 1)) * nbclusters + .5
       d = utils::stack (d)
       d$cluster = k
-      graphics::boxplot (values~cluster+ind, d, ylim = c (mini, maxi), ylab = "", col = 2:(nbclusters + 1), xaxt='n', xlab = "")
+      b = graphics::boxplot (values~cluster+ind, d, ylim = c (mini, maxi), ylab = "", col = 2:(nbclusters + 1), xaxt='n', xlab = "")
     }
     else
     {
-      graphics::boxplot (d, ylim = c (mini, maxi), ylab = "", col = "grey", xaxt='n', xlab = "")
+      b = graphics::boxplot (d, ylim = c (mini, maxi), ylab = "", col = "grey", xaxt='n', xlab = "")
       at = 1:ncol (d)
     }
     graphics::axis (side = 1, at = at, labels = names, lwd.ticks = FALSE, lwd = 0)
     if (!is.null (k))
     {
       graphics::abline (v = v, lty = 2, col = "grey")
-      graphics::legend (x = legendpos, legend = levels (k), fill = lcol, bty = "n")
+      legend.auto (legendpos, box.points (b), legend = levels (k), fill = lcol, bty = "n")
     }
   }
 
@@ -247,7 +248,11 @@ plotdata.som.multi <-
     else
     {
       graphics::plot (som, type = "mapping", col = col, labels = labels)
-      graphics::legend (x = legendpos, legend = levels (k), fill = lcol, bty = "n")
+      # The cells, circles of radius 1/2 around the points of the grid, fill the map.
+      pts = som$som$grid$pts
+      legend.auto (legendpos, rect.points (pts [, 1] - .5, pts [, 2] - .5, pts [, 1] + .5,
+                                           pts [, 2] + .5, n = 5),
+                   legend = levels (k), fill = lcol, bty = "n")
     }
   }
 
@@ -303,7 +308,8 @@ plotdata.vector <-
     {
       graphics::plot (cbind (Index = 1:(length (d)), Data = d), col = col, pch = pch, ...)
       if (!is.null (k))
-        graphics::legend (x = legendpos, legend = levels (k), pch = lpch, col = lcol, bty = "n")
+        legend.auto (legendpos, 1:(length (d)), d, legend = levels (k), pch = lpch, col = lcol,
+                     bty = "n")
     }
     else if (type [1] == "boxplot")
     {
@@ -311,8 +317,8 @@ plotdata.vector <-
       maxi = max (d)
       if (!is.null (k))
       {
-        graphics::boxplot (d~k, ylim = c (mini, maxi), ylab = "", col = lcol, xaxt='n', xlab = "")
-        graphics::legend (x = legendpos, legend = levels (k), fill = lcol, bty = "n")
+        b = graphics::boxplot (d~k, ylim = c (mini, maxi), ylab = "", col = lcol, xaxt='n', xlab = "")
+        legend.auto (legendpos, box.points (b), legend = levels (k), fill = lcol, bty = "n")
       }
       else
         graphics::boxplot (d, ylim = c (mini, maxi), ylab = "", col = "grey", xaxt='n', xlab = "")
@@ -333,7 +339,7 @@ plotdata.vector <-
 # Handles plotdata() for a dataset with more than one variable (matrix or data.frame).
 plotdata.matrix <-
   function (d, k, type, legendpos, alpha, asp, labels, col, pch, lcol, lpch, tsne, nmf,
-            target = NULL, ...)
+            target = NULL, scale = FALSE, ...)
   {
     if (type [1] == "correlation")
       plotdata.correlationplot (d, target, legendpos, ...)
@@ -343,18 +349,18 @@ plotdata.matrix <-
     {
       dd = d
       if (ncol (d) != 2)
-        # scale.unit = FALSE is intentional here: plotdata() shows the data on their original
-        # scale, unlike PCA() (whose scale.unit defaults to TRUE) which is meant for a proper
-        # factorial analysis. Not exposed as a plotdata() argument -- see @param type above.
-        dd = FactoMineR::PCA (d, scale.unit = FALSE, ncp = 2, graph = FALSE)$ind$coord [, 1:2]
+        # scale = FALSE by default: plotdata() shows the data on their original scale, unlike
+        # PCA() (whose scale.unit defaults to TRUE) which is meant for a proper factorial
+        # analysis. See the Details section of plotdata().
+        dd = FactoMineR::PCA (d, scale.unit = scale, ncp = 2, graph = FALSE)$ind$coord [, 1:2]
       plotdata.scatter2d (dd, d, k, col, pch, lcol, lpch, labels, legendpos, asp = asp, ...)
     }
     else if (type [1] == "boxplot")
       plotdata.boxplot.multi (d, k, col, lcol, legendpos)
     else if (type [1] == "pca")
     {
-      # Same intentional scale.unit = FALSE as above.
-      dd = FactoMineR::PCA (d, scale.unit = FALSE, ncp = 2, graph = FALSE)$ind$coord [, 1:2]
+      # Same default as above.
+      dd = FactoMineR::PCA (d, scale.unit = scale, ncp = 2, graph = FALSE)$ind$coord [, 1:2]
       plotdata.scatter2d (dd, d, k, col, pch, lcol, lpch, labels, legendpos, asp = asp, ...)
     }
     else if (type [1] == "cda")
@@ -441,11 +447,11 @@ plotdata.matrix <-
 #' classes coded 0/1, so the sign comes back and says which class the variable is larger in.
 #'
 #' The projections (\code{type = "pca"}, and the default \code{"scatter"}/\code{"pairs"} on
-#' more than two variables) are computed on the data as they are, unscaled -- \code{plotdata}
-#' shows a dataset, whereas \code{\link{PCA}} performs a factorial analysis and centres and
+#' more than two variables) are computed on the centred data, unscaled by default --
+#' \code{plotdata} shows a dataset, whereas \code{\link{PCA}} performs a factorial analysis and
 #' scales by default. So \code{plotdata (d, type = "pca")} and \code{plot (PCA (d))} differ
-#' visibly when the variables have very different scales, and \code{\link{PCA}} is the one to
-#' use for a properly scaled projection.
+#' visibly when the variables have very different scales; \code{scale = TRUE} gives the scaled
+#' projection, the one \code{\link{PCA}} computes.
 #' @name plotdata
 #' @param d A numeric dataset (data.frame or matrix).
 #' @param k The variable the observations are told apart by: they are coloured, grouped or,
@@ -458,7 +464,10 @@ plotdata.matrix <-
 #' and \code{k} serves as \code{target} when none is given. A continuous \code{target} leaves
 #' the observations uncoloured, having no groups to offer.
 #' @param type The type of graphic to be plotted. See the Details section on the projections.
-#' @param legendpos Position of the legend
+#' @param legendpos Position of the legend: \code{"auto"} (the default) places it, among the positions
+#' \code{\link[graphics]{legend}} offers along the edges of the plot, where it hides the least of
+#' what is drawn; a keyword of \code{\link[graphics]{legend}} (\code{"topleft"},
+#' \code{"bottom"}, ...) puts it there.
 #' @param alpha Opacity of the plotted points, from 0 (invisible) to 255 (opaque). Useful on
 #' dense scatter plots, where points would otherwise hide each other. The legend stays
 #' opaque.
@@ -471,6 +480,9 @@ plotdata.matrix <-
 #' @param nmf A precomputed \code{\link{NMF}} result. When \code{type = "nmf"}, providing this avoids
 #' recomputing the (randomized, potentially costly) NMF decomposition on every call; if \code{NULL} (default),
 #' it is computed internally as before.
+#' @param scale Indicates whether the variables are scaled to unit variance before the
+#' projections (\code{type = "pca"}, and \code{"scatter"}/\code{"pairs"} on more than two
+#' variables). See Details.
 #' @param ... Other parameters.
 #' @export
 #' @examples
@@ -489,6 +501,7 @@ plotdata.matrix <-
 #' plotdata (iris, type = "heatmap") # Heatmap
 #' plotdata (iris, type = "heatmapc") # Heatmap (and hierarchalcal clustering)
 #' plotdata (iris, type = "pca") # Scatter plot (PCA axis)
+#' plotdata (iris, type = "pca", scale = TRUE) # Same, on scaled variables
 #' plotdata (iris, type = "cda") # Scatter plot (CDA axis)
 #' plotdata (iris, type = "svd") # Scatter plot (SVD axis)
 #' plotdata (iris, type = "som") # Kohonen map
@@ -510,13 +523,9 @@ plotdata.matrix <-
 plotdata <-
   function (d, k = NULL, target = NULL,
             type = c ("pairs", "scatter", "parallel", "boxplot", "histogram", "barplot", "pie", "heatmap", "heatmapc", "correlation", "pca", "cda", "svd", "nmf", "tsne", "som", "words"),
-            legendpos = "topleft", alpha = 200, asp = 1, labels = FALSE, tsne = NULL, nmf = NULL, ...)
+            legendpos = "auto", alpha = 200, asp = 1, labels = FALSE, tsne = NULL, nmf = NULL,
+            scale = FALSE, ...)
   {
-    # The bars of a correlation plot are sorted by strength, so the two bottom corners are the
-    # ones with room; "topleft", which suits a scatter plot, sits on the longest bar. Only the
-    # default is overridden -- an explicit legendpos is honoured.
-    if (missing (legendpos) && (type [1] == "correlation"))
-      legendpos = "bottomright"
     factors = NULL
     if (is.factor (d))
       factors = TRUE
@@ -572,7 +581,7 @@ plotdata <-
       plotdata.vector (d, k, type, legendpos, col, pch, lcol, lpch, ...)
     else
       plotdata.matrix (d, k, type, legendpos, alpha, asp, labels, col, pch, lcol, lpch, tsne,
-                       nmf, target, ...)
+                       nmf, target, scale = scale, ...)
   }
 
 #' Singular Value Decomposition
